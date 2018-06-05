@@ -94,10 +94,10 @@ WSGI_APPLICATION = 'myapp.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'fcodb',
-        'USER': 'postgres',
-        'PASSWORD': 'testgrupo4',
-        'HOST': 'localhost',
+        'NAME': 'is2-4',
+        'USER': 'is2-4',
+        'PASSWORD': 'is2-41234',
+        'HOST': 'plop.inf.udec.cl',
         'PORT': '5432',
     }
 }
