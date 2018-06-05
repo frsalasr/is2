@@ -1,0 +1,28 @@
+{% extends "grupo4test/base.html" %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+<form>
+	{% csrf_token %}
+	{% if info_form %}
+		<h2>Datos empresa</h2>
+		{% for field in info_form %}
+			<p>{{ field.label }}</p>
+			<p>{{ field }}</p>
+		{% endfor %}
+	{% endif %}
+	<h2>Formulario</h2>
+	{% for field in question_form %}
+		<p>{{field.label}}</p>
+		<p>{{field}}</p>
+	{% endfor %}
+	<input type="submit" name="go" value="Enviar solicitud">	
+</form>
+{% else %}
+	<h1> Usuario debe estar loggeado </h1>
+    <li><a href="{% url 'login'%}">Login</a></li>   
+    <li><a href="{% url 'register'%}">Crear cuenta</a></li> 
+{% endif %}
+
+{% endblock content %}

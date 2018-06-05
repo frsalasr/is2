@@ -1,0 +1,37 @@
+{% extends "grupo4test/base.html" %}
+
+{% block content %}
+<style type="text/css">
+table, th, td {
+    font-size: 20px;
+    padding: 5px 5px 5px;
+}
+</style>
+<h1>Empresas postulantes</h1>
+<hr style="height:1px;width: 10% ;border:none;  display: inline-block" />
+	<div class="container-fluid">
+		<div class="row" style="font-weight: bold">
+			<div class="col"> Empresa </div>
+			<div class="col"> Puntaje </div>
+			<div class="col"> Etapa </div>
+			<div class="col"> Estado </div>
+		</div>
+		{% for formulario in formularios %}
+			{% if forloop.counter|divisibleby:2 %}
+				<div class="row" style="padding: 5px 5px 5px;">
+			{% else %}
+				<div class="row" style="padding: 5px 5px 5px; background-color: silver;">
+			{% endif %}
+					<div class="col"><a href="{% url 'clasificados'%}/{{formulario.empresa.rut}}"}">{{formulario.empresa}}</a></div>
+					<div class="col">{{formulario.puntaje}}</div>
+					<div class="col">{{formulario.empresa.etapa}}</div>
+					<div class="col" 
+					{% if formulario.validado %}
+						style="color: green;"> Resuelto </div>
+					{% else %}
+						style="color: red";> Pendiente </div>
+					{% endif %}
+				</div>
+		{% endfor %}
+	</div>
+{% endblock %}

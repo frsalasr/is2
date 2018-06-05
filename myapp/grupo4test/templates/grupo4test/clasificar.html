@@ -1,0 +1,91 @@
+{% extends "grupo4test/base.html" %}
+
+{% block content %}
+<style>
+table, th, td {
+    border: 1px solid black;
+    font-size: 15px;
+    padding: 5px 5px 5px;
+}
+th.total{
+	font-size: 20px;
+	text-align: right;
+	padding: 0 20px 5px;
+}
+p.empresa {
+	font-size: 18px;
+}
+
+div.container{
+	margin-left: 0px;
+	font-size: 15px;
+	max-width: 70%;
+}
+</style>
+	<h2>Empresa</h2>
+	<div class="container">
+		<div class=row>
+			<div class="col-sm-1">Empresa</div>
+			<div class="col-sm-3">{{ formulario.empresa.nombre }}</div>	
+		</div>
+		<div class=row>
+			<div class="col-sm-1">Puntaje</div>
+			<div class="col-sm-3">{{ formulario.puntaje }}</div>	
+		</div>
+		<div class=row>
+			<div class="col-sm-1">Etapa</div>
+			<div class="col-sm-3">{{ formulario.empresa.etapa }}</div>	
+		</div>
+		<div class=row>
+			<div class="col-sm-1">Estado</div>
+			<div class="col-sm-3" 
+			{% if formulario.validado %}
+				style="color: green;">Validado</div>
+			{% else %}
+				style="color:red;">No validado </div>
+			{% endif %}
+		</div>
+	</div>
+
+	<hr style="height:1px;width: 10%;border:none;  display: inline-block" />
+	<h2>Respuestas</h2>
+	<form method="post">
+		{% csrf_token %}
+		<div class="container">
+			<div class="row" style="font-weight: bold; padding: 5px 5px 5px;">
+				<div class="col">Pregunta</div>
+				<div class="col">Respuesta</div>
+				<div class="col">Puntaje</div>
+				<div class="col">Comentario</div>
+			</div>
+			{% for respuesta in respuestas %}
+				{% if forloop.counter|divisibleby:2 %}
+					<div class="row" style="padding: 5px 5px 5px;">
+				{% else %}
+					<div class="row" style="padding: 5px 5px 5px; background-color: silver;">
+				{% endif %}
+					<div class="col">{{respuesta.pregunta}}</div>
+					<div class="col">{{respuesta.respuesta}}</div>
+					<div class="col"><input type="number" name="{{respuesta.pregunta.id}}" value="{{respuesta.puntaje}}"></div>
+					<div class="col"><input type="text" name="com_{{respuesta.pregunta.id}}" value="{{respuesta.comentario}}"></div>
+				</div>
+			{% endfor %}
+		<div class="col-sm-3"> Puntaje total: {{ formulario.puntaje }}</div>
+	</div>
+		<div><b> Etapa: </b>
+			<select name="etapa" ng-model="'{{formulario.empresa.etapa}}'">
+				<option value=""></option>
+				<option value="idea">idea</option>
+				<option value="semilla">semila</option>
+				<option value="pyme">pyme</option>
+			</select>	
+		</div>
+		<div>Validado: <input type="checkbox" name="validado"
+			{% if formulario.validado %}
+				checked
+			{% endif %}></div> 
+		<input type="submit" name="go" value="Clasificar">
+	</form> 
+	
+
+{% endblock %}

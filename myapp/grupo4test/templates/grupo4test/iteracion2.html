@@ -1,0 +1,72 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<!-- Título -->
+<h1>Postulación AceleraLatam</h1>
+<!-- Form -->
+<form action="" method="POST">
+	{% csrf_token %}
+	<table border="2">
+		<tr>
+			<th colspan="2">Datos empresa</th>
+		</tr>
+		<tr>
+			<th>RUN</th>
+			<th>{{form.run}}</th>
+		</tr>
+		<tr>
+			<th>Nombre Empresa</th>
+			<th> {{form.nombre_empresa}}</th>
+		</tr>
+		<tr>
+		<tr>
+			<th colspan="2">Datos postulante</th>
+		</tr>
+			<th>Nombre</th>
+			<th>{{form.nombre }}</th>
+		</tr>
+		<tr>
+			<th>Apellido</th>
+			<th>{{ form.apellido }}</th>
+		</tr>
+		<tr>
+			<th>Email</th>
+			<th>{{ form.email }}</th>
+		</tr>
+		<tr>
+			<!-- Si se apreta el checkbox se abre el field URL_th -->
+			<th>Pagina web <input type="checkbox" id="checkbox_webpage"></th>
+			<th id="url_th" style="display:none">{{ form.url }}</th>
+		</tr>
+		<tr>
+			<th colspan="2">Datos relevantes</th>
+		</tr>	
+		<tr>
+			<th>var1</th>
+			<th>{{ form.var1 }}</th>
+		</tr>
+		<tr>
+			<th>var2</th>
+			<th>{{ form.var2 }}</th>
+		</tr>
+		<tr>
+			<th>var3</th>
+			<th>{{ form.var3 }}</th>
+	</tr>
+</table>
+<input type="submit" name="go" value="Enviar solicitud">		
+</form>
+<!-- Si hay respuesta se imprime -->
+{% if respuesta %}
+<h1>
+{{ respuesta }}
+</h1>
+{% endif %}
+<!-- Si hay resultado se imprime -->
+{% if resultado %}
+<h1>
+{{ resultado }}	
+</h1>
+{% endif %}
+{% load static %}
+<!-- Se cargan scripts -->
+<script type="text/javascript" src="{% static 'scripts/main.js' %}" ></script>
+

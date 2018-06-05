@@ -1,0 +1,13 @@
+{% extends "grupo4test/base.html" %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+	<meta http-equiv="REFRESH" content="0;url={% url 'home' %}">
+{% else %}
+	<h1> Usuario debe estar loggeado </h1>
+    <li><a href="{% url 'login'%}?next={{request.path}}">Login</a></li>   
+    <li><a href="{% url 'login'%}?next={{request.path}}">Crear cuenta</a></li> 
+{% endif %}
+
+{% endblock content %}

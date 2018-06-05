@@ -1,0 +1,90 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<style type="text/css">
+	table, th, tr {
+		border: 1px solid black;
+	}
+</style>
+<form action="" method="POST">
+	{% csrf_token %}
+	{% load crispy_forms_tags %}
+	<div>
+		<h1>Test de ingreso de datos y form dinámico</h1>	
+	</div>
+	<div>
+		<table style="width:40%">
+			<tr>
+				<th width="50%">Pregunta 1</th> 
+				<th width="50%">{{ form.pregunta1  }}</th>
+			</tr>	
+		</table>
+	</div>
+	<div id='div_1' style="display: none">
+		<table style="width:40%">
+			<tr>
+				<!-- Si se apreta el checkbox se abre el field URL_th -->
+				<th width="50%">Pregunta 1.1</th>
+				<th width="50%">{{ form.pregunta1_1  }}</th>
+			</tr>
+			<tr>
+				<th width="50%">Pregunta 1.2</th>
+				<th width="50%">{{ form.pregunta1_2 }}</th>
+			</tr>	
+		</table>
+	</div>
+	<div id='div_1_2' style="display: none">
+		<table style="width:40%">
+			<tr>
+				<!-- Si se apreta el checkbox se abre el field URL_th -->
+				<th width="50%">Pregunta 1.2.1</th>
+				<th width="50%">{{ form.pregunta1_2_1 }}</th>
+			</tr>
+		</table>
+	</div>	
+
+	<div>
+		<table style="width:40%">
+			<tr>
+				<th width="50%">Pregunta 2</th>
+				<th width="50%">{{ form.pregunta2  }}</th>
+			</tr>
+		</table>
+	</div>
+
+	<div>
+		<table style="width:40%">
+			<tr>
+				<th width="50%">Pregunta 3</th>
+				<th width="50%">{{ form.pregunta3 }}</th>
+			</tr>
+		</table>
+	</div>
+
+	<div id='div_3_1' style="display: none">
+		<table style="width:40%">
+			<tr>
+				<th width="50%">var 3.1</th>
+				<th width="50%">{{ form.pregunta3_1 }}</th>
+			</tr>
+			<tr>
+				<th width="50%">var 3.2</th>
+				<th width="50%">{{ form.pregunta3_2  }}</th>
+			</tr>
+			<tr>
+				<th width="50%">var 3.3</th>
+				<th width="50%">{{ form.pregunta3_3 }}</th>
+			</tr>
+		</table>	
+	</div>
+
+<input type="submit" name="go" value="Enviar solicitud">		
+</form>
+
+{% if respuesta %}
+<h1>
+{{ respuesta }}
+</h1>
+{% endif %}
+
+{% load static %}
+<script type="text/javascript" src="{% static 'scripts/dinamic.js' %}" ></script>
