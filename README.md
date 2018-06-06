@@ -24,11 +24,11 @@ Como funciona Django (Muy resumido):
 
 Existen 3 capas:
 
-Capa de los templates (interfaz de la página: html, css, js, etc)
-
-Capa de las vistas (lógica del programa: puro python)
-
-Capa de los modelos (datos del programa: base de datos modelada como objetos)
+``` bash
+|-Capa de los templates (interfaz de la página: html, css, js, etc)
+|-Capa de las vistas (lógica del programa: puro python)
+|-Capa de los modelos (datos del programa: base de datos modelada como objetos)
+``` 
 
 Una url en django esta relacionada con una vista y la vista con un template.
 
