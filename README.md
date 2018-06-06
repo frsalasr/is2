@@ -108,7 +108,7 @@ Se puede iterar y hacer condicionales dentro del template, usando:
 < do something >
 {% endfor %}
 ```
-Por ejemplo, si en la se retornó en el diccionario
+Por ejemplo, si en la vista, el diccionario enviado tiene la forma: 
 ```python
 {'error':'no se encontró el usuario'}
 ```
@@ -118,6 +118,7 @@ Al principio del template de html se puede poner:
 <p>{{ error }}</p>
 {% endif %}
 ```
+Por lo que imprimirá el error.
 
 Ejemplo (muy resumido):
 
@@ -134,7 +135,14 @@ Esta vista crea una instancia de QuestionForm y se la envía al template que se 
 En el template.html se tiene 
 
 ```html
-
+<form method="post">
+	{% csrf_token %}
+	{% for field in question_form %}
+		<p>{{ field.label }}</p>
+		<p>{{ field }}</p>
+	{% endfor %}
+	<input type="submit" name="submit" value="Enviar" />
+</form>
 ```
 
 
