@@ -43,25 +43,22 @@ myapp/
 En myapp/grupo4test se encuentra el programa:
 Archivos y carpetas relevantes:
 
+```
 myapp/grupo4test/
-
-  |-statics/
-  
+  |-statics/ 
   |-templates/
-  
-  |-urls.py
-  
-  |-views.py
-  
+  |-urls.py  
+  |-views.py  
   |-models.py
-  
+```
  
 ## urls.py
 Acá se definen las urls definidas para nuestra aplicación en Django.
 
 Tiene la siguiente estructura:
+``` python
 path('path/to/.../url'/, views.'nombre vista', name='nombre referencial'),
-
+```
 Donde:
 'path/to/.../url' es la dirección a la que hay que entrar para ingresar a esta página.
 views.'nombre vista' es el nombre de la vista definda en views.py la cual será llamada al entrar a la url.
