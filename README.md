@@ -155,3 +155,31 @@ Creará un form que tome el método post.
 Por cada campo dentro del QuestionForm instanciado en la vista que fue enviado como question_form imprimirá el label del campo y el campo.
 
 Una vez terminado el bucle pondrá el botón de submit.
+
+## models.py
+
+Modelos de datos de la aplicación, es CASI lo mismo que el MER, las entidades del MER son clases de este modelo.
+
+Tienen la siguiente estructura:
+
+``` python
+class PreguntaClasificacion(models.Model):
+	numero_pregunta = models.CharField(unique=True, max_length=255, null=True, blank=True)
+	ponderacion = models.IntegerField()
+	texto_pregunta = models.CharField(max_length=255)
+	tipo_pregunta = models.CharField(max_length=1, choices=TIPO_PREGUNTA, blank=True, default='a', null=True)
+	preguntas_alternativa = models.ManyToManyField(TipoAlternativa, blank=True)
+	base_question = models.BooleanField(default=False)
+	depende_de = models.ManyToManyField("self", blank=True)
+
+```
+
+Es casi lo mismo que la entidad del MER, lo único distinto son las variables 'preguntas_alternativa' y 'depende_de' que estan relacionados con otras entidades.
+
+variable tipo ManyToManyField(MODELO, blank=True) se refiere a que está en una relación 0 a n con MODELO.
+``` python
+preguntas_alternativa = models.ManyToManyField(TipoAlternativa, blank=True)
+depende_de = models.ManyToManyField("self", blank=True)
+```
+Esto dice que PreguntaClasificación está en una relación 0 a N con modelo PreguntasAlternativas y 0 a N con sigo mismo.
+
