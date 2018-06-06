@@ -28,7 +28,7 @@ Capa de los modelos (datos del programa: base de datos modelada como objetos)
 
 Una url en django esta relacionada con una vista y la vista con un template.
 Las vistas se encuentran en views.py y son un método
-El template se encuentra en templates/
+El template se encuentra en templates/grupo4test/template.html
 
 Estructura de la aplicación (Muy simplificada):
 
@@ -56,8 +56,23 @@ myapp/grupo4test/
   
   |-models.py
   
-  
-urls.py:
+ 
+#urls.py: acá se definen las urls definidas para nuestra aplicación en Django
+Tiene la siguiente estructura:
+path('path/to/.../url'/, views.'nombre vista', name='nombre referencial'),
+
+Donde:
+'path/to/.../url' es la dirección a la que hay que entrar para ingresar a esta página.
+views.'nombre vista' es el nombre de la vista definda en views.py la cual será llamada al entrar a la url.
+
+Ejemplo, para la url del formulario del cliente se tiene:
+
+  # Url del cliente:
+    path('formulario/',views.formulario, name='formulario'),
+
+Esto dice que si se entra a grupo4test/formulario/ va a llamar a la vista formulario
+
+
 
 
   
