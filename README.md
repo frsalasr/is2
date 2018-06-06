@@ -25,9 +25,9 @@ Estructura de la aplicación (Muy simplificada):
 Distribución de archivos y carpetas:
 
 myapp/
-  |-grupo4test/
-  |-myapp/
-  |-manage.py
+  -grupo4test/
+  -myapp/
+  -manage.py
  
 En myapp/grupo4test se encuentra el programa:
 Archivos y carpetas relevantes:
