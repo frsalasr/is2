@@ -193,7 +193,7 @@ Usando sql:
 select formulario.id, formulario.puntaje
 from formulario, empresa, user, user_empresa, empresa_formulario
 where 
-	empresa_formulario.id_formulario = formulario_id and
+	empresa_formulario.id_formulario = formulario.id and
 	empresa_formulario.id_empresa = empresa.id and
 	user_empresa.id_empresa = empresa.id and
 	user_empresa.id_user = user.id
