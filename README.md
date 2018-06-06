@@ -158,7 +158,7 @@ Una vez terminado el bucle pondrá el botón de submit.
 
 ## models.py
 
-Modelos de datos de la aplicación, es CASI lo mismo que el MER, las entidades del MER son clases de este modelo.
+Modelos de datos de la aplicación, Django usa ORM (object relational mapping creo que es, es básicamente un MER orientado a objeto) es CASI lo mismo que el MER, las entidades del MER son clases de este modelo.
 
 Tienen la siguiente estructura:
 
@@ -183,3 +183,27 @@ depende_de = models.ManyToManyField("self", blank=True)
 ```
 Esto dice que PreguntaClasificación está en una relación 0 a N con modelo PreguntasAlternativas y 0 a N con sigo mismo.
 
+Esto crea un modelo PreguntaClasificación. Para hacer un "query" se llama a la Clase y usando métodos estaticos se obtiene el objeto a buscar.
+
+### Ejemplo: 
+Para obtener el formulario que le pertenece a la empresa del usuario que está loggeado:
+
+Usando sql:
+``` sql
+select formulario.id, formulario.puntaje from formulario, empresa, user, user_empresa, empresa_formulario
+where 
+	empresa_formulario.id_formulario = formulario_id and
+	empresa_formulario.id_empresa = empresa.id and
+	user_empresa.id_empresa = empresa.id and
+	user_empresa.id_user = user.id
+```
+
+Usando ORM:
+
+``` python
+formulario = FormularioClasificacion.objects.get("empresa__user__id"=user.id)
+```
+
+Donde FormularioClasificacion es la clase.
+
+.objects y [.get | .filter] son los métodos para buscar objetos y "empresa__user__id" el atributo de empresa->user->id.
