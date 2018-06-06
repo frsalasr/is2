@@ -57,8 +57,9 @@ myapp/grupo4test/
   |-models.py
   
  
-## urls.py:
-acá se definen las urls definidas para nuestra aplicación en Django
+## urls.py
+Acá se definen las urls definidas para nuestra aplicación en Django.
+
 Tiene la siguiente estructura:
 path('path/to/.../url'/, views.'nombre vista', name='nombre referencial'),
 
@@ -68,10 +69,22 @@ views.'nombre vista' es el nombre de la vista definda en views.py la cual será 
 
 Ejemplo, para la url del formulario del cliente se tiene:
 
-  # Url del cliente:
+### Url del cliente:
     path('formulario/',views.formulario, name='formulario'),
 
-Esto dice que si se entra a grupo4test/formulario/ va a llamar a la vista formulario
+Esto dice que si se entra a grupo4test/formulario/ va a llamar a la vista formulario.
+
+## views.py
+Conjunto de vistas, cada vista tiene la siguiente estructura:
+
+def vista1(request):
+  . . .
+  . . .
+  . . .
+  return render(request, template, {diccionario})
+
+
+
 
 
 
