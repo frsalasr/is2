@@ -145,8 +145,9 @@ En el template.html se tiene
 </form>
 ```
 
-
-
+Creará un form que tome el método post.
+Por cada campo dentro del QuestionForm instanciado en la vista que fue enviado como question_form imprimirá el label del campo y el campo.
+Una vez terminado el bucle pondrá el botón de submit.
 
 
 
