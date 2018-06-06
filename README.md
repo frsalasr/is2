@@ -57,7 +57,8 @@ myapp/grupo4test/
   |-models.py
   
  
-#urls.py: acá se definen las urls definidas para nuestra aplicación en Django
+## urls.py:
+acá se definen las urls definidas para nuestra aplicación en Django
 Tiene la siguiente estructura:
 path('path/to/.../url'/, views.'nombre vista', name='nombre referencial'),
 
