@@ -34,7 +34,7 @@ Estructura de la aplicación (Muy simplificada):
 
 Distribución de archivos y carpetas:
 
-myapp/
+[mypp](.myapp/)
 
   |-manage.py
 
