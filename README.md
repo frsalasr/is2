@@ -4,15 +4,16 @@
 
 Requiere python3.5.2 y django 2.0.1
 
-Para instalar Django (requiere python 3.x)
+##### Para instalar Django (requiere python 3.x): 
 pip install django
 
-#### Ejecutar el programa:
+##### Ejecutar el programa:
 python3 manage.py runserver ip:puerto
 
-Se crea en ip:puerto/grupo4test
+##### Se crea en 
+ip:puerto/grupo4test
 
-Ejemplo: 
+##### Ejemplo: 
 python3 manage.py runserver localhost:8500
 
 entrar a
