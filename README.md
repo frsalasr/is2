@@ -95,17 +95,17 @@ Las variables enviadas desde el diccionario pueden ser de la forma:
 {{ variable }} 
 ```
 Se puede iterar y hacer condicionales dentro del template, usando:
-```
+```html
 {% if condicional %}
-< do something > 
+	< do something > 
 {% else %}
-< do something >
+	< do something >
 {% endif %}
 . 
 . 
 .
 {% for element in list %}
-< do something >
+	< do something >
 {% endfor %}
 ```
 Por ejemplo, si en la vista, el diccionario enviado tiene la forma: 
@@ -115,7 +115,7 @@ Por ejemplo, si en la vista, el diccionario enviado tiene la forma:
 Al principio del template de html se puede poner:
 ```python
 {% if error %}
-<p>{{ error }}</p>
+	<p>{{ error }}</p>
 {% endif %}
 ```
 Por lo que imprimirá el error.
