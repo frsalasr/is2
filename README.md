@@ -70,7 +70,7 @@ Ejemplo, para la url del formulario del cliente se tiene:
 
 Esto dice que si se entra a grupo4test/formulario/ va a llamar a la vista formulario.
 
-## views.py
+## views.py y templates
 Conjunto de vistas, cada vista tiene la siguiente estructura:
 
 ``` python
@@ -88,10 +88,54 @@ el programa llamará a la vista asociada, la vista hará el proceso lógico a pa
 ```
 El diccionario "envía" variables desde la parte lógica de la vista al template de html.
 
-Por ejemplo:
+El template es la página en sí, está escrito en html y toma las variables enviadas desde la vista para crear la página.
 
+Las variables enviadas desde el diccionario pueden ser de la forma: 
+```
+{{ variable }} 
+```
+Se puede iterar y hacer condicionales dentro del template, usando:
+```
+{% if condicional %}
+< do something > 
+{% else %}
+< do something >
+{% endif %}
+. 
+. 
+.
+{% for element in list %}
+< do something >
+{% endfor %}
+```
+Por ejemplo, si en la se retornó en el diccionario
+```python
+{'error':'no se encontró el usuario'}
+```
+Al principio del template de html se puede poner:
+```python
+{% if error %}
+<p>{{ error }}</p>
+{% endif %}
+```
 
+Ejemplo (muy resumido):
 
+```python
+def formulario(request):
+	template = 'grupo4test/formulario.html'
+	question_form = QuestionForm()
+return render(request, template, {'question_form': question_form})
+```
+
+Si se entra a grupo4test/formulario se llama esta vista.
+Esta vista crea una instancia de QuestionForm y se la envía al template que se encuentra en grupo4test/formulario.html.
+
+En el template.html se tiene 
+
+```html
+
+```
 
 
 
