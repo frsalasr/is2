@@ -126,7 +126,7 @@ Ejemplo (muy resumido):
 def formulario(request):
 	template = 'grupo4test/formulario.html'
 	question_form = QuestionForm()
-return render(request, template, {'question_form': question_form})
+	return render(request, template, {'question_form': question_form})
 ```
 
 Si se entra a grupo4test/formulario se llama esta vista.
@@ -146,15 +146,7 @@ En el template.html se tiene
 ```
 
 Creará un form que tome el método post.
+
 Por cada campo dentro del QuestionForm instanciado en la vista que fue enviado como question_form imprimirá el label del campo y el campo.
+
 Una vez terminado el bucle pondrá el botón de submit.
-
-
-
-
-  
-  
-
-
-
-
