@@ -40,9 +40,9 @@ myapp/
   |-grupo4test/
 ```
  
-En myapp/grupo4test se encuentra el programa:
-Archivos y carpetas relevantes:
+En myapp/grupo4test se encuentra el programa.
 
+Archivos y carpetas relevantes:
 ```
 myapp/grupo4test/
   |-statics/ 
@@ -80,6 +80,19 @@ def vista1(request):
   . . .
   return render(request, template, {diccionario})
 ```
+
+Como se definió, una url está asociada a una vista. Al momento de ingresar una url, 
+el programa llamará a la vista asociada, la vista hará el proceso lógico a partir del request con la que fue llamada (el request va a variar si es que se entró como cliente o admin, si es que se entró directo a la página o fue redireccionado hacia ella, si es que se envió un formulario, etc), luego retornará un render (puede retornar muchas coasas pero nosotros usaremos render el 99% de las veces). El render tiene el request con el que fue llamado la vista, un template en html asociado y un diccionario, un diccionario en python es de la forma: 
+```python
+{ 'key1' : value1 , 'key2': value2 }
+```
+El diccionario "envía" variables desde la parte lógica de la vista al template de html.
+
+Por ejemplo:
+
+
+
+
 
 
 
