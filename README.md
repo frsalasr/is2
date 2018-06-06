@@ -190,7 +190,8 @@ Para obtener el formulario que le pertenece a la empresa del usuario que está l
 
 Usando sql:
 ``` sql
-select formulario.id, formulario.puntaje from formulario, empresa, user, user_empresa, empresa_formulario
+select formulario.id, formulario.puntaje
+from formulario, empresa, user, user_empresa, empresa_formulario
 where 
 	empresa_formulario.id_formulario = formulario_id and
 	empresa_formulario.id_empresa = empresa.id and
