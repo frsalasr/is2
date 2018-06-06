@@ -35,7 +35,7 @@ Las vistas se encuentran en views.py y son un método
 
 El template se encuentra en templates/grupo4test/template.html
 
-Estructura de la aplicación (Muy simplificada):
+### Estructura de la aplicación (Muy simplificada):
 
 Distribución de archivos y carpetas:
 
