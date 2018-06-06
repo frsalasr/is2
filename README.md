@@ -20,9 +20,27 @@ localhost:8500/grupo4test
 
 *********************
 
-Estructura de una aplicación en Django (Muy simplificada):
+Estructura de la aplicación (Muy simplificada):
 
-myapp/grupo4test
-|-
+Distribución de archivos y carpetas:
+
+myapp/
+  |-grupo4test/
+  |-myapp/
+  |-manage.py
+ 
+En myapp/grupo4test se encuentra el programa:
+Archivos y carpetas relevantes:
+
+myapp/grupo4test/
+  |-migrations/
+  |-statics/
+  |-templates/
+  |-
+  |-
+  
+  
+
+
 
 
