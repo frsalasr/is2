@@ -77,12 +77,13 @@ Esto dice que si se entra a grupo4test/formulario/ va a llamar a la vista formul
 ## views.py
 Conjunto de vistas, cada vista tiene la siguiente estructura:
 
+'''
 def vista1(request):
   . . .
   . . .
   . . .
   return render(request, template, {diccionario})
-
+'''
 
 
 
