@@ -1,6 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+class Ejemplo(models.Model):
+	nombre = models.CharField(max_length=30)
+	apellido = models.CharField(max_length=30)
+
+
 class Postulante(models.Model):
 	run = models.CharField(max_length=30, primary_key=True)
 	nombre_empresa = models.CharField(max_length=20)

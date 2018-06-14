@@ -18,6 +18,20 @@ def get_item(diccionario, key):
 def get_hijo(pregunta, formulario):
 	return RespuestasClasificacion.objects.get(pregunta=pregunta, formulario=formulario)
 
+	
+
+
+class ejemploForm(forms.Form):
+	options=(
+		('si', 'si'),
+		('no', 'no'),
+		('tal vez', 'tal vez'),
+		)
+	macaco = forms.ChoiceField(label='¿Es ud un macaco?', choices=options)
+	nombre = forms.CharField(label='Nombre')
+	apellido = forms.CharField(label='Apellido')
+
+
 
 def createField(tipo, label, queryset=None):
 	if tipo == 'a':

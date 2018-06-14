@@ -12,7 +12,6 @@ from django.contrib import messages
 
 # forms, modulos y modelos
 from .forms import *
-from .modulos import *
 from .models import *
 
 ### HOME
@@ -23,6 +22,21 @@ def home(request):
 	return render(request, template, {})
 
 ### USUARIO CLIENTE
+
+def ejemplo(request):
+
+	template = 'grupo4test/ejemplo.html'
+
+	if request.method == 'POST':
+		form = ejemploForm(request.POST)
+		if form.is_valid():
+			cd = form.cleaned_data
+			print(cd.get('Nombre'))
+			print(cd.get('Apellido'))
+
+	form = ejemploForm()
+	return render(request, template, {'form':form })
+
 
 def datos(request):
 
@@ -145,7 +159,8 @@ def formulario(request):
 
 ### ADMIN
 
-def clasificar(request, rut_empresa):
+def clasificar(request, 
+	):
 	template = 'grupo4test/clasificar.html'
 
 	formulario = FormularioClasificacion.objects.get(empresa__rut=rut_empresa)
@@ -218,72 +233,3 @@ def register(request):
 	
 	return render(request, template, {'form': form})
 
-
-# PRUEBA
-def base(request):
-	# Se declara el template que se usará
-	template = 'grupo4test/iteracion2.html'
-	
-	# Se instancia un FullForm desde forms.py
-	form = FullForm()
-
-	# Si se apreta el boton
-	if request.method == 'POST':
-		form = FullForm(request.POST)
-		if form.is_valid():
-			if request.POST.get('go'):
-				# Se obtiene la info del form
-				cd = form.cleaned_data
-				run = cd.get('run')
-				nombre_empresa = cd.get('nombre_empresa')
-				nombre = cd.get('nombre')
-				apellido = cd.get('apellido')
-				email = cd.get('email')
-				url = cd.get('url')
-				postulante_id = 0
- 
-				# new_user es para verificar si es que: 
-				# - la empresa a postular es nueva
-				# - ya habia postulado antes
-				# - si es que ya habia postulado antes ver si coinciden los nombres de las empresa
-				new_user = False
-				# checkea si ya hay un registro del RUN en la base
-				if not checkPostulante(run):
-					new_user = True
-					# Se hace el commit antes de seguir
-					transaction.commit(addUser(run,nombre_empresa,nombre,apellido, email, str(url)))
-
-				# Si es que ya existe el RUN en la base
-				else:
-					# Se checkea si coincide el RUN con la empresa ingresada
-					if not checkRunEmpresa(run, nombre_empresa):
-						respuesta = 'No coincide el RUN de la empresa ingresad con la registrada'
-						return render(request, template, {'form': form,
-												  'respuesta': respuesta})
-
-				# Se instancia un Formulario con los valores restantes del form y el ID del postulante
-				postulante_id = Postulante.objects.get(run=run)
-				formulario = Formulario(postulante=postulante_id,
-										variable_hid = cd.get('hid_field'),
-										variable1=cd.get('var1'),
-										variable2=cd.get('var2'),
-										variable3=cd.get('var3'),
-										result=0)
-				# Se llama el método que calcula el resultado del formulario y se guarda
-				formulario.setResult()
-				formulario.save()
-
-				# Si el usuario es nuevo o ya existia hace variar la respuesta en el html
-				if new_user:
-					respuesta = 'Se inscribió nueva empresa: ' + nombre_empresa + ' a nombre de ' + nombre + ' ' + apellido + '.'
-				else:
-					respuesta = 'Empresa ' + nombre_empresa + ' ya estaba a nombre de ' + nombre + ' ' + apellido
-				resultado = 'Puntaje: ' + str(formulario.result) + '.'
-				# Se limpia el form
-				form = FullForm()
-				# Se retorna la nueva página
-				return render(request, template, {'form': form,
-												  'respuesta': respuesta,
-												  'resultado': resultado})
-	# Se retorna el primer ingreso a la página, con solo el form vacío
-	return render(request, template , {'form': form })

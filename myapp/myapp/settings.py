@@ -52,8 +52,6 @@ INSTALLED_APPS = [
     #app grupo4test
     'grupo4test.apps.Grupo4TestConfig',
     
-    # externas
-    'embed_video',
 ]
 
 MIDDLEWARE = [
