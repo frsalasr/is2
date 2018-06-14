@@ -159,8 +159,7 @@ def formulario(request):
 
 ### ADMIN
 
-def clasificar(request, 
-	):
+def clasificar(request,rut_empresa):
 	template = 'grupo4test/clasificar.html'
 
 	formulario = FormularioClasificacion.objects.get(empresa__rut=rut_empresa)
