@@ -232,3 +232,17 @@ def register(request):
 	
 	return render(request, template, {'form': form})
 
+
+## WEA
+def wea(request):
+
+	template = 'grupo4test/wea.html'
+
+	if request.method == 'POST' and request.FILES['myfile']:
+		"""myfile = request.FILES['myfile']"""
+		print ("Archivo RECIBIDO")
+		return render (request, template, {})
+
+	return render(request, template, {})
+
+

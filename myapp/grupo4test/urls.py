@@ -28,4 +28,7 @@ urlpatterns = [
 
     # empresa en particular 
     path('postulantes/clasificacion/<int:rut_empresa>', views.clasificar, name='clasificar'),
+
+    #guardar archivo
+    path('wea/', views.wea, name='wea'),
 ]
