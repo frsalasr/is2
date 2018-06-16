@@ -21,6 +21,7 @@ urlpatterns = [
 
     # ejemplo
     path('ejemplo/', views.ejemplo, name='ejemplo'),
+
     ### ADMINS
     # ver postulantes
     path('postulantes/clasificacion', views.clasificados, name='clasificados'),

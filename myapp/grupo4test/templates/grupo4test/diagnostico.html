@@ -22,29 +22,33 @@
 </style>
 <body>
 
+{% if error %}
+<p style="font-size: 20px; color: red">{{ error }}</p>
 
-<div class="container">
-	<form method="POST">
-		{% csrf_token %}
-		<h2>Formulario Diagnóstico</h2>
-		<ul class="nav nav-tabs">
-	    	{% for form in forms %}
-		    	<li id="tab_name" {% if forloop.counter == 1 %} class="active" {% endif %}><a data-toggle="tab" href="#Q{{forloop.counter}}"> Q{{ forloop.counter }} </a></li>
-		    {% endfor %}
-		</ul>
-		<hr style="height:1px;width: 10%;  border:none;  display: inline-block" />
-		<div class="tab-content">
-		{% for form in forms %}
-			<div id="Q{{forloop.counter}}" {% if forloop.counter == 1 %} class="tab-pane fade in active" {% else %} class="tab-pane fade " {% endif %}>
-			{% for field in form %}
-				<p>{{forloop.counter}}) {{field.label}}</p>
-				<p>{{field}}</p>	
+{% else %}
+	<div class="container">
+		<form method="POST">
+			{% csrf_token %}
+			<h2>Formulario Diagnóstico</h2>
+			<ul class="nav nav-tabs">
+		    	{% for form in forms %}
+			    	<li id="tab_name" {% if forloop.counter == 1 %} class="active" {% endif %}><a data-toggle="tab" href="#Q{{forloop.counter}}"> Q{{ forloop.counter }} </a></li>
+			    {% endfor %}
+			</ul>
+			<hr style="height:1px;width: 10%;  border:none;  display: inline-block" />
+			<div class="tab-content">
+			{% for form in forms %}
+				<div id="Q{{forloop.counter}}" {% if forloop.counter == 1 %} class="tab-pane fade in active" {% else %} class="tab-pane fade " {% endif %}>
+				{% for field in form %}
+					<p>{{forloop.counter}}) {{field.label}}</p>
+					<p>{{field}}</p>	
+				{% endfor %}
+				</div>	
 			{% endfor %}
-			</div>	
-		{% endfor %}
-		</div>
-		<input type="submit" value="Enviar">
-	</form>
-</div>
+			</div>
+			<input type="submit" value="Enviar">
+		</form>
+	</div>
+{% endif %}
 
 {% endblock %}

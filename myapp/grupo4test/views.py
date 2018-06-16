@@ -69,6 +69,7 @@ def datos(request):
 								)
 					emp.save()
 					FormularioClasificacion.construir(emp)
+					FormDiagnostico.construir(emp)
 					# creación de formulario respondido vacío
 
 					# redirecta al formulario
@@ -100,22 +101,26 @@ def diagnostico(request):
 	template = 'grupo4test/diagnostico.html'
 
 	if request.user.is_authenticated:
-
+		# Debe registrar la empresa si no no puede hacer el formulario
 		if Empresa.objects.filter(autor=request.user).count() == 0:
 			return redirect('datos')
 
 		empresa = Empresa.objects.get(autor=request.user)
 
 		if FormDiagnostico.objects.filter(empresa=empresa).count() > 0:
+
+			if not FormularioClasificacion.objects.get(empresa=empresa).validado:
+				return render(request, template, {'error': 'No tienes etapa todavíá, no puedes hacer este formulario.'})
+
 			formulario = FormDiagnostico.objects.get(empresa=empresa)
-
+			# Se crea una donde se insertarán los forms para cada Q
 			forms = []
-			for i in range(1,formulario.Q+1):
-				print(i)
-				print('haremos un form de diagnostico con ' + str(i))
-				a = DiagForm(i)
-				forms.append(a)				
 
+			for i in range(1,formulario.Q+1):
+				#Por cada Q se crea un DiagForm correspondiente a ese Q y se guarda en la lista
+				forms.append(DiagForm(i))				
+
+			# Se le manda la lista entera al template, después imprime los Q{n} en cada tab
 			return render(request, template, {'forms': forms})
 
 
@@ -248,7 +253,6 @@ def register(request):
 			form.save()
 			messages.success(request, 'Account created successfully')
 			#render(request, "grupo4test/wea.html", {})
-			#redirect('grupo4test/accounts/login/')
+			#return redirect('login')
 	
 	return render(request, template, {'form': form})
-
