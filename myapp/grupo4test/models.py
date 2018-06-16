@@ -230,6 +230,8 @@ class RespuestasClasificacion(models.Model):
 	def __str__(self):
 		return str(str(self.pregunta) + str(self.respuesta))
 
+### MODELOS NUEVOS
+
 class Documento(models.Model):
 	descrpcion = models.CharField(max_length=255, blank=True)
 	document = models.FileField(upload_to='documents/')
@@ -256,8 +258,6 @@ class PreguntaDiagnostico(models.Model):
 	documento = models.ForeignKey(Documento, on_delete=models.CASCADE, blank=True, null=True)
 	base_question = models.BooleanField(default=False)
 	depende_de = models.ManyToManyField("self", blank=True)
-
-
 
 	def getTipo(self):
 		return self.tipo_pregunta
