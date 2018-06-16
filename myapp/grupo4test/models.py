@@ -199,7 +199,6 @@ class FormularioClasificacion(models.Model):
 	def __str__(self):
 		return str(self.empresa.nombre)
 
-
 class RespuestasClasificacion(models.Model):
 	pregunta = models.ForeignKey(PreguntaClasificacion, on_delete=models.CASCADE)
 	formulario = models.ForeignKey(FormularioClasificacion, on_delete=models.CASCADE)
@@ -230,3 +229,38 @@ class RespuestasClasificacion(models.Model):
 
 	def __str__(self):
 		return str(str(self.pregunta) + str(self.respuesta))
+
+class Documento(models.Model):
+	descrpcion = models.CharField(max_length=255, blank=True)
+	document = models.FileField(upload_to='documents/')
+	uploaded_at = models.DateTimeField(auto_now_add=True)
+
+class PreguntaDiagnostico(models.Model):
+	#id_pregunta = models.IntegerField(primary_key=True)
+
+	Q_CHOICES = (
+		('Q1','Q1'),
+		('Q2','Q2'),
+		('Q3','Q3'),
+		('Q4','Q4'),
+		('Q5','Q5'),
+		)
+
+	numero = models.IntegerField(unique=False, null=True, blank=True)
+	sub_numero = models.IntegerField(unique=False, null=True, blank=True)
+	Q = models.CharField(max_length=4, choices=Q_CHOICES)
+	ponderacion = models.IntegerField()
+	texto_pregunta = models.CharField(max_length=255)
+	tipo_pregunta = models.CharField(max_length=1, choices=TIPO_PREGUNTA, blank=True, default='a', null=True)
+	preguntas_alternativa = models.ManyToManyField(TipoAlternativa, blank=True)
+	documento = models.ForeignKey(Documento, on_delete=models.CASCADE, blank=True, null=True)
+	base_question = models.BooleanField(default=False)
+	depende_de = models.ManyToManyField("self", blank=True)
+
+
+
+	def getTipo(self):
+		return self.tipo_pregunta
+
+	def __str__(self):
+		return str(self.texto_pregunta)
