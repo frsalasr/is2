@@ -18,9 +18,6 @@ def get_item(diccionario, key):
 def get_hijo(pregunta, formulario):
 	return RespuestasClasificacion.objects.get(pregunta=pregunta, formulario=formulario)
 
-	
-
-
 class ejemploForm(forms.Form):
 	options=(
 		('si', 'si'),
@@ -37,7 +34,11 @@ def createField(tipo, label, queryset=None):
 	if tipo == 'a':
 		return forms.ModelChoiceField(label=label, queryset=queryset, required=False)
 	elif tipo == 't':
-		return forms.CharField(label=label, required=False, widget=forms.Textarea)
+		return forms.CharField(label=label, required=False, widget=forms.Textarea(attrs={
+        																			'cols': 200,
+																			        'rows': 3,
+																			        'style': 'width: 50%'
+																			    }))
 	elif tipo == 'n':
 		return forms.IntegerField(label=label, required=False)
 	else:
@@ -51,10 +52,48 @@ class HijoForm(forms.Form):
 	def crearField(self, key, tipo, label, queryset):
 		self.fields[key] = createField(tipo,label,queryset)
 
+class DiagForm(forms.Form):
+	#hidden = forms.IntegerField()
+
+	def __init__(self,Q,**kwargs):
+		# Se inicia el super Form
+		super(DiagForm, self).__init__(**kwargs)
+
+		self.Q = Q
+		print(self.Q)
+		
+		# se guardan los forms hijos
+		self.base = {}
+		self.papa = {}
+
+		# Se llama a todas las preguntas de clasificación 
+		# Por cada pregunta de clasificación
+
+
+		for pregunta in PreguntaDiagnostico.objects.filter(base_question=True, Q=self.Q).order_by('numero'):
+			# self.fields[key] es un diccionario key -> form 
+			# Ejemplo para pregunta tipo respuesta en texto
+			# self.field['pregunta_n'] = forms.CharField(required = False)
+			# Después el view instancia el field del form 
+			# para referirse a el basta con QuestionForm.cleaned_data['pregunta_n']
+			# Se define la Key del diccionario como pregunta_(id_pregunta), ex: pregunta_1, pregunta_20, etc
+			pregunta_key = str(pregunta.id)
+			self.base['id_' + pregunta_key] = 1
+			# se toman las preguntas que dependen de estaa 
+
+			self.fields[pregunta_key] = createField(pregunta.getTipo(), pregunta.texto_pregunta, pregunta.preguntas_alternativa.all())
+			# Se guarda la pregunta para presentarla en el form
+			#self.preguntas.append(pregunta.texto_pregunta)
+			
+			preguntas_hijas = PreguntaDiagnostico.objects.filter(depende_de=pregunta).order_by('sub_numero')
+			if preguntas_hijas.count() > 0:
+				for question in preguntas_hijas:
+					self.papa['id_' + str(question.id)] = "id_" + pregunta_key
+					self.fields[str(question.id)] = createField(question.getTipo(), question.texto_pregunta, question.preguntas_alternativa.all())
+
 # Form que toma TODAS las preguntas para clasificar y dependiendo del tipo de esta crea un field
 class QuestionForm(forms.Form):
 	#hidden = forms.IntegerField()
-
 
 	def __init__(self):
 		# Se inicia el super Form

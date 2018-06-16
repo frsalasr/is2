@@ -1,5 +1,50 @@
 {% extends "grupo4test/base.html" %}
 
 {% block content %}
-<h1>EN CONSTRUCCIÓN . . . </h1>
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<style type="text/css">
+    div.container{
+    	margin-left: 0px;
+    	font-size: 15px;
+    	max-width: 70%;
+    }
+    ul.nav.nav-tabs{
+    	font-size: 30px;
+    }
+
+</style>
+<body>
+
+
+<div class="container">
+	<form method="POST">
+		{% csrf_token %}
+		<h2>Formulario Diagnóstico</h2>
+		<ul class="nav nav-tabs">
+	    	{% for form in forms %}
+		    	<li id="tab_name" {% if forloop.counter == 1 %} class="active" {% endif %}><a data-toggle="tab" href="#Q{{forloop.counter}}"> Q{{ forloop.counter }} </a></li>
+		    {% endfor %}
+		</ul>
+		<hr style="height:1px;width: 10%;  border:none;  display: inline-block" />
+		<div class="tab-content">
+		{% for form in forms %}
+			<div id="Q{{forloop.counter}}" {% if forloop.counter == 1 %} class="tab-pane fade in active" {% else %} class="tab-pane fade " {% endif %}>
+			{% for field in form %}
+				<p>{{forloop.counter}}) {{field.label}}</p>
+				<p>{{field}}</p>	
+			{% endfor %}
+			</div>	
+		{% endfor %}
+		</div>
+		<input type="submit" value="Enviar">
+	</form>
+</div>
+
 {% endblock %}

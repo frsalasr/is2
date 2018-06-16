@@ -37,7 +37,6 @@ def ejemplo(request):
 	form = ejemploForm()
 	return render(request, template, {'form':form })
 
-
 def datos(request):
 
 	form = InfoForm()
@@ -99,7 +98,27 @@ def datos(request):
 def diagnostico(request):
 	# template a cargar
 	template = 'grupo4test/diagnostico.html'
-	
+
+	if request.user.is_authenticated:
+
+		if Empresa.objects.filter(autor=request.user).count() == 0:
+			return redirect('datos')
+
+		empresa = Empresa.objects.get(autor=request.user)
+
+		if FormDiagnostico.objects.filter(empresa=empresa).count() > 0:
+			formulario = FormDiagnostico.objects.get(empresa=empresa)
+
+			forms = []
+			for i in range(1,formulario.Q+1):
+				print(i)
+				print('haremos un form de diagnostico con ' + str(i))
+				a = DiagForm(i)
+				forms.append(a)				
+
+			return render(request, template, {'forms': forms})
+
+
 	# en construcción . . . 
 	return render(request, template, {})
 
@@ -189,6 +208,7 @@ def clasificar(request,rut_empresa):
 		respuestas = RespuestasClasificacion.objects.filter(formulario=formulario).order_by('pregunta__numero_pregunta')
 		formulario.calcularPuntaje()
 		formulario.empresa.setEtapa(puntajes['etapa'])
+		FormDiagnostico.actualizar(formulario.empresa)
 		print('validado ' + str(puntajes.get("validado")))
 		if str(puntajes.get("validado")) == 'on':
 			formulario.validado = True

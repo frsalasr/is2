@@ -93,6 +93,18 @@ class Empresa(models.Model):
 	etapa = models.CharField(max_length=255,blank=True, null=True)
 	autor = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
 
+	def getQbyEtapa(self):
+		if self.etapa == 'idea':
+			return 1
+		elif self.etapa == 'semilla':
+			return 2
+		elif self.etapa == 'xxx':
+			return 3
+		elif self.etapa == 'asd':
+			return 4
+		else:
+			return 5
+
 	def setEtapa(self, etapa):
 		self.etapa = etapa
 		self.save()
@@ -206,56 +218,36 @@ class RespuestasClasificacion(models.Model):
 	respuesta = models.CharField(max_length=255, blank=True)
 	comentario = models.CharField(max_length=255, blank=True, default='')
 
-	def ordenar(formulario):
-		ordenado = []
-		bases = PreguntaClasificacion.objects.filter(base_question=True).order_by('-numero_pregunta')
-
-		for question in bases:
-			ans = RespuestasClasificacion.objects.get(pregunta=question, formulario=formulario)
-			aux = [question.texto_pregunta,ans.respuesta]
-			hijos = PreguntaClasificacion.objects.filter(depende_de=question)
-			aux2 = []
-			for hijo in hijos:
-				ans = RespuestasClasificacion.objects.get(pregunta=hijo, formulario=formulario)
-				aux2.append([hijo.texto_pregunta, ans.respuesta])
-
-			ordenado.append([aux,aux2])
-
-		return ordenado
-
-
-		return dict_ordenado
-
-
 	def __str__(self):
 		return str(str(self.pregunta) + str(self.respuesta))
 
 ### MODELOS NUEVOS
 
-class Documento(models.Model):
+
+class Document(models.Model):
 	descrpcion = models.CharField(max_length=255, blank=True)
 	document = models.FileField(upload_to='documents/')
 	uploaded_at = models.DateTimeField(auto_now_add=True)
-
+ 
 class PreguntaDiagnostico(models.Model):
 	#id_pregunta = models.IntegerField(primary_key=True)
 
 	Q_CHOICES = (
-		('Q1','Q1'),
-		('Q2','Q2'),
-		('Q3','Q3'),
-		('Q4','Q4'),
-		('Q5','Q5'),
+		(1,1),
+		(2,2),
+		(3,3),
+		(4,4),
+		(5,5),
 		)
 
 	numero = models.IntegerField(unique=False, null=True, blank=True)
 	sub_numero = models.IntegerField(unique=False, null=True, blank=True)
-	Q = models.CharField(max_length=4, choices=Q_CHOICES)
-	ponderacion = models.IntegerField()
+	Q = models.IntegerField(choices=Q_CHOICES)
+	ponderacion = models.IntegerField(default=1)
 	texto_pregunta = models.CharField(max_length=255)
 	tipo_pregunta = models.CharField(max_length=1, choices=TIPO_PREGUNTA, blank=True, default='a', null=True)
 	preguntas_alternativa = models.ManyToManyField(TipoAlternativa, blank=True)
-	documento = models.ForeignKey(Documento, on_delete=models.CASCADE, blank=True, null=True)
+	Document = models.ForeignKey(Document, on_delete=models.CASCADE, blank=True, null=True)
 	base_question = models.BooleanField(default=False)
 	depende_de = models.ManyToManyField("self", blank=True)
 
@@ -264,3 +256,56 @@ class PreguntaDiagnostico(models.Model):
 
 	def __str__(self):
 		return str(self.texto_pregunta)
+
+class FormDiagnostico(models.Model):
+
+	Q_CHOICES = (
+		(1,1),
+		(2,2),
+		(3,3),
+		(4,4),
+		(5,5),
+		)
+
+	puntaje = models.FloatField(blank=True, null=True, default=0)
+	empresa = models.OneToOneField(Empresa, on_delete=models.CASCADE, unique=True)
+	respondido = models.BooleanField(default=False)
+	validado = models.BooleanField(default=False)
+	editable = models.BooleanField(default=False)
+	comentario = models.CharField(max_length=512, blank=True, default='')
+	Q = models.IntegerField(default=1, choices=Q_CHOICES)
+	preguntas = models.ManyToManyField(PreguntaDiagnostico, through='RespuestaDiagnostico')
+
+	def actualizar(empresa):
+		if FormDiagnostico.objects.filter(empresa=empresa).count() == 0:
+			return 'error'
+
+		formulario = FormDiagnostico.objects.get(empresa=empresa)
+		formulario.Q = empresa.getQbyEtapa()
+		formulario.save()
+
+	def construir(empresa):
+		if FormDiagnostico.objects.filter(empresa=empresa).count() > 0:
+			FormDiagnostico.objects.filter(empresa=empresa).delete()
+				
+		formulario = FormDiagnostico(empresa=empresa, Q=empresa.getQbyEtapa(), puntaje=0)
+		formulario.save()
+
+		for pregunta in PreguntaDiagnostico.objects.all():
+			#print(pregunta.texto_pregunta)
+			print('creando para ' + pregunta.texto_pregunta)
+			r1 = RespuestaDiagnostico(pregunta = pregunta,
+										formulario = formulario,
+										puntaje=0,
+										respuesta='')
+			r1.save()
+
+	def getQ(self):
+		return self.Q
+
+class RespuestaDiagnostico(models.Model):
+	pregunta = models.ForeignKey(PreguntaDiagnostico, on_delete=models.CASCADE)
+	formulario = models.ForeignKey(FormDiagnostico, on_delete=models.CASCADE)
+	puntaje = models.IntegerField()
+	respuesta = models.CharField(max_length=255, blank=True)
+	comentario = models.CharField(max_length=255, blank=True, default='')
