@@ -27,7 +27,7 @@
 
 {% else %}
 	<div class="container">
-		<form method="POST">
+		<form method="POST" enctype="multipart/form-data">
 			{% csrf_token %}
 			<h2>Formulario Diagnóstico</h2>
 			<ul class="nav nav-tabs">
@@ -40,10 +40,32 @@
 			{% for form in forms %}
 				<div id="Q{{forloop.counter}}" {% if forloop.counter == 1 %} class="tab-pane fade in active" {% else %} class="tab-pane fade " {% endif %}>
 				{% for field in form %}
-					<p>{{forloop.counter}}) {{field.label}}</p>
-					<p>{{field}}</p>	
+					<p style="font-weight: bold;">{{field.label}}</p>
+					{% if form.doc|get_item:field.auto_id == 1 %}
+						{% if field.auto_id|document_exist:form.formulario %}	
+							<style type="text/css">
+								.modal.fade img {
+   									max-width: 1080px;
+   									vertical-align: middle;
+
+   								}
+   								.modal.fade{
+   									text-align: center;
+   									vertical-align: middle;
+   								}
+						</style>
+							<a data-toggle="modal" href="#myModal{{field.auto_id}}">Ver documento</a>
+							<div class="modal fade" id="myModal{{field.auto_id}}" role="dialog">
+								        <div class="modal-body">
+								          	<img src="../media/{{ field.auto_id|get_path_doc:form.formulario }}"/>
+								      	</div>
+							</div>
+							<p>Subir otro documento: </p>	
+						{% endif %}
+					{% endif %}
+					<p>{{field}}</p>
 				{% endfor %}
-				</div>	
+				</div>
 			{% endfor %}
 			</div>
 			<input type="submit" value="Enviar">
@@ -52,3 +74,4 @@
 {% endif %}
 
 {% endblock %}
+

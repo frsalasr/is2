@@ -62,6 +62,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
 ]
 
 ROOT_URLCONF = 'myapp.urls'
@@ -144,3 +145,8 @@ STATIC_URL = '/static/'
 # Donde redireccionan al hacer login/logout
 LOGIN_REDIRECT_URL = '/grupo4test/'
 LOGOUT_REDIRECT_URL = '/grupo4test/'
+
+#donde va a estar la media (archivos descargados)
+
+MEDIA_URL = 'media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

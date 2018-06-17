@@ -3,6 +3,9 @@ from django.shortcuts import render, redirect, get_object_or_404, render_to_resp
 #para hacer commit al momento de hacer transacciones
 from django.db import transaction
 
+# para subir archivos
+from django.core.files.storage import FileSystemStorage
+
 # login para logear
 from django.contrib.auth import login
 # esto es para redireccionar de forma directa después de hacer login
@@ -13,6 +16,10 @@ from django.contrib import messages
 # forms, modulos y modelos
 from .forms import *
 from .models import *
+
+import os
+
+from django.conf import settings
 
 ### HOME
 
@@ -106,22 +113,55 @@ def diagnostico(request):
 			return redirect('datos')
 
 		empresa = Empresa.objects.get(autor=request.user)
+		formulario = FormDiagnostico.objects.get(empresa=empresa)
+
+		if request.method == 'POST':
+
+			if request.FILES is not None:
+				for file in request.FILES:
+					#print(file)
+					#print(myfile)
+					documento = Document(empresa=empresa, document=request.FILES[file])
+					documento.save()
+					formulario.addFile(documento, file)
+
+			# se pesca la data dentro del form y se lleva a un diccionario
+			# la id de los fields es la id de la pregunta en PreguntaClasificacion
+			# ex: data['1'] = 'Si' => respuesta para pregunta de id 1 es 'Si'
+			
+
+			data = request.POST.dict()
+			formulario.responder(data)
+
+			# se construye el formulario con las preguntas respondidas
+			#QuestionForm.getInfo(data, empresa)
+			#FormDiagnostico.ponerPuntaje(data, empresa)
+			#FormularioClasificacion.calcularPuntaje(formulario)
+			#print(formulario.puntaje)
+			#FormularioClasificacion.setEtapa(formulario)
+			#FormularioClasificacion.ponerPuntaje(data,formulario)
+			#formulario.calcularPuntaje()
+			# se llama a si mismo y muestra caso donde formulario fue respondido
+			#return redirect('formulario')
 
 		if FormDiagnostico.objects.filter(empresa=empresa).count() > 0:
 
 			if not FormularioClasificacion.objects.get(empresa=empresa).validado:
-				return render(request, template, {'error': 'No tienes etapa todavíá, no puedes hacer este formulario.'})
+				return render(request, template, {'error': 'No tienes etapa todavía, no puedes hacer este formulario.'})
 
 			formulario = FormDiagnostico.objects.get(empresa=empresa)
 			# Se crea una donde se insertarán los forms para cada Q
 			forms = []
 
 			for i in range(1,formulario.Q+1):
+				print('agregando weas')
 				#Por cada Q se crea un DiagForm correspondiente a ese Q y se guarda en la lista
-				forms.append(DiagForm(i))				
+				forms.append(DiagForm(i,formulario))				
 
 			# Se le manda la lista entera al template, después imprime los Q{n} en cada tab
 			return render(request, template, {'forms': forms})
+
+
 
 
 	# en construcción . . . 
@@ -248,6 +288,7 @@ def register(request):
 	form = CustomUserCreationForm()
 	
 	if request.method == 'POST':
+
 		form = CustomUserCreationForm(request.POST)
 		if form.is_valid():
 			form.save()

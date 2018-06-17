@@ -11,6 +11,21 @@ from django.template.defaulttags import register
 ################################
 
 @register.filter
+def document_exist(id_question, formulario):
+	print('revisando si existe la wea')
+	if id_question.startswith('id_'):
+		id_question = id_question[3:]
+	if RespuestaDiagnostico.objects.get(pregunta=id_question,formulario=formulario).documento:
+		return True
+	return False
+
+@register.filter
+def get_path_doc(id_question, formulario):
+	if id_question.startswith('id_'):
+		id_question = id_question[3:]
+	return RespuestaDiagnostico.objects.get(pregunta=id_question,formulario=formulario).documento.document
+
+@register.filter
 def get_item(diccionario, key):
 	return diccionario.get(key)
 
@@ -30,17 +45,19 @@ class ejemploForm(forms.Form):
 
 
 
-def createField(tipo, label, queryset=None):
+def createField(tipo, label, queryset=None, initial=""):
 	if tipo == 'a':
-		return forms.ModelChoiceField(label=label, queryset=queryset, required=False)
+		return forms.ModelChoiceField(label=label, queryset=queryset, required=False, initial=initial)
 	elif tipo == 't':
-		return forms.CharField(label=label, required=False, widget=forms.Textarea(attrs={
+		return forms.CharField(label=label, required=False, initial=initial, widget=forms.Textarea(attrs={
         																			'cols': 200,
 																			        'rows': 3,
 																			        'style': 'width: 50%'
 																			    }))
 	elif tipo == 'n':
-		return forms.IntegerField(label=label, required=False)
+		return forms.IntegerField(label=label, required=False, initial=initial)
+	elif tipo == 'd':
+		return forms.FileField(label=label, required=False)
 	else:
 		return 'error'
 
@@ -55,22 +72,24 @@ class HijoForm(forms.Form):
 class DiagForm(forms.Form):
 	#hidden = forms.IntegerField()
 
-	def __init__(self,Q,**kwargs):
+	def __init__(self,Q,formulario,**kwargs):
 		# Se inicia el super Form
 		super(DiagForm, self).__init__(**kwargs)
 
 		self.Q = Q
-		print(self.Q)
-		
+		self.formulario = formulario
+		self.formulario.checkFormulario()
 		# se guardan los forms hijos
 		self.base = {}
 		self.papa = {}
+		self.doc = {}
 
 		# Se llama a todas las preguntas de clasificación 
 		# Por cada pregunta de clasificación
 
 
 		for pregunta in PreguntaDiagnostico.objects.filter(base_question=True, Q=self.Q).order_by('numero'):
+			print('agergando mas mierdas')
 			# self.fields[key] es un diccionario key -> form 
 			# Ejemplo para pregunta tipo respuesta en texto
 			# self.field['pregunta_n'] = forms.CharField(required = False)
@@ -80,16 +99,22 @@ class DiagForm(forms.Form):
 			pregunta_key = str(pregunta.id)
 			self.base['id_' + pregunta_key] = 1
 			# se toman las preguntas que dependen de estaa 
+			if pregunta.getTipo() == 'd':
+				self.doc['id_' + pregunta_key] = 1
 
-			self.fields[pregunta_key] = createField(pregunta.getTipo(), pregunta.texto_pregunta, pregunta.preguntas_alternativa.all())
+			respuesta = RespuestaDiagnostico.objects.get(pregunta = pregunta, formulario = formulario)
+			#print(respuesta)
+
+			self.fields[pregunta_key] = createField(pregunta.getTipo(), pregunta.texto_pregunta, pregunta.preguntas_alternativa.all(), respuesta.respuesta)
 			# Se guarda la pregunta para presentarla en el form
 			#self.preguntas.append(pregunta.texto_pregunta)
 			
 			preguntas_hijas = PreguntaDiagnostico.objects.filter(depende_de=pregunta).order_by('sub_numero')
 			if preguntas_hijas.count() > 0:
 				for question in preguntas_hijas:
+					answer = RespuestaDiagnostico.objects.get(pregunta = question, formulario = formulario)
 					self.papa['id_' + str(question.id)] = "id_" + pregunta_key
-					self.fields[str(question.id)] = createField(question.getTipo(), question.texto_pregunta, question.preguntas_alternativa.all())
+					self.fields[str(question.id)] = createField(question.getTipo(), question.texto_pregunta, question.preguntas_alternativa.all(), answer.respuesta)
 
 # Form que toma TODAS las preguntas para clasificar y dependiendo del tipo de esta crea un field
 class QuestionForm(forms.Form):

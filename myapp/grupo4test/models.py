@@ -52,6 +52,7 @@ TIPO_PREGUNTA = (
 	('a', 'Alternativa'),
 	('n', 'Número'),
 	('t', 'Texto'),
+	('d', 'Documento')
 	)
 
 
@@ -225,9 +226,16 @@ class RespuestasClasificacion(models.Model):
 
 
 class Document(models.Model):
-	descrpcion = models.CharField(max_length=255, blank=True)
-	document = models.FileField(upload_to='documents/')
+	empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, null=True)
 	uploaded_at = models.DateTimeField(auto_now_add=True)
+
+	def get_upload_path(instance, filename):
+		return 'documents/{0}/{1}'.format(instance.empresa.nombre, filename)
+
+	document = models.FileField(upload_to=get_upload_path)
+
+	def __str__(self):
+		return str(self.document)
  
 class PreguntaDiagnostico(models.Model):
 	#id_pregunta = models.IntegerField(primary_key=True)
@@ -240,22 +248,26 @@ class PreguntaDiagnostico(models.Model):
 		(5,5),
 		)
 
+	base_question = models.BooleanField(default=False)
+	Q = models.IntegerField(choices=Q_CHOICES)
 	numero = models.IntegerField(unique=False, null=True, blank=True)
 	sub_numero = models.IntegerField(unique=False, null=True, blank=True)
-	Q = models.IntegerField(choices=Q_CHOICES)
 	ponderacion = models.IntegerField(default=1)
 	texto_pregunta = models.CharField(max_length=255)
 	tipo_pregunta = models.CharField(max_length=1, choices=TIPO_PREGUNTA, blank=True, default='a', null=True)
 	preguntas_alternativa = models.ManyToManyField(TipoAlternativa, blank=True)
-	Document = models.ForeignKey(Document, on_delete=models.CASCADE, blank=True, null=True)
-	base_question = models.BooleanField(default=False)
+	
 	depende_de = models.ManyToManyField("self", blank=True)
+	document = models.BooleanField(default=False)
+
+	class Meta:
+		ordering = ['Q','numero','sub_numero']
 
 	def getTipo(self):
 		return self.tipo_pregunta
 
 	def __str__(self):
-		return str(self.texto_pregunta)
+		return 'Q' + str(self.Q) + ' ' + str(self.numero) + '.' +str(self.sub_numero) + ' ' + str(self.texto_pregunta)
 
 class FormDiagnostico(models.Model):
 
@@ -300,8 +312,49 @@ class FormDiagnostico(models.Model):
 										respuesta='')
 			r1.save()
 
-	def getQ(self):
-		return self.Q
+	def responder(self, diccionario):
+		# si es que se cambiaron las preguntas
+		if self.preguntas.count() != PreguntaDiagnostico.objects.count():
+			FormularioClasificacion.construir(self.empresa)
+
+		# se guardan las respuestas correspondientes
+		for key,item in diccionario.items():
+			#print(str(key) + ' ' + str(item))
+			if key == 'csrfmiddlewaretoken':
+				continue
+			pregunta = PreguntaDiagnostico.objects.get(id=key)
+			r1 = RespuestaDiagnostico.objects.get(formulario=self, pregunta=pregunta)
+			r1.respuesta = str(item)
+			r1.save()
+
+	def addFile(self, documento, id_pregunta):
+		print(id_pregunta)
+		if RespuestaDiagnostico.objects.filter(pregunta=id_pregunta, formulario=self) == 0:
+			print('no existe la wea')
+			r1 = RespuestaDiagnostico(pregunta = id_pregunta,
+							formulario = self,
+							puntaje=0,
+							respuesta='')
+			r1.save()
+		r1 = RespuestaDiagnostico.objects.get(pregunta=id_pregunta, formulario=self)
+		r1.documento = documento
+		r1.save()
+
+	def checkFormulario(self):
+		if self.preguntas.count() != PreguntaDiagnostico.objects.count():
+			preguntas = PreguntaDiagnostico.objects.all()
+			for pregunta in preguntas:
+				if RespuestaDiagnostico.objects.filter(pregunta=pregunta, formulario=self).count() == 0:
+					r1 = RespuestaDiagnostico(pregunta = pregunta,
+									formulario = self,
+									puntaje=0,
+									respuesta='')
+					r1.save()
+
+
+
+	def __str__(self):
+		return self.empresa.nombre
 
 class RespuestaDiagnostico(models.Model):
 	pregunta = models.ForeignKey(PreguntaDiagnostico, on_delete=models.CASCADE)
@@ -309,3 +362,8 @@ class RespuestaDiagnostico(models.Model):
 	puntaje = models.IntegerField()
 	respuesta = models.CharField(max_length=255, blank=True)
 	comentario = models.CharField(max_length=255, blank=True, default='')
+	documento = models.ForeignKey(Document, on_delete=models.CASCADE, blank=True, null=True)
+	buena = models.BooleanField(default=False)
+
+	def __str__(self):
+		return self.pregunta.texto_pregunta + ' : ' + self.respuesta
