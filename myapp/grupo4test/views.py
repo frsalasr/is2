@@ -14,6 +14,9 @@ from django.contrib import messages
 from .forms import *
 from .models import *
 
+import dropbox
+import os
+
 ### HOME
 
 def home(request):
@@ -239,8 +242,16 @@ def wea(request):
 	template = 'grupo4test/wea.html'
 
 	if request.method == 'POST' and request.FILES['myfile']:
-		"""myfile = request.FILES['myfile']"""
+		myfile = request.FILES['myfile']
+		name = os.path.splitext(str(request.FILES['myfile']))[0]
+		extension = os.path.splitext(str(request.FILES['myfile']))[1]
+
+		dbx = dropbox.Dropbox('fJeqs6wRPWAAAAAAAAAACPERxFOlBNsWhSw-4LXig1nfvVwdVqgZ3HryiyHzeCCf')
+
+		dbx.files_upload(myfile.read(),'/ID_TEST_USER/'+name+extension,mute =True)
+
 		print ("Archivo RECIBIDO")
+		
 		return render (request, template, {})
 
 	return render(request, template, {})
