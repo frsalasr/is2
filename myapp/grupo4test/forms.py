@@ -11,22 +11,38 @@ from django.template.defaulttags import register
 ################################
 
 @register.filter
+def in_list(value, the_list):
+    value = str(value)
+    return value in the_list.split(',')
+
+@register.filter
+def index(List, i):
+    return List[int(i)]
+
+@register.filter
 def document_exist(id_question, formulario):
-	print('revisando si existe la wea')
+	print('Revisando si existe un documento ' + str(id_question) + ' de ' + str(formulario.empresa))
 	if id_question.startswith('id_'):
 		id_question = id_question[3:]
 	if RespuestaDiagnostico.objects.get(pregunta=id_question,formulario=formulario).documento:
+		print('Existe el documento: ' + str(RespuestaDiagnostico.objects.get(pregunta=id_question,formulario=formulario).documento))
 		return True
+	print('No tiene documento . . . ')
 	return False
 
 @register.filter
 def get_path_doc(id_question, formulario):
 	if id_question.startswith('id_'):
 		id_question = id_question[3:]
-	return RespuestaDiagnostico.objects.get(pregunta=id_question,formulario=formulario).documento.document
+	documento = RespuestaDiagnostico.objects.get(pregunta=id_question,formulario=formulario).documento
+	path = documento.document
+	extension = documento.extension
+	return [path, extension]
 
 @register.filter
 def get_item(diccionario, key):
+	if diccionario.get(key) is not None:
+		print(key)
 	return diccionario.get(key)
 
 @register.filter
@@ -89,7 +105,7 @@ class DiagForm(forms.Form):
 
 
 		for pregunta in PreguntaDiagnostico.objects.filter(base_question=True, Q=self.Q).order_by('numero'):
-			print('agergando mas mierdas')
+			# print('Agregando mas mierdas')
 			# self.fields[key] es un diccionario key -> form 
 			# Ejemplo para pregunta tipo respuesta en texto
 			# self.field['pregunta_n'] = forms.CharField(required = False)
@@ -98,8 +114,9 @@ class DiagForm(forms.Form):
 			# Se define la Key del diccionario como pregunta_(id_pregunta), ex: pregunta_1, pregunta_20, etc
 			pregunta_key = str(pregunta.id)
 			self.base['id_' + pregunta_key] = 1
-			# se toman las preguntas que dependen de estaa 
+			# se toman las preguntas que dependen de esta
 			if pregunta.getTipo() == 'd':
+				print(str(pregunta.id) + ' es documento')
 				self.doc['id_' + pregunta_key] = 1
 
 			respuesta = RespuestaDiagnostico.objects.get(pregunta = pregunta, formulario = formulario)
@@ -107,13 +124,16 @@ class DiagForm(forms.Form):
 
 			self.fields[pregunta_key] = createField(pregunta.getTipo(), pregunta.texto_pregunta, pregunta.preguntas_alternativa.all(), respuesta.respuesta)
 			# Se guarda la pregunta para presentarla en el form
-			#self.preguntas.append(pregunta.texto_pregunta)
+
 			
 			preguntas_hijas = PreguntaDiagnostico.objects.filter(depende_de=pregunta).order_by('sub_numero')
 			if preguntas_hijas.count() > 0:
 				for question in preguntas_hijas:
 					answer = RespuestaDiagnostico.objects.get(pregunta = question, formulario = formulario)
 					self.papa['id_' + str(question.id)] = "id_" + pregunta_key
+					if question.getTipo() == 'd':
+						print(str(question.id) + ' es documento')
+						self.doc['id_' + str(question.id)] = 1
 					self.fields[str(question.id)] = createField(question.getTipo(), question.texto_pregunta, question.preguntas_alternativa.all(), answer.respuesta)
 
 # Form que toma TODAS las preguntas para clasificar y dependiendo del tipo de esta crea un field
