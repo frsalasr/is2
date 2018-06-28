@@ -33,6 +33,8 @@ urlpatterns = [
     # empresa en particular 
     path('postulantes/clasificacion/<int:rut_empresa>', views.clasificar, name='clasificar'),
 
+    #guardar archivo
+    path('save/', views.save, name='save'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
