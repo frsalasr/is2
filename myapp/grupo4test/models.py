@@ -237,6 +237,7 @@ class RespuestasClasificacion(models.Model):
 
 class Document(models.Model):
 	empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, null=True)
+	extension = models.CharField(max_length=8, default='none')
 	uploaded_at = models.DateTimeField(auto_now_add=True)
 
 	def get_upload_path(instance, filename):
@@ -338,9 +339,9 @@ class FormDiagnostico(models.Model):
 			r1.save()
 
 	def addFile(self, documento, id_pregunta):
-		print(id_pregunta)
+		print('Inicio models.FormDiagnostico.addFile: ' + str(documento) + ' ' + str(id_pregunta))
 		if RespuestaDiagnostico.objects.filter(pregunta=id_pregunta, formulario=self) == 0:
-			print('no existe la wea')
+			print('Creando pregunta en blanco . . . ')
 			r1 = RespuestaDiagnostico(pregunta = id_pregunta,
 							formulario = self,
 							puntaje=0,
@@ -349,6 +350,7 @@ class FormDiagnostico(models.Model):
 		r1 = RespuestaDiagnostico.objects.get(pregunta=id_pregunta, formulario=self)
 		r1.documento = documento
 		r1.save()
+		print('Término models.FormDiagnostico.addFIle, creó ' + str(r1.documento))
 
 	def checkFormulario(self):
 		if self.preguntas.count() != PreguntaDiagnostico.objects.count():
@@ -375,5 +377,8 @@ class RespuestaDiagnostico(models.Model):
 	documento = models.ForeignKey(Document, on_delete=models.CASCADE, blank=True, null=True)
 	buena = models.BooleanField(default=False)
 
+	class Meta:
+		ordering = ['formulario','pregunta__Q','pregunta__numero','pregunta__sub_numero']
+
 	def __str__(self):
-		return self.pregunta.texto_pregunta + ' : ' + self.respuesta
+		return self.formulario.empresa.nombre + ' Q' + str(self.pregunta.Q) + ' ' + self.pregunta.texto_pregunta + ' : ' + self.respuesta

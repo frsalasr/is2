@@ -43,24 +43,46 @@
 					<p style="font-weight: bold;">{{field.label}}</p>
 					{% if form.doc|get_item:field.auto_id == 1 %}
 						{% if field.auto_id|document_exist:form.formulario %}	
-							<style type="text/css">
-								.modal.fade img {
-   									max-width: 1080px;
-   									vertical-align: middle;
+							{# Esto revisa la extensión del archivo y ve si es de png, jpg, jpeg, etc #}
+							{% if field.auto_id|get_path_doc:form.formulario|index:1|in_list:'png,jpg,jpeg' %}
+								<a data-toggle="modal" href="#myModal{{field.auto_id}}" class="pop{{field.auto_id}}">Ver Documento</a><br>
+								<div class="modal fade" id="myModal{{field.auto_id}}" role="dialog">
+									<div class="modal-dialog modal-lg">
+								    	<div class="modal-content">    
+								    		<div class="model-head">
+												<h4 class="modal-title">Documento de {{field.label}}</h4>
+											</div>          
+								      		<div class="modal-body">
+								        		<img src="../media/{{field.auto_id|get_path_doc:form.formulario|index:0}}" class="imagepreview" style="width: 100%;"  >
+								      		</div>
+								    	</div>
+								  	</div>
+								</div>
+								<p>Descargar documento: <a href="../media/{{field.auto_id|get_path_doc:form.formulario|index:0}}"> {{field.auto_id|get_path_doc:form.formulario|index:2}}</a></p> <br><br>
+							{% elif field.auto_id|get_path_doc:form.formulario|index:1|in_list:'pdf'%}
+						        <a data-toggle="modal" href="#myModal{{field.auto_id}}" class="pop{{field.auto_id}}">Ver Documento</a><br>
+						        <!-- Modal -->
+						        <div id="myModal{{field.auto_id}}" class="modal fade" role="dialog">
+						            <div class="modal-dialog modal-lg">
+						                <!-- Modal content-->
+						                <div class="modal-content">
+						                    <div class="modal-header">
+						                        <h4 class="modal-title">Documento de {{field.label}}</h4>
+						                    </div>
+						                    <div class="modal-body">
+						                        <embed src="../media/{{field.auto_id|get_path_doc:form.formulario|index:0}}"
+						                               frameborder="0" width="100%" height="400px">
+						                    </div>
 
-   								}
-   								.modal.fade{
-   									text-align: center;
-   									vertical-align: middle;
-   								}
-						</style>
-							<a data-toggle="modal" href="#myModal{{field.auto_id}}">Ver documento</a>
-							<div class="modal fade" id="myModal{{field.auto_id}}" role="dialog">
-								        <div class="modal-body">
-								          	<img src="../media/{{ field.auto_id|get_path_doc:form.formulario }}"/>
-								      	</div>
-							</div>
-							<p>Subir otro documento: </p>	
+						                </div>
+						            </div>
+						        </div>
+						        <p>Descargar documento: <a href="../media/{{field.auto_id|get_path_doc:form.formulario|index:0}}"> {{field.auto_id|get_path_doc:form.formulario|index:2}}</a></p> <br><br>
+						    {% else %}
+						    <a href="../media/{{field.auto_id|get_path_doc:form.formulario|index:0}}">Descargar documento {{field.auto_id|get_path_doc:form.formulario|index:2}}</a> <br><br>
+
+							{% endif %}
+						<p>Subir otro documento: </p>	
 						{% endif %}
 					{% endif %}
 					<p>{{field}}</p>
