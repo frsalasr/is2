@@ -7,8 +7,12 @@ from django.core.exceptions import ValidationError
 
 from django.template.defaulttags import register
 
+import os
 
 ################################
+@register.filter
+def getFilename(path,op):
+	return os.path.basename(path)
 
 @register.filter
 def in_list(value, the_list):
@@ -37,7 +41,8 @@ def get_path_doc(id_question, formulario):
 	documento = RespuestaDiagnostico.objects.get(pregunta=id_question,formulario=formulario).documento
 	path = documento.document
 	extension = documento.extension
-	return [path, extension]
+	filename = os.path.basename(str(documento.document))
+	return [path, extension, filename]
 
 @register.filter
 def get_item(diccionario, key):

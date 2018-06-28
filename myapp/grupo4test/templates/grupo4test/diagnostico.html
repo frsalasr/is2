@@ -58,7 +58,7 @@
 								    	</div>
 								  	</div>
 								</div>
-								<a href="../media/{{field.auto_id|get_path_doc:form.formulario|index:0}}">Descargar documento</a><br><br>
+								<p>Descargar documento: <a href="../media/{{field.auto_id|get_path_doc:form.formulario|index:0}}"> {{field.auto_id|get_path_doc:form.formulario|index:2}}</a></p> <br><br>
 							{% elif field.auto_id|get_path_doc:form.formulario|index:1|in_list:'pdf'%}
 						        <a data-toggle="modal" href="#myModal{{field.auto_id}}" class="pop{{field.auto_id}}">Ver Documento</a><br>
 						        <!-- Modal -->
@@ -77,9 +77,9 @@
 						                </div>
 						            </div>
 						        </div>
-						        <a href="../media/{{field.auto_id|get_path_doc:form.formulario|index:0}}">Descargar documento</a> <br><br>
+						        <p>Descargar documento: <a href="../media/{{field.auto_id|get_path_doc:form.formulario|index:0}}"> {{field.auto_id|get_path_doc:form.formulario|index:2}}</a></p> <br><br>
 						    {% else %}
-						    <a href="../media/{{field.auto_id|get_path_doc:form.formulario|index:0}}">Descargar documento</a> <br><br>
+						    <a href="../media/{{field.auto_id|get_path_doc:form.formulario|index:0}}">Descargar documento {{field.auto_id|get_path_doc:form.formulario|index:2}}</a> <br><br>
 
 							{% endif %}
 						<p>Subir otro documento: </p>	

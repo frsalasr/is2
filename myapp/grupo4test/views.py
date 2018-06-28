@@ -282,7 +282,9 @@ def clasificados(request):
 def diagnosticados(request):	
 	template = 'grupo4test/diagnosticados.html'
 
-	return render(request, template, {})
+	formularios = FormDiagnostico.objects.all()
+
+	return render(request, template, {'formularios': formularios})
 
 ## REGISTRO
 def register(request):
