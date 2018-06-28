@@ -121,8 +121,12 @@ def diagnostico(request):
 				for file in request.FILES:
 					#print(file)
 					#print(myfile)
-					documento = Document(empresa=empresa, document=request.FILES[file])
+					#name, ext = os.path.splitext(str(request.FILES[file]))
+					#print('extension :' +  str(ext)[1:])
+					extension = str(os.path.splitext(str(request.FILES[file]))[1])[1:]
+					documento = Document(empresa=empresa, document=request.FILES[file], extension=extension)
 					documento.save()
+					print('Extensión del documento: ' + documento.extension)
 					formulario.addFile(documento, file)
 
 			# se pesca la data dentro del form y se lleva a un diccionario
@@ -278,7 +282,9 @@ def clasificados(request):
 def diagnosticados(request):	
 	template = 'grupo4test/diagnosticados.html'
 
-	return render(request, template, {})
+	formularios = FormDiagnostico.objects.all()
+
+	return render(request, template, {'formularios': formularios})
 
 ## REGISTRO
 def register(request):
