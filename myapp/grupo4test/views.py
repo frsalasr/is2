@@ -63,7 +63,9 @@ def datos(request):
 				# no debiese pasar ...
 				empresa = Empresa.objects.filter(autor=request.user)
 				if empresa.count() > 0:
-					return 'Error'
+					FormularioClasificacion.construir(empresa[0])
+					FormDiagnostico.construir(empresa[0])
+					return redirect("formulario")
 				# cuando no está registrada la cuestion
 				# se crea la empresa a nombre del usuario
 				# y se le crea su formulario respondido vacío
@@ -157,8 +159,8 @@ def diagnostico(request):
 			# Se crea una donde se insertarán los forms para cada Q
 			forms = []
 
-			for i in range(1,formulario.Q+1):
-				print('agregando weas')
+			print("Q " + str(formulario.Q))
+			for i in range(1,formulario.Q+2):
 				#Por cada Q se crea un DiagForm correspondiente a ese Q y se guarda en la lista
 				forms.append(DiagForm(i,formulario))				
 
