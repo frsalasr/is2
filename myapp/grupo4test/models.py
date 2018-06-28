@@ -91,25 +91,25 @@ class PreguntaClasificacion(models.Model):
 class Empresa(models.Model):
 	rut = models.IntegerField(primary_key=True)
 	nombre = models.CharField(max_length=255)
-	etapa = models.CharField(max_length=255,blank=True, null=True)
+	etapa = models.CharField(max_length=255,default="Idea")
 	autor = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
 
 	def getQbyEtapa(self):
-		if self.etapa == 'idea':
+		if self.etapa == 'Idea':
+			return 0
+		elif self.etapa == 'Semilla':
 			return 1
-		elif self.etapa == 'semilla':
+		elif self.etapa == 'Etapa Temprana':
 			return 2
-		elif self.etapa == 'xxx':
+		elif self.etapa == 'Expansión':
 			return 3
-		elif self.etapa == 'asd':
+		elif self.etapa == 'Internacionalización':
 			return 4
-		else:
-			return 5
 
 	def setEtapa(self, etapa):
 		self.etapa = etapa
 		self.save()
-		print('etapa ' + self.etapa)
+		print('Etapa ' + self.etapa)
 	
 	def __str__(self):
 		return str(self.nombre)
@@ -171,7 +171,7 @@ class FormularioClasificacion(models.Model):
 		
 		puntaje = 0
 		for question in RespuestasClasificacion.objects.filter(formulario=formulario):
-			puntaje = puntaje + question.pregunta.ponderacion*question.puntaje
+			puntaje = question.pregunta.ponderacion*question.puntaje -1
 
 		puntaje = puntaje/PreguntaClasificacion.objects.all().count()
 		print('puntaje ' + str(puntaje))
@@ -180,12 +180,17 @@ class FormularioClasificacion(models.Model):
 		formulario.puntaje = puntaje
 		formulario.save()
 
-		if puntaje < 5:
-			formulario.empresa.setEtapa('idea')
-		elif puntaje >= 5 and puntaje < 10:
-			formulario.empresa.setEtapa('semilla')
-		else:
-			formulario.empresa.setEtapa('pyme')
+		if puntaje == 0:
+			formulario.empresa.setEtapa('Idea')
+		elif puntaje == 1:
+			formulario.empresa.setEtapa('Semilla')
+		elif puntaje == 2:
+			formulario.empresa.setEtapa('Etapa Temprana')
+		elif puntaje == 3:
+			formulario.empresa.setEtapa('Expansión')
+		elif puntaje == 4:
+			formulario.empresa.setEtapa('Internacionalización')		
+
 
 		formulario.respondido = True
 		formulario.save()
@@ -202,12 +207,17 @@ class FormularioClasificacion(models.Model):
 		formulario.save()
 
 	def setEtapa(formulario):
-		if formulario.puntaje < 4:
-			formulario.empresa.setEtapa('idea')
-		elif formulario.puntaje >= 3 and formulario.puntaje < 10:
-			formulario.empresa.setEtapa('semilla')
-		else:
-			formulario.empresa.setEtapa('pyme')
+		if formulario.puntaje == 0:
+			formulario.empresa.setEtapa('Idea')
+		elif formulario.puntaje == 1:
+			formulario.empresa.setEtapa('Semilla')
+		elif formulario.puntaje == 2:
+			formulario.empresa.setEtapa('Etapa Temprana')
+		elif formulario.puntaje == 3:
+			formulario.empresa.setEtapa('Expansión')
+		elif formulario.puntaje == 4:
+			formulario.empresa.setEtapa('Internacionalización')		
+	
 
 	def __str__(self):
 		return str(self.empresa.nombre)
