@@ -1,5 +1,8 @@
 from django.urls import path
 from django.conf.urls import include
+from django.conf.urls.static import static
+from django.conf import settings
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 from . import views
 
@@ -21,6 +24,7 @@ urlpatterns = [
 
     # ejemplo
     path('ejemplo/', views.ejemplo, name='ejemplo'),
+
     ### ADMINS
     # ver postulantes
     path('postulantes/clasificacion', views.clasificados, name='clasificados'),
@@ -28,4 +32,10 @@ urlpatterns = [
 
     # empresa en particular 
     path('postulantes/clasificacion/<int:rut_empresa>', views.clasificar, name='clasificar'),
+
+    #guardar archivo
+    path('save/', views.save, name='save'),
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += staticfiles_urlpatterns()
