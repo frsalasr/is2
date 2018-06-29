@@ -42,17 +42,11 @@
 				{% for field in form %}
 					{% if form.base|get_item:field.auto_id %}	
 						<div id="div_{{field.auto_id}}">
-							mi id: div_{{field.auto_id}}
 							<p style="font-weight: bold;">{{field.label}}</p>
 							<p>{{field}}</p>
 						</div>
 					{% else %}
-						<div id="div_{{field.auto_id}}" {%
-						if form.papa|get_item:field.auto_id != '6'
-						%}
-							style="display: none;" >
-							mi id: div_{{field.auto_id}}
-							mi papá es: {{form.papa|get_item:field.auto_id}}
+						<div id="div_{{field.auto_id}}" style="display: none"> 
 							<p style="font-weight: bold;">{{field.label}}</p>
 								{% if form.doc|get_item:field.auto_id == 1 %}
 									{% if field.auto_id|document_exist:form.formulario %}	
