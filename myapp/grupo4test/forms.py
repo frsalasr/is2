@@ -24,10 +24,6 @@ def index(List, i):
     return List[int(i)]
 
 @register.filter
-def macaco(lista, i):
-	return lista[i]
-
-@register.filter
 def document_exist(id_question, formulario):
 	print('Revisando si existe un documento ' + str(id_question) + ' de ' + str(formulario.empresa))
 	if id_question.startswith('id_'):
@@ -50,8 +46,8 @@ def get_path_doc(id_question, formulario):
 
 @register.filter
 def get_item(diccionario, key):
-	if diccionario.get(key) is not None:
-		print(key)
+	print(diccionario)
+	print(key)
 	return diccionario.get(key)
 
 @register.filter
@@ -112,6 +108,7 @@ class DiagForm(forms.Form):
 			# Se define la Key del diccionario como pregunta_(id_pregunta), ex: pregunta_1, pregunta_20, etc
 			pregunta_key = str(pregunta.id)
 			self.base['id_' + pregunta_key] = 1
+			print(str(pregunta.id) + ' ' + str(self.base['id_'+pregunta_key]))
 			# se toman las preguntas que dependen de esta
 			if pregunta.getTipo() == 'd':
 				print(str(pregunta.id) + ' es documento')
