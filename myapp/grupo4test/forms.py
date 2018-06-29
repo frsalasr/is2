@@ -24,8 +24,12 @@ def index(List, i):
     return List[int(i)]
 
 @register.filter
+def macaco(lista, i):
+	return lista[i]
+
+@register.filter
 def document_exist(id_question, formulario):
-print('Revisando si existe un documento ' + str(id_question) + ' de ' + str(formulario.empresa))
+	print('Revisando si existe un documento ' + str(id_question) + ' de ' + str(formulario.empresa))
 	if id_question.startswith('id_'):
 		id_question = id_question[3:]
 	if RespuestaDiagnostico.objects.get(pregunta=id_question,formulario=formulario).documento:
