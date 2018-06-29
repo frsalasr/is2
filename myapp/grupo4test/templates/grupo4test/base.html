@@ -25,13 +25,13 @@
       <div class="sidebar-nav">
       	    {% if user.is_authenticated %}
         		<li>Bienvenido 
-        			<p style="font-weight: bold;">{{ user.get_username }} </p></li>
+        		<p style="font-weight: bold;">{{ user.get_username }} </p></li>
      			<li><a href="{% url 'logout'%}">Logout</a></li>   
    			{% else %}
 	     		<li><a href="{% url 'login'%}">Login</a></li>  
 	     		<li><a href="{% url 'register'%}">Registro</a></li>  
    			{% endif %} 
-            	<hr style="height:1px;width: 10%;  background-color:black;border:none;  display: inline-block" />
+            	<!-- <hr style="height:1px;width: 10%;  background-color:black;border:none;  display: inline-block" /> -->
           <li><a href="{% url 'home' %}">Inicio</a></li>
           <span style="display:block; height: 15px;"></span>
           {% if user.is_authenticated %}
