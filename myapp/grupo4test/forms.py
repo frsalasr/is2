@@ -10,6 +10,22 @@ from django.template.defaulttags import register
 import os
 
 ################################
+
+@register.filter
+def getComentario(id_question, formulario):
+	if id_question.startswith('id_'):
+		id_question = id_question[3:]
+	r = RespuestaDiagnostico.objects.get(pregunta__id=id_question, formulario=formulario).comentario
+	
+	if r == '':
+		return False
+
+	return RespuestaDiagnostico.objects.get(pregunta__id=id_question, formulario=formulario).comentario
+
+@register.filter
+def getTipoA(id):
+	return TipoAlternativa.objects.get(id=id)
+
 @register.filter
 def getFilename(path,op):
 	return os.path.basename(path)
@@ -54,8 +70,6 @@ def get_item(diccionario, key):
 def get_hijo(pregunta, formulario):
 	return RespuestasClasificacion.objects.get(pregunta=pregunta, formulario=formulario)
 
-
-
 def createField(tipo, label, queryset=None, initial=""):
 	if tipo == 'a':
 		return forms.ModelChoiceField(label=label, queryset=queryset, required=False, initial=initial)
@@ -79,6 +93,21 @@ class HijoForm(forms.Form):
 
 	def crearField(self, key, tipo, label, queryset):
 		self.fields[key] = createField(tipo,label,queryset)
+
+class SetEstadoForm(forms.Form):
+
+
+	def __init__(self,estado,**kwargs):
+		super(SetEstadoForm, self).__init__(**kwargs)
+
+		self.ESTADO_CHOICES = (
+			('RESUELTO','RESUELTO'),
+			('PENDIENTE','PENDIENTE'),
+			('CORREGIR','CORREGIR'),
+			)
+		self.estado = estado
+		self.fields['estado'] = forms.ChoiceField(label='Estado del diagnostico', choices=self.ESTADO_CHOICES, initial = self.estado)
+	
 
 class DiagForm(forms.Form):
 	#hidden = forms.IntegerField()
