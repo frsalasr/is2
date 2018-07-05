@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+import datetime
 
 class Ejemplo(models.Model):
 	nombre = models.CharField(max_length=30)
@@ -245,6 +246,11 @@ class Document(models.Model):
 
 	document = models.FileField(upload_to=get_upload_path)
 
+	def getFilename(self):
+		import os
+
+		return os.path.basename(str(self.document))
+
 	def __str__(self):
 		return str(self.document)
  
@@ -290,12 +296,20 @@ class FormDiagnostico(models.Model):
 		(5,5),
 		)
 
+	ESTADO_CHOICES = (
+		('RESUELTO','RESUELTO'),
+		('PENDIENTE','PENDIENTE'),
+		('CORREGIR','CORREGIR'),
+		)
+
 	puntaje = models.FloatField(blank=True, null=True, default=0)
 	empresa = models.OneToOneField(Empresa, on_delete=models.CASCADE, unique=True)
 	respondido = models.BooleanField(default=False)
+	estado = models.CharField(max_length=512, default='PENDIENTE', choices=ESTADO_CHOICES)
 	validado = models.BooleanField(default=False)
 	editable = models.BooleanField(default=False)
 	comentario = models.CharField(max_length=512, blank=True, default='')
+	fecha = models.DateTimeField(auto_now_add=True, blank=True)
 	Q = models.IntegerField(default=1, choices=Q_CHOICES)
 	preguntas = models.ManyToManyField(PreguntaDiagnostico, through='RespuestaDiagnostico')
 
@@ -363,7 +377,8 @@ class FormDiagnostico(models.Model):
 									respuesta='')
 					r1.save()
 
-
+	def calcularPuntaje(self, myDict):
+		return 'hola'
 
 	def __str__(self):
 		return self.empresa.nombre

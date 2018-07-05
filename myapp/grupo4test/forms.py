@@ -10,6 +10,22 @@ from django.template.defaulttags import register
 import os
 
 ################################
+
+@register.filter
+def getComentario(id_question, formulario):
+	if id_question.startswith('id_'):
+		id_question = id_question[3:]
+	r = RespuestaDiagnostico.objects.get(pregunta__id=id_question, formulario=formulario).comentario
+	
+	if r == '':
+		return False
+
+	return RespuestaDiagnostico.objects.get(pregunta__id=id_question, formulario=formulario).comentario
+
+@register.filter
+def getTipoA(id):
+	return TipoAlternativa.objects.get(id=id)
+
 @register.filter
 def getFilename(path,op):
 	return os.path.basename(path)
@@ -22,10 +38,6 @@ def in_list(value, the_list):
 @register.filter
 def index(List, i):
     return List[int(i)]
-
-@register.filter
-def macaco(lista, i):
-	return lista[i]
 
 @register.filter
 def document_exist(id_question, formulario):
@@ -50,15 +62,13 @@ def get_path_doc(id_question, formulario):
 
 @register.filter
 def get_item(diccionario, key):
-	if diccionario.get(key) is not None:
-		print(key)
+	print(diccionario)
+	print(key)
 	return diccionario.get(key)
 
 @register.filter
 def get_hijo(pregunta, formulario):
 	return RespuestasClasificacion.objects.get(pregunta=pregunta, formulario=formulario)
-
-
 
 def createField(tipo, label, queryset=None, initial=""):
 	if tipo == 'a':
@@ -83,6 +93,21 @@ class HijoForm(forms.Form):
 
 	def crearField(self, key, tipo, label, queryset):
 		self.fields[key] = createField(tipo,label,queryset)
+
+class SetEstadoForm(forms.Form):
+
+
+	def __init__(self,estado,**kwargs):
+		super(SetEstadoForm, self).__init__(**kwargs)
+
+		self.ESTADO_CHOICES = (
+			('RESUELTO','RESUELTO'),
+			('PENDIENTE','PENDIENTE'),
+			('CORREGIR','CORREGIR'),
+			)
+		self.estado = estado
+		self.fields['estado'] = forms.ChoiceField(label='Estado del diagnostico', choices=self.ESTADO_CHOICES, initial = self.estado)
+	
 
 class DiagForm(forms.Form):
 	#hidden = forms.IntegerField()
@@ -112,6 +137,7 @@ class DiagForm(forms.Form):
 			# Se define la Key del diccionario como pregunta_(id_pregunta), ex: pregunta_1, pregunta_20, etc
 			pregunta_key = str(pregunta.id)
 			self.base['id_' + pregunta_key] = 1
+			print(str(pregunta.id) + ' ' + str(self.base['id_'+pregunta_key]))
 			# se toman las preguntas que dependen de esta
 			if pregunta.getTipo() == 'd':
 				print(str(pregunta.id) + ' es documento')

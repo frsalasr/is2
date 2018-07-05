@@ -1,0 +1,170 @@
+{% extends "grupo4test/base.html" %}
+
+{% block content %}
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+
+<style type="text/css">
+    div.container{
+    	margin-left: 0px;
+    	font-size: 15px;
+    	max-width: 70%;
+    }
+    ul.nav.nav-tabs{
+    	font-size: 30px;
+    }
+
+
+table, th, td {
+    border: 1px solid black;
+    font-size: 12px;
+    padding: 5px 5px 5px;
+}
+th.total{
+	font-size: 14px;
+	text-align: right;
+	padding: 0 20px 5px;
+}
+p.empresa {
+	font-size: 14px;
+}
+
+.row{
+	font-size: 12px;
+}
+
+.col{
+	font-size: 12px;
+}
+div.container{
+	margin-left: 0px;
+	font-size: 14px;
+	max-width: 90%;
+}
+</style>
+	<h3>Empresa</h3>
+	<hr>
+	<div class="container-fluid">
+		<div class=row>
+			<div class="col-sm-1">Empresa: </div>
+			<div class="col-sm-3">{{ formulario.empresa.nombre }}</div>	
+		</div>
+		<div class=row>
+			<div class="col-sm-1">Puntaje: </div>
+			<div class="col-sm-3">{{ formulario.puntaje }}</div>	
+		</div>
+		<div class=row>
+			<div class="col-sm-1">Etapa: </div>
+			<div class="col-sm-3">{{ formulario.empresa.etapa }}</div>	
+		</div>
+		<div class=row>
+			<div class="col-sm-1">Estado: </div>
+			<div class="col-sm-3" 
+			{% if formulario.estado == 'PENDIENTE' %}
+				style="color: red;">
+			{% elif formulario.estado == 'RESUELTO' %}
+				style="color: green;">
+			{% else %}
+				style="color: orange;">
+			{% endif %}
+			{{formulario.estado}}</div>
+		</div>
+	</div>
+
+	<h3>Respuestas</h3>
+	<hr>
+	<div class="container">
+		<form method="post">
+			{% csrf_token %}
+				<ul class="nav nav-tabs">
+			    	{% for respuestaz in respuestas %}
+				    	<li id="tab_name" {% if forloop.counter == 1 %} class="active" {% endif %}><a data-toggle="tab" href="#Q{{forloop.counter}}"> Q{{ forloop.counter }} </a></li>
+				    {% endfor %}
+				</ul>
+					<div class="row" style="font-weight: bold; padding: 5px 5px 5px;">
+						<div class="col">Pregunta</div>
+						<div class="col">Respuesta</div>
+						<div class="col">Puntaje</div>
+						<div class="col">Comentario</div>
+					</div>
+					<div class="tab-content">
+					{% for respuestaz in respuestas %}
+						<div id="Q{{forloop.counter}}" {% if forloop.counter == 1 %} class="tab-pane fade in active" {% else %} class="tab-pane fade " {% endif %}>
+						{% for respuesta in respuestaz %}
+							{% if forloop.counter|divisibleby:2 %}
+								<div class="row" style="padding: 5px 5px 5px;">
+							{% else %}
+								<div class="row" style="padding: 5px 5px 5px; background-color: silver;">
+							{% endif %}
+									<div class="col">{{respuesta.pregunta.texto_pregunta}}</div>
+									{% if respuesta.pregunta.tipo_pregunta == 'a' %}
+										<div class="col">{{respuesta.respuesta|getTipoA}}</div>
+									{% elif respuesta.pregunta.tipo_pregunta == 'd' %}
+										<div class="col">
+											{% if respuesta.documento.extension|in_list:'png,jpg,jpeg' %}
+											<a data-toggle="modal" href="#myModal{{field.auto_id}}" class="pop{{field.auto_id}}">Vista previa</a><br>
+											<!-- Modal -->
+											<div class="modal fade" id="myModal{{field.auto_id}}" role="dialog">
+												<div class="modal-dialog modal-lg">
+											    	<div class="modal-content">    
+											    		<div class="model-head">
+															<h4 class="modal-title" style="text-align: center; margin-top: 5%">Documento de {{formulario.empresa.nombre}}</h4>
+														</div>          
+											      		<div class="modal-body">
+											        		<img src="../../media/{{respuesta.documento.document}}" class="imagepreview" style="width: 100%;"  >
+											      		</div>
+											    	</div>
+											  	</div>
+											</div><br>
+											{% elif respuesta.documento.extension|in_list:'pdf' %}
+											<a data-toggle="modal" href="#myModal{{field.auto_id}}" class="pop{{field.auto_id}}">Vista previa</a><br>
+									        <!-- Modal -->
+									        <div id="myModal{{field.auto_id}}" class="modal fade" role="dialog">
+									            <div class="modal-dialog modal-lg">
+									                <!-- Modal content-->
+									                <div class="modal-content">
+									                    <div class="modal-header">
+									                        <h4 class="modal-title" style="text-align: center; margin-top: 5%">Documento de {{formulario.empresa.nombre}}</h4>
+									                    </div>
+									                    <div class="modal-body">
+									                        <embed src="../../media/{{respuesta.documento.document}}"
+									                               frameborder="0" width="100%" height="400px">
+									                    </div>
+									                </div>
+									            </div>
+									        </div>
+											{% endif %}
+											<p>Descargar: <a href="../../media/{{respuesta.documento.document}}">{{respuesta.documento.getFilename}}</a></p>
+										</div><!-- col -->
+									{% else %}
+										<div class="col">{{respuesta.respuesta}}</div>
+									{% endif %}
+									<div class="col"><input type="number" name="{{respuesta.pregunta.id}}" value="{{respuesta.puntaje}}"></div>
+									<div class="col"><input type="text" name="com_{{respuesta.pregunta.id}}" value="{{respuesta.comentario}}"></div>
+								</div><!-- row -->
+						{% endfor %}
+					</div><!-- tab-pane fade -->
+					{% endfor %}
+				</div><!-- tab-content fade -->
+			<hr>
+			<div style="margin-left: 0%; font-weight: bold;"> Puntaje total: {{ formulario.puntaje }}</div>
+		</div>
+			<hr>
+			<div style="margin-left: 0%">
+				{% for field in estadoForm %}
+					Estado: {{ field }}
+				{% endfor %}
+			</div>
+			<hr>
+			<input type="submit" name="go" value="Realizar Diagnóstico">
+		</form> 
+	</div>
+	
+
+{% endblock %}
