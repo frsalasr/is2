@@ -18,7 +18,6 @@
     ul.nav.nav-tabs{
     	font-size: 30px;
     }
-
 </style>
 <body>
 
@@ -30,6 +29,7 @@
 		<form method="POST" enctype="multipart/form-data">
 			{% csrf_token %}
 			<h2>Formulario Diagnóstico</h2>
+			<hr>
 			<ul class="nav nav-tabs">
 		    	{% for form in forms %}
 			    	<li id="tab_name" {% if forloop.counter == 1 %} class="active" {% endif %}><a data-toggle="tab" href="#Q{{forloop.counter}}"> Q{{ forloop.counter }} </a></li>
