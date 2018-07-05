@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+import datetime
 
 class Ejemplo(models.Model):
 	nombre = models.CharField(max_length=30)
@@ -237,12 +238,18 @@ class RespuestasClasificacion(models.Model):
 
 class Document(models.Model):
 	empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, null=True)
+	extension = models.CharField(max_length=8, default='none')
 	uploaded_at = models.DateTimeField(auto_now_add=True)
 
 	def get_upload_path(instance, filename):
 		return 'documents/{0}/{1}'.format(instance.empresa.nombre, filename)
 
 	document = models.FileField(upload_to=get_upload_path)
+
+	def getFilename(self):
+		import os
+
+		return os.path.basename(str(self.document))
 
 	def __str__(self):
 		return str(self.document)
@@ -289,12 +296,20 @@ class FormDiagnostico(models.Model):
 		(5,5),
 		)
 
+	ESTADO_CHOICES = (
+		('RESUELTO','RESUELTO'),
+		('PENDIENTE','PENDIENTE'),
+		('CORREGIR','CORREGIR'),
+		)
+
 	puntaje = models.FloatField(blank=True, null=True, default=0)
 	empresa = models.OneToOneField(Empresa, on_delete=models.CASCADE, unique=True)
 	respondido = models.BooleanField(default=False)
+	estado = models.CharField(max_length=512, default='PENDIENTE', choices=ESTADO_CHOICES)
 	validado = models.BooleanField(default=False)
 	editable = models.BooleanField(default=False)
 	comentario = models.CharField(max_length=512, blank=True, default='')
+	fecha = models.DateTimeField(auto_now_add=True, blank=True)
 	Q = models.IntegerField(default=1, choices=Q_CHOICES)
 	preguntas = models.ManyToManyField(PreguntaDiagnostico, through='RespuestaDiagnostico')
 
@@ -338,9 +353,9 @@ class FormDiagnostico(models.Model):
 			r1.save()
 
 	def addFile(self, documento, id_pregunta):
-		print(id_pregunta)
+		print('Inicio models.FormDiagnostico.addFile: ' + str(documento) + ' ' + str(id_pregunta))
 		if RespuestaDiagnostico.objects.filter(pregunta=id_pregunta, formulario=self) == 0:
-			print('no existe la wea')
+			print('Creando pregunta en blanco . . . ')
 			r1 = RespuestaDiagnostico(pregunta = id_pregunta,
 							formulario = self,
 							puntaje=0,
@@ -349,6 +364,7 @@ class FormDiagnostico(models.Model):
 		r1 = RespuestaDiagnostico.objects.get(pregunta=id_pregunta, formulario=self)
 		r1.documento = documento
 		r1.save()
+		print('Término models.FormDiagnostico.addFIle, creó ' + str(r1.documento))
 
 	def checkFormulario(self):
 		if self.preguntas.count() != PreguntaDiagnostico.objects.count():
@@ -361,7 +377,8 @@ class FormDiagnostico(models.Model):
 									respuesta='')
 					r1.save()
 
-
+	def calcularPuntaje(self, myDict):
+		return 'hola'
 
 	def __str__(self):
 		return self.empresa.nombre
@@ -375,5 +392,8 @@ class RespuestaDiagnostico(models.Model):
 	documento = models.ForeignKey(Document, on_delete=models.CASCADE, blank=True, null=True)
 	buena = models.BooleanField(default=False)
 
+	class Meta:
+		ordering = ['formulario','pregunta__Q','pregunta__numero','pregunta__sub_numero']
+
 	def __str__(self):
-		return self.pregunta.texto_pregunta + ' : ' + self.respuesta
+		return self.formulario.empresa.nombre + ' Q' + str(self.pregunta.Q) + ' ' + self.pregunta.texto_pregunta + ' : ' + self.respuesta
