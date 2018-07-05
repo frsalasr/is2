@@ -8,22 +8,23 @@ table, th, td {
     padding: 5px 5px 5px;
 }
 th.total{
-	font-size: 20px;
+	font-size: 14px;
 	text-align: right;
 	padding: 0 20px 5px;
 }
 p.empresa {
-	font-size: 18px;
+	font-size: 14px;
 }
 
 div.container{
 	margin-left: 0px;
-	font-size: 15px;
+	font-size: 14px;
 	max-width: 70%;
 }
 </style>
 	<h2>Empresa</h2>
-	<div class="container">
+	<hr>
+	<div class="container-fluid">
 		<div class=row>
 			<div class="col-sm-1">Empresa</div>
 			<div class="col-sm-3">{{ formulario.empresa.nombre }}</div>	
@@ -49,6 +50,7 @@ div.container{
 
 	<hr style="height:1px;width: 10%;border:none;  display: inline-block" />
 	<h2>Respuestas</h2>
+	<hr>
 	<form method="post">
 		{% csrf_token %}
 		<div class="container">

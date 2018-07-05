@@ -127,7 +127,7 @@ def diagnostico(request):
 					#print('extension :' +  str(ext)[1:])
 					extension = str(os.path.splitext(str(request.FILES[file]))[1])[1:]
 					documento = Document(empresa=empresa, document=request.FILES[file], extension=extension)
-					documento.save()
+					documento.save()   
 					print('Extensión del documento: ' + documento.extension)
 					formulario.addFile(documento, file)
 
@@ -138,6 +138,8 @@ def diagnostico(request):
 
 			data = request.POST.dict()
 			formulario.responder(data)
+			formulario.respondido = True
+			formulario.save()
 
 			# se construye el formulario con las preguntas respondidas
 			#QuestionForm.getInfo(data, empresa)
@@ -165,9 +167,8 @@ def diagnostico(request):
 				forms.append(DiagForm(i,formulario))				
 
 			# Se le manda la lista entera al template, después imprime los Q{n} en cada tab
-			return render(request, template, {'forms': forms})
-
-
+			return render(request, template, {'forms': forms,
+											  'formulario': formulario})
 
 
 	# en construcción . . . 
@@ -284,9 +285,67 @@ def clasificados(request):
 def diagnosticados(request):	
 	template = 'grupo4test/diagnosticados.html'
 
-	formularios = FormDiagnostico.objects.all()
+	formularios = FormDiagnostico.objects.filter(respondido = True).order_by('estado')
 
 	return render(request, template, {'formularios': formularios})
+
+def diagnosticar(request,rut_empresa):
+	template = 'grupo4test/diagnosticar.html'
+
+	formulario = FormDiagnostico.objects.get(empresa__rut=rut_empresa)
+	#respuestas = RespuestaDiagnostico.objects.filter(formulario=formulario).exclude(respuesta='').order_by('pregunta__Q','pregunta__numero','pregunta__sub_numero')
+
+	if request.method == 'POST':
+		puntajes = request.POST.dict()
+		print(puntajes)
+		#print(puntajes['etapa'])
+		Q = list(range(1,formulario.Q+2))
+		print(Q)
+		for pregunta in PreguntaDiagnostico.objects.filter(Q__in=Q):
+			if puntajes.get(str(pregunta.id)):
+				print('existe la pregunta')
+				print(pregunta.texto_pregunta + ' ' + puntajes[str(pregunta.id)])
+				r = RespuestaDiagnostico.objects.get(formulario=formulario, pregunta=pregunta)
+				r.puntaje = puntajes[str(pregunta.id)]
+				r.save()
+				if puntajes.get('com_' + str(pregunta.id)) or puntajes.get('com_' + str(pregunta.id)) == '':
+					r.comentario = puntajes['com_' + str(pregunta.id)]
+					r.save()
+
+		#
+		#respuestas = RespuestaDiagnostico.objects.filter(formulario=formulario).order_by('pregunta__Q','pregunta__numero','pregunta__sub_numero').exclude(respuesta='')
+
+
+		print(puntajes['estado'])
+
+		#formulario.calcularPuntaje()
+		#formulario.validado = True
+		formulario.estado = puntajes['estado']
+		formulario.save()
+
+	respuestas = []
+	for i in range(1, formulario.Q+2):
+		respuesta = []
+		for res in RespuestaDiagnostico.objects.filter(formulario=formulario, pregunta__Q = i).order_by('pregunta__Q','pregunta__numero','pregunta__sub_numero'):
+			if res.pregunta.tipo_pregunta == 'd':
+				respuesta.append(res)
+				continue
+			if res.respuesta == '':
+				continue
+			respuesta.append(res)
+
+		respuestas.append(respuesta)
+	
+
+	"""
+	for i in range(1, formulario.Q+2):
+			respuestas.append(RespuestaDiagnostico.objects.filter(formulario=formulario, pregunta__Q = i).order_by('pregunta__Q','pregunta__numero','pregunta__sub_numero').exclude(respuesta=''))
+	"""
+	estadoForm = SetEstadoForm(formulario.estado)
+
+	return render(request, template, {'formulario': formulario,
+									  'respuestas': respuestas,
+									  'estadoForm': estadoForm })
 
 ## REGISTRO
 def register(request):

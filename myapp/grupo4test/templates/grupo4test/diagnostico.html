@@ -18,6 +18,9 @@
     ul.nav.nav-tabs{
     	font-size: 30px;
     }
+    .row{
+    	font-size: 16px;
+    }
 </style>
 <body>
 
@@ -25,6 +28,30 @@
 <p style="font-size: 20px; color: red">{{ error }}</p>
 
 {% else %}
+	<h2>Empresa</h2>
+	<hr>
+	<div class="container-fluid">
+		<div class=row>
+			<div class="col-sm-1">Empresa: </div>
+			<div class="col-sm-3">{{ formulario.empresa.nombre }}</div>	
+		</div>
+		<div class=row>
+			<div class="col-sm-1">Puntaje: </div>
+			<div class="col-sm-3">{{ formulario.puntaje }}</div>	
+		</div>
+		<div class=row>
+			<div class="col-sm-1">Estado: </div>
+			<div class="col-sm-3" 
+			{% if formulario.estado == 'PENDIENTE' %}
+				style="color: red;">
+			{% elif formulario.estado == 'RESUELTO' %}
+				style="color: green;">
+			{% else %}
+				style="color: orange;">
+			{% endif %}
+			{{formulario.estado}}</div>
+	</div>
+	<hr>
 	<div class="container">
 		<form method="POST" enctype="multipart/form-data">
 			{% csrf_token %}
@@ -35,7 +62,6 @@
 			    	<li id="tab_name" {% if forloop.counter == 1 %} class="active" {% endif %}><a data-toggle="tab" href="#Q{{forloop.counter}}"> Q{{ forloop.counter }} </a></li>
 			    {% endfor %}
 			</ul>
-			<hr style="height:1px;width: 10%;  border:none;  display: inline-block" />
 			<div class="tab-content">
 			{% for form in forms %}
 				<div id="Q{{forloop.counter}}" {% if forloop.counter == 1 %} class="tab-pane fade in active" {% else %} class="tab-pane fade " {% endif %}>
@@ -57,7 +83,7 @@
 												<div class="modal-dialog modal-lg">
 											    	<div class="modal-content">    
 											    		<div class="model-head">
-															<h4 class="modal-title">Documento de {{field.label}}</h4>
+															<h4 class="modal-title" style="text-align: center; margin-top: 5%">Documento de {{form.formulario.empresa.nombre}}</h4>
 														</div>          
 											      		<div class="modal-body">
 											        		<img src="../media/{{field.auto_id|get_path_doc:form.formulario|index:0}}" class="imagepreview" style="width: 100%;"  >
@@ -65,7 +91,7 @@
 											    	</div>
 											  	</div>
 											</div>
-											<p>Descargar documento: <a href="../media/{{field.auto_id|get_path_doc:form.formulario|index:0}}"> {{field.auto_id|get_path_doc:form.formulario|index:2}}</a></p> <br><br>
+											<p>Descargar documento: <a href="../media/{{field.auto_id|get_path_doc:form.formulario|index:0}}"> {{field.auto_id|get_path_doc:form.formulario|index:2}}</a></p> <br>
 										{% elif field.auto_id|get_path_doc:form.formulario|index:1|in_list:'pdf'%}
 									        <a data-toggle="modal" href="#myModal{{field.auto_id}}" class="pop{{field.auto_id}}">Ver Documento</a><br>
 									        <!-- Modal -->
@@ -74,7 +100,7 @@
 									                <!-- Modal content-->
 									                <div class="modal-content">
 									                    <div class="modal-header">
-									                        <h4 class="modal-title">Documento de {{field.label}}</h4>
+									                        <h4 class="modal-title" style="text-align: center; margin-top: 5%">Documento de {{form.formulario.empresa.nombre}}</h4>
 									                    </div>
 									                    <div class="modal-body">
 									                        <embed src="../media/{{field.auto_id|get_path_doc:form.formulario|index:0}}"
@@ -84,9 +110,9 @@
 									                </div>
 									            </div>
 									        </div>
-									        <p>Descargar documento: <a href="../media/{{field.auto_id|get_path_doc:form.formulario|index:0}}"> {{field.auto_id|get_path_doc:form.formulario|index:2}}</a></p> <br><br>
+									        <p>Descargar: <a href="../media/{{field.auto_id|get_path_doc:form.formulario|index:0}}"> {{field.auto_id|get_path_doc:form.formulario|index:2}}</a></p> <br>
 									    {% else %}
-									    <a href="../media/{{field.auto_id|get_path_doc:form.formulario|index:0}}">Descargar documento {{field.auto_id|get_path_doc:form.formulario|index:2}}</a> <br><br>
+											<p>Descargar: <a href="../media/{{field.auto_id|get_path_doc:form.formulario|index:0}}"> {{field.auto_id|get_path_doc:form.formulario|index:2}}</a></p> <br>
 
 										{% endif %}
 									<p>Subir otro documento: </p>	
@@ -122,8 +148,11 @@
 							});
 						</script>
 					{% endif %}
-
-					
+					{% if field.auto_id|getComentario:form.formulario %}
+						<p style="color: red"> Comentario: </p>
+						<p>{{field.auto_id|getComentario:form.formulario}}</p>
+					{% endif %}
+					<hr>
 				{% endfor %}
 				</div>
 			{% endfor %}
