@@ -9,6 +9,7 @@ class Ejemplo(models.Model):
 
 class Postulante(models.Model):
 	run = models.CharField(max_length=30, primary_key=True)
+	#cuenta = models.ForeignKey(User, on_delete=models.CASCADE)
 	nombre_empresa = models.CharField(max_length=20)
 	nombre = models.CharField(max_length=20)
 	apellido = models.CharField(max_length=20)
