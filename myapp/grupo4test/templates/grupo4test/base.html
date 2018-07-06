@@ -5,55 +5,58 @@
   {% block title %}
   	<title>Acelera Latam</title>
   {% endblock %}
-  <h1 class="title">Prototipo v0.10</h1>
   <!-- Add additional CSS in static file -->
   {% load static %}
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <link rel="stylesheet" type="text/css" href="{% static 'css/base_style.css' %}">
   <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.css' %}">
   <script type="text/javascript" src="{% static 'js/bootstrap.js' %}"></script>
-  <style type="text/css">
-  </style>
 </head>
 
 <body>
+{% if user.is_authenticated %}
+  <h1 class="title">Prototipo v0.10</h1>
+    <hr>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-2">
+        <div class="sidebar-nav">
+        	    <li>Bienvenido 
+          			<p style="font-weight: bold;">{{ user.get_username }} </p></li>
+       			  <li><a href="{% url 'logout'%}">Logout</a></li>   
+              	<hr style="height:1px;width: 10%;  background-color:black;border:none;  display: inline-block" />
+            <li><a href="{% url 'home' %}">Inicio</a></li>
+            <span style="display:block; height: 15px;"></span>
+            {% if user.is_authenticated %}
+            	{% if user.is_superuser %}
+            		<p style="font-weight: bold;">Postulantes</p>
+  	          	<li><a href="{% url 'clasificados' %}">Clasificación</a></li>
+  	          	<li><a href="{% url 'diagnosticados' %}">Diagnóstico</a></li>
+            	{% else %}
+  	          	<li><a href="{% url 'datos' %}">Datos empresa</a></li>
+  	          	<li><a href="{% url 'formulario' %}">Formulario</a></li>
+  	          	<li><a href="{% url 'diagnostico' %}">Diagnóstico</a></li>
+    	        {% endif %}
+            {% endif %}
+        </div>
+    </div>
+  
 
-  <div class="container-fluid">
-
-    <div class="row">
-      <div class="col-sm-2">
-      {% block sidebar %}
-      <div class="sidebar-nav">
-      	    {% if user.is_authenticated %}
-        		<li>Bienvenido 
-        			<p style="font-weight: bold;">{{ user.get_username }} </p></li>
-     			<li><a href="{% url 'logout'%}">Logout</a></li>   
-   			{% else %}
-	     		<li><a href="{% url 'login'%}">Login</a></li>  
-	     		<li><a href="{% url 'register'%}">Registro</a></li>  
-   			{% endif %} 
-            	<hr style="height:1px;width: 10%;  background-color:black;border:none;  display: inline-block" />
-          <li><a href="{% url 'home' %}">Inicio</a></li>
-          <span style="display:block; height: 15px;"></span>
-          {% if user.is_authenticated %}
-          	{% if user.is_superuser %}
-          		<p style="font-weight: bold;">Postulantes</p>
-	          	<li><a href="{% url 'clasificados' %}">Clasificación</a></li>
-	          	<li><a href="{% url 'diagnosticados' %}">Diagnóstico</a></li>
-          	{% else %}
-	          	<li><a href="{% url 'datos' %}">Datos empresa</a></li>
-	          	<li><a href="{% url 'formulario' %}">Formulario</a></li>
-	          	<li><a href="{% url 'diagnostico' %}">Diagnóstico</a></li>
-	        {% endif %}
-          {% endif %}
-      </div>
-     {% endblock %}
-      </div>
       <div class="col-sm-10">
       {% block content %}
+
       {% endblock %}
       </div>
     </div>
 
   </div>
+
+  {% else %}
+  <div style="margin-left: 50%;">
+    <li><a href="{% url 'login'%}">Login</a></li>  
+    <li><a href="{% url 'register'%}">Registro</a></li>  
+  </div>
+      {% endif %} 
+  
 </body>
 </html>

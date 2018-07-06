@@ -1,7 +1,4 @@
-{% extends "grupo4test/base.html" %}
-
-{% block content %}
-
+    
      <div class="login">
         <h2>Creación de usuario</h2>
         <span style="display:block; height: 20px;"></span>
@@ -13,18 +10,26 @@
         {% endif %}
         <span style="display:block; height: 20px;"></span>
 
-         <form method="post" >
+         <form method="post" id="submit_form">
              {% csrf_token %}
              <table>
-                {{ form.as_table }}
-                 <tr>
-                    <td><input type="submit" name="submit" value="Register" />
-                        <input type="hidden" name="next" value="{% url 'login' %}"/>
+                <tr>
+                    {{ form.as_table }}
+                </tr>
+                <tr>
+                    <td><input type="submit" id="id1" name="submit" value="Registrar" />
                     </td>
-
                 </tr>
              </table>
          </form>
      </div>
-
-{% endblock %}
+        <script type="text/javascript">
+            /*
+            $('#submit_form').click(function(event){
+                event.preventDefault();
+                var data = $("#submit_form").serialize();
+                var data2 = "hola";
+                alert(data);
+            });
+            */
+        </script>

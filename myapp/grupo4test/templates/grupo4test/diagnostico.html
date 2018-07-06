@@ -18,7 +18,9 @@
     ul.nav.nav-tabs{
     	font-size: 30px;
     }
-
+    .row{
+    	font-size: 16px;
+    }
 </style>
 <body>
 
@@ -26,44 +28,131 @@
 <p style="font-size: 20px; color: red">{{ error }}</p>
 
 {% else %}
+	<h2>Empresa</h2>
+	<hr>
+	<div class="container-fluid">
+		<div class=row>
+			<div class="col-sm-1">Empresa: </div>
+			<div class="col-sm-3">{{ formulario.empresa.nombre }}</div>	
+		</div>
+		<div class=row>
+			<div class="col-sm-1">Puntaje: </div>
+			<div class="col-sm-3">{{ formulario.puntaje }}</div>	
+		</div>
+		<div class=row>
+			<div class="col-sm-1">Estado: </div>
+			<div class="col-sm-3" 
+			{% if formulario.estado == 'PENDIENTE' %}
+				style="color: red;">
+			{% elif formulario.estado == 'RESUELTO' %}
+				style="color: green;">
+			{% else %}
+				style="color: orange;">
+			{% endif %}
+			{{formulario.estado}}</div>
+	</div>
+	<hr>
 	<div class="container">
 		<form method="POST" enctype="multipart/form-data">
 			{% csrf_token %}
 			<h2>Formulario Diagnóstico</h2>
+			<hr>
 			<ul class="nav nav-tabs">
 		    	{% for form in forms %}
 			    	<li id="tab_name" {% if forloop.counter == 1 %} class="active" {% endif %}><a data-toggle="tab" href="#Q{{forloop.counter}}"> Q{{ forloop.counter }} </a></li>
 			    {% endfor %}
 			</ul>
-			<hr style="height:1px;width: 10%;  border:none;  display: inline-block" />
 			<div class="tab-content">
 			{% for form in forms %}
 				<div id="Q{{forloop.counter}}" {% if forloop.counter == 1 %} class="tab-pane fade in active" {% else %} class="tab-pane fade " {% endif %}>
 				{% for field in form %}
-					<p style="font-weight: bold;">{{field.label}}</p>
-					{% if form.doc|get_item:field.auto_id == 1 %}
-						{% if field.auto_id|document_exist:form.formulario %}	
-							<style type="text/css">
-								.modal.fade img {
-   									max-width: 1080px;
-   									vertical-align: middle;
+					{% if form.base|get_item:field.auto_id %}	
+						<div id="div_{{field.auto_id}}">
+							<p style="font-weight: bold;">{{field.label}}</p>
+							<p>{{field}}</p>
+						</div>
+					{% else %}
+						<div id="div_{{field.auto_id}}" style="display: none"> 
+							<p style="font-weight: bold;">{{field.label}}</p>
+								{% if form.doc|get_item:field.auto_id == 1 %}
+									{% if field.auto_id|document_exist:form.formulario %}	
+										{# Esto revisa la extensión del archivo y ve si es de png, jpg, jpeg, etc #}
+										{% if field.auto_id|get_path_doc:form.formulario|index:1|in_list:'png,jpg,jpeg' %}
+											<a data-toggle="modal" href="#myModal{{field.auto_id}}" class="pop{{field.auto_id}}">Ver Documento</a><br>
+											<div class="modal fade" id="myModal{{field.auto_id}}" role="dialog">
+												<div class="modal-dialog modal-lg">
+											    	<div class="modal-content">    
+											    		<div class="model-head">
+															<h4 class="modal-title" style="text-align: center; margin-top: 5%">Documento de {{form.formulario.empresa.nombre}}</h4>
+														</div>          
+											      		<div class="modal-body">
+											        		<img src="../media/{{field.auto_id|get_path_doc:form.formulario|index:0}}" class="imagepreview" style="width: 100%;"  >
+											      		</div>
+											    	</div>
+											  	</div>
+											</div>
+											<p>Descargar documento: <a href="../media/{{field.auto_id|get_path_doc:form.formulario|index:0}}"> {{field.auto_id|get_path_doc:form.formulario|index:2}}</a></p> <br>
+										{% elif field.auto_id|get_path_doc:form.formulario|index:1|in_list:'pdf'%}
+									        <a data-toggle="modal" href="#myModal{{field.auto_id}}" class="pop{{field.auto_id}}">Ver Documento</a><br>
+									        <!-- Modal -->
+									        <div id="myModal{{field.auto_id}}" class="modal fade" role="dialog">
+									            <div class="modal-dialog modal-lg">
+									                <!-- Modal content-->
+									                <div class="modal-content">
+									                    <div class="modal-header">
+									                        <h4 class="modal-title" style="text-align: center; margin-top: 5%">Documento de {{form.formulario.empresa.nombre}}</h4>
+									                    </div>
+									                    <div class="modal-body">
+									                        <embed src="../media/{{field.auto_id|get_path_doc:form.formulario|index:0}}"
+									                               frameborder="0" width="100%" height="400px">
+									                    </div>
 
-   								}
-   								.modal.fade{
-   									text-align: center;
-   									vertical-align: middle;
-   								}
-						</style>
-							<a data-toggle="modal" href="#myModal{{field.auto_id}}">Ver documento</a>
-							<div class="modal fade" id="myModal{{field.auto_id}}" role="dialog">
-								        <div class="modal-body">
-								          	<img src="../media/{{ field.auto_id|get_path_doc:form.formulario }}"/>
-								      	</div>
-							</div>
-							<p>Subir otro documento: </p>	
-						{% endif %}
+									                </div>
+									            </div>
+									        </div>
+									        <p>Descargar: <a href="../media/{{field.auto_id|get_path_doc:form.formulario|index:0}}"> {{field.auto_id|get_path_doc:form.formulario|index:2}}</a></p> <br>
+									    {% else %}
+											<p>Descargar: <a href="../media/{{field.auto_id|get_path_doc:form.formulario|index:0}}"> {{field.auto_id|get_path_doc:form.formulario|index:2}}</a></p> <br>
+
+										{% endif %}
+									<p>Subir otro documento: </p>	
+									{% endif %}
+								{% endif %}
+								<p>{{field}}</p>
+						</div>
+						<script type="text/javascript">
+							//console.log("#{{form.papa|get_item:field.auto_id}}");
+							console.log("div_{{field.auto_id}}");
+							var x = document.getElementById("div_{{field.auto_id}}");
+							if($("#{{form.papa|get_item:field.auto_id}}").val() == '6'){
+								x.style.display = "block";
+							}
+							$(document).ready( function(){
+								var x = document.getElementById("div_{{field.auto_id}}");
+								if($("#{{form.papa|get_item:field.auto_id}}").val() == '6'){
+										x.style.display = "block";
+								}
+
+								$("#{{form.papa|get_item:field.auto_id}}").on('change', function(){
+									
+									console.log($("#{{form.papa|get_item:field.auto_id}}").val())
+									var x = document.getElementById("div_{{field.auto_id}}");
+									if($("#{{form.papa|get_item:field.auto_id}}").val() == '6'){
+										x.style.display = "block";
+									}
+									else{
+										x.style.display = "none";
+										$("#{{field.auto_id}}").val('');
+									}
+								});
+							});
+						</script>
 					{% endif %}
-					<p>{{field}}</p>
+					{% if field.auto_id|getComentario:form.formulario %}
+						<p style="color: red"> Comentario: </p>
+						<p>{{field.auto_id|getComentario:form.formulario}}</p>
+					{% endif %}
+					<hr>
 				{% endfor %}
 				</div>
 			{% endfor %}

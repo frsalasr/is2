@@ -7,43 +7,68 @@ from django.core.exceptions import ValidationError
 
 from django.template.defaulttags import register
 
+import os
 
 ################################
 
 @register.filter
+def getComentario(id_question, formulario):
+	if id_question.startswith('id_'):
+		id_question = id_question[3:]
+	r = RespuestaDiagnostico.objects.get(pregunta__id=id_question, formulario=formulario).comentario
+	
+	if r == '':
+		return False
+
+	return RespuestaDiagnostico.objects.get(pregunta__id=id_question, formulario=formulario).comentario
+
+@register.filter
+def getTipoA(id):
+	return TipoAlternativa.objects.get(id=id)
+
+@register.filter
+def getFilename(path,op):
+	return os.path.basename(path)
+
+@register.filter
+def in_list(value, the_list):
+    value = str(value)
+    return value in the_list.split(',')
+
+@register.filter
+def index(List, i):
+    return List[int(i)]
+
+@register.filter
 def document_exist(id_question, formulario):
-	print('revisando si existe la wea')
+	print('Revisando si existe un documento ' + str(id_question) + ' de ' + str(formulario.empresa))
 	if id_question.startswith('id_'):
 		id_question = id_question[3:]
 	if RespuestaDiagnostico.objects.get(pregunta=id_question,formulario=formulario).documento:
+		print('Existe el documento: ' + str(RespuestaDiagnostico.objects.get(pregunta=id_question,formulario=formulario).documento))
 		return True
+	print('No tiene documento . . . ')
 	return False
 
 @register.filter
 def get_path_doc(id_question, formulario):
 	if id_question.startswith('id_'):
 		id_question = id_question[3:]
-	return RespuestaDiagnostico.objects.get(pregunta=id_question,formulario=formulario).documento.document
+	documento = RespuestaDiagnostico.objects.get(pregunta=id_question,formulario=formulario).documento
+	path = documento.document
+	extension = documento.extension
+	filename = os.path.basename(str(documento.document))
+	return [path, extension, filename]
 
 @register.filter
 def get_item(diccionario, key):
+	print(diccionario)
+	print(key)
 	return diccionario.get(key)
 
 @register.filter
 def get_hijo(pregunta, formulario):
 	return RespuestasClasificacion.objects.get(pregunta=pregunta, formulario=formulario)
-
-class ejemploForm(forms.Form):
-	options=(
-		('si', 'si'),
-		('no', 'no'),
-		('tal vez', 'tal vez'),
-		)
-	macaco = forms.ChoiceField(label='¿Es ud un macaco?', choices=options)
-	nombre = forms.CharField(label='Nombre')
-	apellido = forms.CharField(label='Apellido')
-
-
 
 def createField(tipo, label, queryset=None, initial=""):
 	if tipo == 'a':
@@ -69,6 +94,21 @@ class HijoForm(forms.Form):
 	def crearField(self, key, tipo, label, queryset):
 		self.fields[key] = createField(tipo,label,queryset)
 
+class SetEstadoForm(forms.Form):
+
+
+	def __init__(self,estado,**kwargs):
+		super(SetEstadoForm, self).__init__(**kwargs)
+
+		self.ESTADO_CHOICES = (
+			('RESUELTO','RESUELTO'),
+			('PENDIENTE','PENDIENTE'),
+			('CORREGIR','CORREGIR'),
+			)
+		self.estado = estado
+		self.fields['estado'] = forms.ChoiceField(label='Estado del diagnostico', choices=self.ESTADO_CHOICES, initial = self.estado)
+	
+
 class DiagForm(forms.Form):
 	#hidden = forms.IntegerField()
 
@@ -89,7 +129,6 @@ class DiagForm(forms.Form):
 
 
 		for pregunta in PreguntaDiagnostico.objects.filter(base_question=True, Q=self.Q).order_by('numero'):
-			print('agergando mas mierdas')
 			# self.fields[key] es un diccionario key -> form 
 			# Ejemplo para pregunta tipo respuesta en texto
 			# self.field['pregunta_n'] = forms.CharField(required = False)
@@ -98,8 +137,10 @@ class DiagForm(forms.Form):
 			# Se define la Key del diccionario como pregunta_(id_pregunta), ex: pregunta_1, pregunta_20, etc
 			pregunta_key = str(pregunta.id)
 			self.base['id_' + pregunta_key] = 1
-			# se toman las preguntas que dependen de estaa 
+			print(str(pregunta.id) + ' ' + str(self.base['id_'+pregunta_key]))
+			# se toman las preguntas que dependen de esta
 			if pregunta.getTipo() == 'd':
+				print(str(pregunta.id) + ' es documento')
 				self.doc['id_' + pregunta_key] = 1
 
 			respuesta = RespuestaDiagnostico.objects.get(pregunta = pregunta, formulario = formulario)
@@ -107,13 +148,16 @@ class DiagForm(forms.Form):
 
 			self.fields[pregunta_key] = createField(pregunta.getTipo(), pregunta.texto_pregunta, pregunta.preguntas_alternativa.all(), respuesta.respuesta)
 			# Se guarda la pregunta para presentarla en el form
-			#self.preguntas.append(pregunta.texto_pregunta)
+
 			
 			preguntas_hijas = PreguntaDiagnostico.objects.filter(depende_de=pregunta).order_by('sub_numero')
 			if preguntas_hijas.count() > 0:
 				for question in preguntas_hijas:
 					answer = RespuestaDiagnostico.objects.get(pregunta = question, formulario = formulario)
 					self.papa['id_' + str(question.id)] = "id_" + pregunta_key
+					if question.getTipo() == 'd':
+						print(str(question.id) + ' es documento')
+						self.doc['id_' + str(question.id)] = 1
 					self.fields[str(question.id)] = createField(question.getTipo(), question.texto_pregunta, question.preguntas_alternativa.all(), answer.respuesta)
 
 # Form que toma TODAS las preguntas para clasificar y dependiendo del tipo de esta crea un field
@@ -154,18 +198,6 @@ class QuestionForm(forms.Form):
 					self.papa['id_' + str(question.id)] = "id_" + pregunta_key
 					self.fields[str(question.id)] = createField(question.getTipo(), question.texto_pregunta, question.preguntas_alternativa.all())
 
-			"""
-			if preguntas_hijas.count() > 0:
-				i = 1
-				self.hijos['id_' + pregunta_key] = HijoForm()
-				for question in preguntas_hijas:
-					hijo_key = pregunta_key + '_' + str(i)
-					self.hijos['id_' + pregunta_key].crearField(str(question.id),question.getTipo(), question.texto_pregunta, question.preguntas_alternativa.all())
-					i = i + 1
-			#self.field['hid_'+pregunta_key] = 
-			else:
-				self.hijos['id_' + pregunta_key] = 0
-			"""
 	def getInfo(data, empresa):
 
 		if FormularioClasificacion.objects.filter(empresa=empresa).count() > 0:
@@ -186,31 +218,7 @@ class QuestionForm(forms.Form):
 				r1.puntaje = respuesta
 				r1.save()	
 
-		"""
-
-		for pregunta in PreguntaClasificacion.objects.all():
-			respuesta = data[str(pregunta.id)]
-			print(respuesta)
-			if respuesta == '':
-				r = RespuestasClasificacion(pregunta=pregunta, formulario=formulario, puntaje=0, respuesta="")
-				r.save()
-				continue
-			if pregunta.getTipo() == 'a':
-				respuesta = TipoAlternativa.objects.get(id=int(respuesta))
-				r = RespuestasClasificacion(pregunta=pregunta, formulario=formulario, puntaje=0, respuesta=respuesta)
-				r.save()
-				continue
-			else:
-				r = RespuestasClasificacion(pregunta=pregunta, formulario=formulario, puntaje=0, respuesta=respuesta)
-				r.save()
-				continue
-
-		formulario.respondido = True
-		formulario.save()
-		print(FormularioClasificacion.objects.filter(empresa=empresa))
-
-			#r = RespuestaClasificacion.objects.get(pregunta=pregunta, formulario=formulario, puntaje=0, respuesta)
-		"""
+	
 	def getCleaned(self, empresa):
 
 		if FormularioClasificacion.objects.filter(empresa=empresa).count() > 0:
