@@ -9,7 +9,6 @@ class Ejemplo(models.Model):
 
 class Postulante(models.Model):
 	run = models.CharField(max_length=30, primary_key=True)
-	#cuenta = models.ForeignKey(User, on_delete=models.CASCADE)
 	nombre_empresa = models.CharField(max_length=20)
 	nombre = models.CharField(max_length=20)
 	apellido = models.CharField(max_length=20)
@@ -63,22 +62,22 @@ class TipoAlternativa(models.Model):
 	puntaje = models.IntegerField()
 
 	def __str__(self):
-		return '(' + str(self.puntaje) + ') ' + self.texto_alternativa
+		return self.texto_alternativa
 
 class TipoElegir(models.Model):
 	texto_eleccion = models.CharField(max_length=255)
 
 	def __str__(self):
-		return '(' + str(self.puntaje) + ') ' + self.texto_alternativa
+		return self.texto_eleccion
 
 class PreguntaClasificacion(models.Model):
 	#id_pregunta = models.IntegerField(primary_key=True)
-	numero_pregunta = models.CharField(max_length=255, null=True, blank=True)
+	numero_pregunta = models.CharField(unique=True, max_length=255, null=True, blank=True)
 	ponderacion = models.IntegerField()
-	texto_pregunta = models.CharField(max_length=255, default='question')
+	texto_pregunta = models.CharField(max_length=255)
 	tipo_pregunta = models.CharField(max_length=1, choices=TIPO_PREGUNTA, blank=True, default='a', null=True)
 	preguntas_alternativa = models.ManyToManyField(TipoAlternativa, blank=True)
-	preguntas_eleccion = models.ManyToManyField(TipoElegir, blank=True)
+	#preguntas_eleccion = models.ManyToManyField(TipoElegir, blank=True)
 	base_question = models.BooleanField(default=False)
 	#hijo_de = models.IntegerField(default=0)
 	depende_de = models.ManyToManyField("self", blank=True)
@@ -88,9 +87,6 @@ class PreguntaClasificacion(models.Model):
 
 	def __str__(self):
 		return str(self.texto_pregunta)
-
-	class Meta:
-		ordering = ['numero_pregunta']
 
 
 class Empresa(models.Model):
@@ -122,7 +118,7 @@ class Empresa(models.Model):
 class FormularioClasificacion(models.Model):
 	#id_formulario = models.IntegerField(primary_key=True)
 	puntaje = models.FloatField(blank=True, null=True)
-	cliente = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+	empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, null=True)
 	preguntas = models.ManyToManyField(PreguntaClasificacion, through='RespuestasClasificacion')
 	respondido = models.BooleanField(default=False)
 	validado = models.BooleanField(default=False)

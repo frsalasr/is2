@@ -7,10 +7,7 @@ from django.db import transaction
 from django.core.files.storage import FileSystemStorage
 
 # login para logear
-from django.contrib.auth import login as auth_login
-from django.contrib.auth import authenticate
-
-
+from django.contrib.auth import login
 # esto es para redireccionar de forma directa después de hacer login
 from django.http import HttpResponseRedirect
 
@@ -356,7 +353,6 @@ def register(request):
 	template = 'grupo4test/register.html'
 
 	form = CustomUserCreationForm()
-	clasificacion = QuestionForm()
 	
 	if request.method == 'POST':
 
@@ -367,8 +363,7 @@ def register(request):
 			#render(request, "grupo4test/wea.html", {})
 			#return redirect('login')
 	
-	return render(request, template, {'form': form,
-									  'clasificacion': clasificacion})
+	return render(request, template, {'form': form})
 
 def save(request):
 
@@ -388,28 +383,3 @@ def save(request):
 		return render (request, template, {})
 
 	return render(request, template, {})
-
-def home(request):
-	template = 'grupo4test/home.html'
-
-	return render(request, template, {})
-
-def login(request):
-	template = 'registration/login.html'
-	form = LoginForm()
-	
-	if request.method == 'POST':
-		form = LoginForm(request.POST)
-		if form.is_valid():
-			user = form.cleaned_data.get('username')
-			password = form.cleaned_data.get('password')
-			
-			user = authenticate(request, username=user, password=password)
-			if user is not None:
-				auth_login(request, user)
-				return redirect('home')
-			else:
-				return render(request, template, {'form':form, 
-												  'error': 'usuario no encontrado'}) 
-
-	return render(request, template, {'form':form})
