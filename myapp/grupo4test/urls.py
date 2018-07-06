@@ -12,7 +12,10 @@ urlpatterns = [
     #path('', views.base, name='base'),
     ## PAGINA DE INICIO
     #path('', views.home, name='home'),
-    path('', auth_views.login, name='login'),
+    path('', views.login, name='login'),
+
+    #home
+    path('home/', views.home, name='home'),
 
 	# registro de usuarios
     path('accounts/', include('django.contrib.auth.urls')),

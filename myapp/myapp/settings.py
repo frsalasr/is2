@@ -143,7 +143,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 # Donde redireccionan al hacer login/logout
-LOGIN_REDIRECT_URL = '/grupo4test/'
+LOGIN_REDIRECT_URL = '/grupo4test/home'
 LOGOUT_REDIRECT_URL = '/grupo4test/'
 
 #donde va a estar la media (archivos descargados)

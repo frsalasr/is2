@@ -109,6 +109,10 @@ class SetEstadoForm(forms.Form):
 		self.fields['estado'] = forms.ChoiceField(label='Estado del diagnostico', choices=self.ESTADO_CHOICES, initial = self.estado)
 	
 
+class LoginForm(forms.Form):
+	username = forms.CharField()
+	password = forms.CharField(label='Contraseña',widget=forms.PasswordInput)
+
 class DiagForm(forms.Form):
 	#hidden = forms.IntegerField()
 
