@@ -86,6 +86,13 @@ def createField(tipo, label, queryset=None, initial=""):
 	else:
 		return 'error'
 
+class LoginForm(forms.Form):
+
+	username = forms.CharField(label='Usuario', required=True)
+	password = forms.CharField(label='Contraseña' ,required=True, widget=forms.PasswordInput)
+
+
+
 class HijoForm(forms.Form):
 	def __init__(self):
 		# Se inicia el super Form
