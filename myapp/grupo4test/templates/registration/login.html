@@ -9,7 +9,7 @@
   body {
     background-image: url("https://www.elicebergdemadrid.com/wp-content/uploads/2017/11/empresas.jpg");
     background-repeat: no-repeat;
-    background-size: auto;
+    background-size: 100% 100%;
     overflow-x: hidden;
   }
 </style>
@@ -40,26 +40,20 @@
         <div class="panel-heading" style="background-color: #0A6F8A;">Iniciar Sesión</div>
           <div class="panel-body" >
             <div class="center">
-            <form method="post">
-            
-              {% csrf_token %}
+            <form method="post" action="{% url 'login' %}">
 
-              <div class="container">
-                <div class="row">
-                  <div class="col-sm-1">Usuario:</div>
-                  <div class="col-sm-1">{{ form.username }}</div>
+             
+                <div class="block">
+                  <label style="display: inline-block;width: 100px; text-align: rigth">Usuario: </label>{{ form.username }}
                 </div>
                 </br>
-                <div class="row">
-                  <div class="col-sm-1">Contraseña:</div>
-                  <div class="col-sm-1">{{ form.password }}</div>                   
+                <div class="block">
+                  <label style="display: inline-block;width: 100px; text-align: rigth">Contraseña: </label>{{ form.password }}                  
                 </div>
-                <div class="row">
-                    <div class="col-sm-2" style="left: 7%">
-                    <a href="{% url 'password_reset' %}">Olvide mi contraseña</a> 
-                    </div>
-                </div>
-              </div>
+                <div class="block">
+                  <a href="{% url 'password_reset' %}" style="display: inline-block; width: 140px; margin-left: 25%;">Olvide mi contraseña</a> 
+                </div>  
+              
               </br>
               <input type="submit" id="registerButton" value="Iniciar Sesión" />
               <input type="hidden" name="next" value="{{ next }}" />
@@ -73,4 +67,5 @@
   </div>
 </body>
 {# Assumes you setup the password_reset view in your URLconf #}
+</script>
 
