@@ -126,6 +126,7 @@ def diagnostico(request):
 			if request.FILES is not None:
 				for file in request.FILES:
 					#print(file)
+
 					#print(myfile)
 					#name, ext = os.path.splitext(str(request.FILES[file]))
 					#print('extension :' +  str(ext)[1:])
@@ -134,7 +135,7 @@ def diagnostico(request):
 					documento.save()   
 					print('Extensión del documento: ' + documento.extension)
 					formulario.addFile(documento, file)
-
+					
 			# se pesca la data dentro del form y se lleva a un diccionario
 			# la id de los fields es la id de la pregunta en PreguntaClasificacion
 			# ex: data['1'] = 'Si' => respuesta para pregunta de id 1 es 'Si'
