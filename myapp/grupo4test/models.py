@@ -6,6 +6,11 @@ class Ejemplo(models.Model):
 	nombre = models.CharField(max_length=30)
 	apellido = models.CharField(max_length=30)
 
+class Cliente(models.Model):
+	user = models.ForeignKey(User, on_delete=models.CASCADE)
+	telefono = models.IntegerField()
+
+
 
 class Postulante(models.Model):
 	run = models.CharField(max_length=30, primary_key=True)
@@ -118,7 +123,8 @@ class Empresa(models.Model):
 class FormularioClasificacion(models.Model):
 	#id_formulario = models.IntegerField(primary_key=True)
 	puntaje = models.FloatField(blank=True, null=True)
-	empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
+	#empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, null=True)
+	cliente = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 	preguntas = models.ManyToManyField(PreguntaClasificacion, through='RespuestasClasificacion')
 	respondido = models.BooleanField(default=False)
 	validado = models.BooleanField(default=False)
