@@ -1,3 +1,17 @@
+{% block head %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+<link rel="stylesheet" href="% static 'css/bootstrap.min.css' %">
+<link rel="stylesheet" href=" static 'js/bootstrap.min.js' ">
+<style>
+  body {
+    background-image: url("https://www.elicebergdemadrid.com/wp-content/uploads/2017/11/empresas.jpg");
+  }
+</style>
+{% endblock %}
+
 
 {% if form.errors %}
 <p style="color:red;">Su usuario y contraseña no coinciden. Intente otra vez.</p>
@@ -6,33 +20,50 @@
 {% if next %}
     <p>Hola</p>
     {% if user.is_authenticated %}
-    <p style="color:red;">Su cuenta no tiene acceso a este sitio. Para proceder inicie sesión con una cuentas que tenga acceso.</p>
+    <p style="color:red;">Su cuenta no tiene acceso a este sitio. Para proceder inicie sesión con una cuenta que tenga acceso.</p>
     {% else %}
     <p style="color:red;">Por favor inicie sesión para acceder al sitio.</p>
     {% endif %}
 {% endif %}
 
-<form method="post" action="{% url 'login' %}">
-{% csrf_token %}
+<body>
 
-<div>
-  <td>Usuario:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-  <td>{{ form.username }}</td>
-</div>
-</br>
-<div>
-  <td>Contraseña:</td>
-  <td>{{ form.password }}</td>
-</div>
-</br>
-<div>
-  <input type="submit" id="registerButton" value="Iniciar Sesión" />
-  <input type="hidden" name="next" value="{{ next }}" />
-</div>
-</form>
-</br>
+  <div class="container">
+    <div class="panel-group" style="margin-top: 15%; max-width: 310px;text-align: center;margin-left: 35%">
+      <div class="panel panel-primary">
+        <div class="panel-heading" style="background-color: #0A6F8A;">Iniciar Sesión</div>
+          <div class="panel-body" >
+            <div class="center">
+            <form method="post" action="{% url 'login' %}">
+
+              <div class="container">
+                <div class="row">
+                  <div class="col-sm-1">Usuario:</div>
+                  <div class="col-sm-1">{{ form.username }}</div>
+                </div>
+                </br>
+                <div class="row">
+                  <div class="col-sm-1">Contraseña:</div>
+                  <div class="col-sm-1">{{ form.password }}</div>                   
+                </div>
+                <div class="row">
+                    <div class="col-sm-2" style="left: 7%">
+                    <a href="{% url 'password_reset' %}">Olvide mi contraseña</a> 
+                    </div>
+                </div>
+              </div>
+              </br>
+              <input type="submit" id="registerButton" value="Iniciar Sesión" />
+              <input type="hidden" name="next" value="{{ next }}" />
+             </form>
+            </div>
+             <p><a href="{% url 'register' %}">Registrarse</a></p>                     
+          </div>
+        </div> 
+      </div>
+    </div>
+  </div>
+</body>
 {# Assumes you setup the password_reset view in your URLconf #}
-<p><a href="{% url 'password_reset' %}">Olvide mi contraseña</a></p>
-<p><a href="{% url 'register' %}">Registrar</a></p>
 </script>
 
