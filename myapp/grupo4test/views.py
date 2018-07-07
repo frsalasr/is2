@@ -131,7 +131,7 @@ def diagnostico(request):
 					documento.save()   
 					print('Extensión del documento: ' + documento.extension)
 					formulario.addFile(documento, file)
-					print("SE subio la wea")
+					
 			# se pesca la data dentro del form y se lleva a un diccionario
 			# la id de los fields es la id de la pregunta en PreguntaClasificacion
 			# ex: data['1'] = 'Si' => respuesta para pregunta de id 1 es 'Si'
