@@ -41,7 +41,7 @@
           <div class="panel-body" >
             <div class="center">
             <form method="post" action="{% url 'login' %}">
-
+            {% csrf_token %}
              
                 <div class="block">
                   <label style="display: inline-block;width: 100px; text-align: rigth">Usuario: </label>{{ form.username }}
