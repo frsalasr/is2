@@ -122,9 +122,25 @@ def diagnostico(request):
 
 	if request.user.is_authenticated:
 		# Debe registrar la empresa si no no puede hacer el formulario
-		if Empresa.objects.filter(autor=request.user).count() == 0:
-			return redirect('datos')
+		
+		cliente = Cliente.objects.get(user=request.user) 
+		if FormDiagnostico.objects.filter(cliente=cliente).count() > 0:
+			FormDiagnostico.objects.get(cliente=cliente).delete()
+			print('se borró el formulario')
 
+		formulario = FormDiagnostico(cliente=cliente)
+		formulario.save()
+		formulario.crearForm()
+
+		formularios = []
+
+		for i in range(5):
+			formularios.append(DiagForm(i+1,formulario))
+
+		return render(request, template, {'formularios': formularios})
+
+
+		"""
 		empresa = Empresa.objects.get(autor=request.user)
 		formulario = FormDiagnostico.objects.get(empresa=empresa)
 
@@ -182,7 +198,7 @@ def diagnostico(request):
 			return render(request, template, {'forms': forms,
 											  'formulario': formulario})
 
-
+	"""
 	# en construcción . . . 
 	return render(request, template, {})
 

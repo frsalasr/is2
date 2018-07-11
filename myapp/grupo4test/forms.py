@@ -12,6 +12,19 @@ import os
 ################################
 
 @register.filter
+def getQ(Q):
+	if Q == 1:
+		return 'Modelo Negocio'
+	elif Q == 2:
+		return 'Gestión Organizacional'
+	elif Q == 3:
+		return 'Gestión Comercial'
+	elif Q == 4:
+		return 'Gestión Financiera'
+	else:
+		return 'Gestión de Innovación'
+
+@register.filter
 def getComentario(id_question, formulario):
 	if id_question.startswith('id_'):
 		id_question = id_question[3:]
@@ -72,7 +85,9 @@ def get_hijo(pregunta, formulario):
 
 def createField(tipo, label, queryset=None, initial=""):
 	if tipo == 'a':
-		return forms.ModelChoiceField(label=label, queryset=queryset, required=False, initial=initial)
+		return forms.ModelChoiceField(label=label, queryset=queryset, required=False, initial=initial,
+									  widget=forms.RadioSelect(),
+									  empty_label=None)
 	elif tipo == 't':
 		return forms.CharField(label=label, required=False, initial=initial, widget=forms.Textarea(attrs={
         																			'cols': 200,
@@ -83,6 +98,11 @@ def createField(tipo, label, queryset=None, initial=""):
 		return forms.IntegerField(label=label, required=False, initial=initial)
 	elif tipo == 'd':
 		return forms.FileField(label=label, required=False)
+
+	elif tipo == 'e':
+		return forms.ModelMultipleChoiceField(label=label, required=False, 
+										widget=forms.CheckboxSelectMultiple,
+                                        queryset=queryset)
 	else:
 		return 'error'
 
@@ -119,23 +139,35 @@ class SetEstadoForm(forms.Form):
 class DiagForm(forms.Form):
 	#hidden = forms.IntegerField()
 
-	def __init__(self,Q,formulario,**kwargs):
+	def __init__(self,dimension,formulario,**kwargs):
 		# Se inicia el super Form
 		super(DiagForm, self).__init__(**kwargs)
 
-		self.Q = Q
+		
 		self.formulario = formulario
-		self.formulario.checkFormulario()
+		self.dimension = dimension
 		# se guardan los forms hijos
 		self.base = {}
 		self.papa = {}
-		self.doc = {}
+		#self.doc = {}
+		etapa = Etapa.objects.get(etapa=self.formulario.cliente.etapa)
+		print('etapa ' + str(self.formulario.cliente.etapa))
+		for pregunta in PreguntaDiagnostico.objects.filter(etapas__in=[etapa], dimension=self.dimension):
+			#print(pregunta)
+			pregunta_key = str(pregunta.id)
+			self.base['id_' + pregunta_key] = 1
+			if pregunta.getTipo() == 'a':
+				respuesta = RespuestaDiagnostico.objects.get(pregunta = pregunta, formulario = formulario)
+				self.fields[pregunta_key] = createField(pregunta.getTipo(), pregunta.texto_pregunta, pregunta.preguntas_alternativa.all(), respuesta.respuesta)
 
+			elif pregunta.getTipo() == 'e':
+				self.fields[pregunta_key] = createField(pregunta.getTipo(), pregunta.texto_pregunta, pregunta.preguntas_eleccion.all())
 		# Se llama a todas las preguntas de clasificación 
 		# Por cada pregunta de clasificación
 
+		"""
 
-		for pregunta in PreguntaDiagnostico.objects.filter(base_question=True, Q=self.Q).order_by('numero'):
+		for pregunta in PreguntaDiagnostico.objects.filter(pregunta_base=True, etapas__in=[self.etapa]).order_by('numero'):
 			# self.fields[key] es un diccionario key -> form 
 			# Ejemplo para pregunta tipo respuesta en texto
 			# self.field['pregunta_n'] = forms.CharField(required = False)
@@ -146,9 +178,9 @@ class DiagForm(forms.Form):
 			self.base['id_' + pregunta_key] = 1
 			print(str(pregunta.id) + ' ' + str(self.base['id_'+pregunta_key]))
 			# se toman las preguntas que dependen de esta
-			if pregunta.getTipo() == 'd':
-				print(str(pregunta.id) + ' es documento')
-				self.doc['id_' + pregunta_key] = 1
+			#if pregunta.getTipo() == 'd':
+			#	print(str(pregunta.id) + ' es documento')
+			#	self.doc['id_' + pregunta_key] = 1
 
 			respuesta = RespuestaDiagnostico.objects.get(pregunta = pregunta, formulario = formulario)
 			#print(respuesta)
@@ -162,11 +194,11 @@ class DiagForm(forms.Form):
 				for question in preguntas_hijas:
 					answer = RespuestaDiagnostico.objects.get(pregunta = question, formulario = formulario)
 					self.papa['id_' + str(question.id)] = "id_" + pregunta_key
-					if question.getTipo() == 'd':
-						print(str(question.id) + ' es documento')
-						self.doc['id_' + str(question.id)] = 1
+					#if question.getTipo() == 'd':
+						#print(str(question.id) + ' es documento')
+						#self.doc['id_' + str(question.id)] = 1
 					self.fields[str(question.id)] = createField(question.getTipo(), question.texto_pregunta, question.preguntas_alternativa.all(), answer.respuesta)
-
+		"""
 # Form que toma TODAS las preguntas para clasificar y dependiendo del tipo de esta crea un field
 class QuestionForm(forms.Form):
 	#hidden = forms.IntegerField()

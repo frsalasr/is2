@@ -4,9 +4,10 @@ import datetime
 
 TIPO_PREGUNTA = (
 	('a', 'Alternativa'),
-	('n', 'Número'),
-	('t', 'Texto'),
-	('d', 'Documento')
+	#('n', 'Número'),
+	#('t', 'Texto'),
+	#('d', 'Documento'),
+	('e', 'Elección')
 )
 
 Q_CHOICES = (
@@ -43,6 +44,8 @@ class Cliente(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
 	telefono = models.IntegerField(null=True, blank=True)
 	etapa = models.CharField(max_length=255, choices=Q_CHOICES, default='Idea')
+	descripcion_empresa = models.CharField(max_length=511, null=False, blank=False, default='d')
+	descripcion_equipo = models.CharField(max_length=511, null=False, blank=False, default='d')
 
 	def __str__(self):
 		return self.user.first_name + ' ' + self.user.last_name
@@ -55,7 +58,7 @@ class PreguntaClasificacion(models.Model):
 	ponderacion = models.IntegerField()
 	texto_pregunta = models.CharField(max_length=255)
 	tipo_pregunta = models.CharField(max_length=1, choices=TIPO_PREGUNTA, blank=True, default='a')
-	preguntas_alternativa = models.ManyToManyField(TipoAlternativa, blank=True)
+	preguntas_alternativa = models.ManyToManyField(TipoAlternativa, blank=True, default=None)
 	preguntas_eleccion = models.ManyToManyField(TipoElegir, blank=True)
 	depende_de = models.ManyToManyField("self", blank=True)
 
@@ -111,20 +114,31 @@ class Tiempos(models.Model):
 
 class Dimension(models.Model):
 	dimension = models.CharField(max_length=255)
+	Q = models.IntegerField()
+
+	def __str__(self):
+		return str(self.Q) + ' ' + self.dimension
+
+class Etapa(models.Model):
+	etapa = models.CharField(max_length=255)
+
+	def __str__(self):
+		return self.etapa
 
 class PreguntaDiagnostico(models.Model):
 	#id_pregunta = models.IntegerField(primary_key=True)
 
 	Q_CHOICES = (
-		(1,1),
-		(2,2),
-		(3,3),
-		(4,4),
-		(5,5),
+		('1','Modelo Negocio'),
+		('2','Gestión Organizacional'),
+		('3','Gestión Comercial'),
+		('4','Gestión Financiera'),
+		('5','Gestión de Innovación'),
 		)
 
-	pregunta_base = models.BooleanField(default=False)
-	dimension = models.IntegerField(choices=Q_CHOICES)
+	pregunta_base = models.BooleanField(default=True)
+	dimension = models.CharField(max_length=1, choices=Q_CHOICES)
+	etapas = models.ManyToManyField(Etapa)
 	numero = models.IntegerField(unique=False, null=True, blank=True)
 	sub_numero = models.IntegerField(unique=False, null=True, blank=True)
 	ponderacion = models.IntegerField(default=1)
@@ -163,12 +177,25 @@ class FormDiagnostico(models.Model):
 	cliente = models.OneToOneField(Cliente, on_delete=models.CASCADE, unique=True)
 	respondido = models.BooleanField(default=False)
 	validado = models.BooleanField(default=False)
-	editable = models.BooleanField(default=False)
+	editable = models.BooleanField(default=True)
 	guardados = models.ManyToManyField(Tiempos)
 	estado = models.CharField(max_length=255, default='PENDIENTE', choices=ESTADO_CHOICES)
-	fecha_termino = models.DateTimeField(auto_now_add=False, blank=True)
-	dimension = models.IntegerField(default=1, choices=Q_CHOICES)
+	fecha_termino = models.DateTimeField(auto_now_add=False, blank=True, null=True)
 	preguntas = models.ManyToManyField(PreguntaDiagnostico, through='RespuestaDiagnostico')
+
+	def crearForm(self):
+		etapa = Etapa.objects.get(etapa=self.cliente.etapa)
+
+		for pregunta in PreguntaDiagnostico.objects.filter(etapas__in=[etapa]):
+			print('Creando respuesta para ' + pregunta.texto_pregunta)
+			r1 = RespuestaDiagnostico(pregunta=pregunta,
+									  formulario=self,
+									  puntaje=0,
+									  respuesta='',
+									  )
+			r1.save()
+
+		return True
 
 
 	"""

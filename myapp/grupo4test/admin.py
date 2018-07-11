@@ -1,10 +1,10 @@
 from django.contrib import admin
-from .models import PreguntaClasificacion, FormularioClasificacion, RespuestasClasificacion, TipoAlternativa, TipoElegir, Cliente
- 
+from .models import * 
 
 admin.site.register(TipoAlternativa)
 admin.site.register(TipoElegir)
-admin.site.register(PreguntaClasificacion)
-admin.site.register(FormularioClasificacion)
-admin.site.register(RespuestasClasificacion)
 admin.site.register(Cliente)
+admin.site.register(PreguntaDiagnostico)
+admin.site.register(FormDiagnostico)
+admin.site.register(Dimension)
+admin.site.register(Etapa)

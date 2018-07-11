@@ -2,7 +2,6 @@
 
 {% block content %}
 <head>
-  <title>Bootstrap Example</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
@@ -16,46 +15,70 @@
     	max-width: 70%;
     }
     ul.nav.nav-tabs{
-    	font-size: 30px;
+    	font-size: 15px;
     }
     .row{
     	font-size: 16px;
     }
+
 </style>
 <body>
 
-{% if error %}
-<p style="font-size: 20px; color: red">{{ error }}</p>
-
-{% else %}
-	<h2>Empresa</h2>
+<h2>Formulario Diagnóstico</h2>
 	<hr>
-	<div class="container-fluid">
-		<div class=row>
-			<div class="col-sm-1">Empresa: </div>
-			<div class="col-sm-3">{{ formulario.empresa.nombre }}</div>	
-		</div>
-		<div class=row>
-			<div class="col-sm-1">Puntaje: </div>
-			<div class="col-sm-3">{{ formulario.puntaje }}</div>	
-		</div>
-		<div class=row>
-			<div class="col-sm-1">Estado: </div>
-			<div class="col-sm-3" 
-			{% if formulario.estado == 'PENDIENTE' %}
-				style="color: red;">
-			{% elif formulario.estado == 'RESUELTO' %}
-				style="color: green;">
-			{% else %}
-				style="color: orange;">
+	<ul class="nav nav-tabs">
+		{% for form in formularios %}
+	    	<li id="tab_name" {% if forloop.counter == 1 %} class="active" {% endif %}><a data-toggle="tab" href="#Q{{forloop.counter}}"> {{forloop.counter|getQ}} </a></li>
+	    {% endfor %}
+	</ul>
+	<div class="tab-content">
+	{% for form in formularios %}
+		<div id="Q{{forloop.counter}}" {% if forloop.counter == 1 %} class="tab-pane fade in active" {% else %} class="tab-pane fade " {% endif %} style="margin-top: 20px;">
+		{% for field in form %}
+			{% if form.base|get_item:field.auto_id %}	
+				<div id="div_{{field.auto_id}}">
+					<p style="font-weight: bold;">{{field.label}}</p>
+					<p>{{field}}</p>
+				</div>
 			{% endif %}
-			{{formulario.estado}}</div>
+		{% endfor %}
+		</div>
+	{% endfor %}
+</div>
+<!--
+<h2>Formulario Diagnóstico</h2>
+<hr>
+<ul class="nav nav-tabs">
+	<li id="tab_1" class="active"><a data-toggle="tab" href="#Q1">Q1</a></li>
+	<li id="tab_2"><a data-toggle="tab" href="#Q2">Q2</a></li>
+</ul>
+<div class="tab-content">
+	<div id="Q1" class="tab-pane fade in active">
+		<p>Q1</p>
+		<p>Q1</p>
+		<p>Q1</p>
+		<p>Q1</p>
+		<p>Q1</p>
+		<p>Q1</p>
 	</div>
-	<hr>
-	<div class="container">
-		<form method="POST" enctype="multipart/form-data">
-			{% csrf_token %}
-			<h2>Formulario Diagnóstico</h2>
+	<div id="Q2" class="tab-pane fade ">
+		<p>Q2</p>
+		<p>Q2</p>
+		<p>Q2</p>
+		<p>Q2</p>
+		<p>Q2</p>
+		<p>Q2</p>
+		<p>Q2</p>
+		<p>Q2</p>
+	</div>
+</div>
+-->
+
+
+{% endblock %}
+
+<!--
+<h2>Formulario Diagnóstico</h2>
 			<hr>
 			<ul class="nav nav-tabs">
 		    	{% for form in forms %}
@@ -94,10 +117,8 @@
 											<p>Descargar documento: <a href="../media/{{field.auto_id|get_path_doc:form.formulario|index:0}}"> {{field.auto_id|get_path_doc:form.formulario|index:2}}</a></p> <br>
 										{% elif field.auto_id|get_path_doc:form.formulario|index:1|in_list:'pdf'%}
 									        <a data-toggle="modal" href="#myModal{{field.auto_id}}" class="pop{{field.auto_id}}">Ver Documento</a><br>
-									        <!-- Modal -->
 									        <div id="myModal{{field.auto_id}}" class="modal fade" role="dialog">
 									            <div class="modal-dialog modal-lg">
-									                <!-- Modal content-->
 									                <div class="modal-content">
 									                    <div class="modal-header">
 									                        <h4 class="modal-title" style="text-align: center; margin-top: 5%">Documento de {{form.formulario.empresa.nombre}}</h4>
@@ -132,7 +153,6 @@
 								if($("#{{form.papa|get_item:field.auto_id}}").val() == '6'){
 										x.style.display = "block";
 								}
-
 								$("#{{form.papa|get_item:field.auto_id}}").on('change', function(){
 									
 									console.log($("#{{form.papa|get_item:field.auto_id}}").val())
@@ -158,9 +178,5 @@
 			{% endfor %}
 			</div>
 			<input type="submit" value="Enviar">
-		</form>
-	</div>
-{% endif %}
-
-{% endblock %}
-
+</form>
+-->
