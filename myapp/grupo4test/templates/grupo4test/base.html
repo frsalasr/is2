@@ -22,7 +22,7 @@
         <div class="col-sm-2">
         <div class="sidebar-nav">
         	    <li>Bienvenido 
-          			<p style="font-weight: bold;">{{ user.get_username }} </p></li>
+          			<p style="font-weight: bold;">{{ user.first_name }} </p></li>
        			  <li><a href="{% url 'logout'%}">Logout</a></li>   
               	<hr style="height:1px;width: 10%;  background-color:black;border:none;  display: inline-block" />
             <li><a href="{% url 'home' %}">Inicio</a></li>
@@ -30,11 +30,10 @@
             {% if user.is_authenticated %}
             	{% if user.is_superuser %}
             		<p style="font-weight: bold;">Postulantes</p>
-  	          	<li><a href="{% url 'clasificados' %}">Clasificación</a></li>
+  	          	<li><a href="{% url 'clasificados' %}">Clientes</a></li>
   	          	<li><a href="{% url 'diagnosticados' %}">Diagnóstico</a></li>
             	{% else %}
-  	          	<li><a href="{% url 'datos' %}">Datos empresa</a></li>
-  	          	<li><a href="{% url 'formulario' %}">Formulario</a></li>
+  	          	<li><a href="{% url 'datos' %}">Datos Cliente</a></li>
   	          	<li><a href="{% url 'diagnostico' %}">Diagnóstico</a></li>
     	        {% endif %}
             {% endif %}

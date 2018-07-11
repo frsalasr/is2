@@ -21,6 +21,8 @@ import os
 
 from django.conf import settings
 
+aux_dict = {}
+
 ### HOME
 
 def home(request):
@@ -50,13 +52,18 @@ def ejemplo(request):
 
 def datos(request):
 
-	form = InfoForm()
 	# template a cargar
 	template = 'grupo4test/datos.html'
 
 	# si el usuario esta autenticado
 	if request.user.is_authenticated:		
 		# si se hace un request tipo POST (se mandó un formulario)
+
+		cliente = Cliente.objects.get(user=request.user)
+
+		return render(request, template, {'cliente': cliente})
+
+		"""
 		if request.method == 'POST':
 			# se toman los datos del form
 			form = InfoForm(request.POST)
@@ -105,7 +112,7 @@ def datos(request):
 				form = InfoForm()
 				return render(request, template, {'form': form,
 												  'not_info': 'not_info'})
-
+	"""
 	# si no está autenticado devuelve la base 
 	return render(request, template, {})
 	
@@ -115,9 +122,25 @@ def diagnostico(request):
 
 	if request.user.is_authenticated:
 		# Debe registrar la empresa si no no puede hacer el formulario
-		if Empresa.objects.filter(autor=request.user).count() == 0:
-			return redirect('datos')
+		
+		cliente = Cliente.objects.get(user=request.user) 
+		if FormDiagnostico.objects.filter(cliente=cliente).count() > 0:
+			FormDiagnostico.objects.get(cliente=cliente).delete()
+			print('se borró el formulario')
 
+		formulario = FormDiagnostico(cliente=cliente)
+		formulario.save()
+		formulario.crearForm()
+
+		formularios = []
+
+		for i in range(5):
+			formularios.append(DiagForm(i+1,formulario))
+
+		return render(request, template, {'formularios': formularios})
+
+
+		"""
 		empresa = Empresa.objects.get(autor=request.user)
 		formulario = FormDiagnostico.objects.get(empresa=empresa)
 
@@ -175,7 +198,7 @@ def diagnostico(request):
 			return render(request, template, {'forms': forms,
 											  'formulario': formulario})
 
-
+	"""
 	# en construcción . . . 
 	return render(request, template, {})
 
@@ -357,18 +380,21 @@ def register(request):
 
 	template = 'grupo4test/register.html'
 
-	form = CustomUserCreationForm()
+	registerForm = CustomUserCreationForm()
+	clasificacionForm = QuestionForm()
 	
 	if request.method == 'POST':
+		registerForm = CustomUserCreationForm(request.POST)
 
-		form = CustomUserCreationForm(request.POST)
-		if form.is_valid():
-			form.save()
-			messages.success(request, 'Account created successfully')
-			#render(request, "grupo4test/wea.html", {})
-			#return redirect('login')
+		if registerForm.is_valid():
+			cliente = registerForm.save()
+			puntaje = clasificacionForm.ponerPuntaje(respuestas=request.POST.dict(),cliente=cliente)
+			request.session['cliente'] = str(cliente.id)
+			#messages.success(request, 'Account created successfully')
+			return redirect('view_login')
 	
-	return render(request, template, {'form': form})
+	return render(request, template, {'registerForm': registerForm,
+									  'clasificacionForm': clasificacionForm })
 
 def save(request):
 
@@ -395,6 +421,13 @@ def login(request):
 
 	form = LoginForm()
 
+	if request.session.get('cliente'):
+		cliente = Cliente.objects.get(id=request.session.get('cliente'))
+		del request.session['cliente']
+		return render(request, template, {'form': form, 
+										  'cliente': cliente})
+
+		
 	if request.method == "POST":
 		form = LoginForm(request.POST)
 		if form.is_valid():

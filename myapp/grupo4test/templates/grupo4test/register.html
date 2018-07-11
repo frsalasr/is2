@@ -10,17 +10,23 @@
         {% endif %}
         <span style="display:block; height: 20px;"></span>
 
-         <form method="post" id="submit_form">
+         <form method="post">
              {% csrf_token %}
              <table>
                 <tr>
-                    {{ form.as_table }}
+                    {{ registerForm.as_table }}
                 </tr>
-                <tr>
-                    <td><input type="submit" id="id1" name="submit" value="Registrar" />
-                    </td>
-                </tr>
-             </table>
+            </table>
+            <hr>
+            <table>
+                 <tr>
+                    {{ clasificacionForm.as_table }}
+                 </tr>
+            </table>
+            <tr>
+                <td><input type="submit" id="id1" name="submit" value="Registrar" />
+                </td>
+            </tr>
          </form>
      </div>
         <script type="text/javascript">
