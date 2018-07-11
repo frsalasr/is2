@@ -12,10 +12,9 @@ table, th, td {
     padding: 5px 5px 5px;
 }
 </style>
-	<h1>Datos empresa</h1>
+	<h1>Datos usuario {{user.first_name}}</h1>
 	<hr style="height:1px;width: 10%;  background-color:black;border:none;  display: inline-block" />
-	
-
+	<p> Datos del usuario</p>
 	{% if user.is_authenticated %}
 		{% if empresa %}
 			<table style="width:20%">

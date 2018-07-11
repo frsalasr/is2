@@ -57,6 +57,12 @@ def datos(request):
 	# si el usuario esta autenticado
 	if request.user.is_authenticated:		
 		# si se hace un request tipo POST (se mandó un formulario)
+
+		user = request.user
+
+		return render(request, template, {'user': user})
+
+		"""
 		if request.method == 'POST':
 			# se toman los datos del form
 			form = InfoForm(request.POST)
@@ -105,7 +111,7 @@ def datos(request):
 				form = InfoForm()
 				return render(request, template, {'form': form,
 												  'not_info': 'not_info'})
-
+	"""
 	# si no está autenticado devuelve la base 
 	return render(request, template, {})
 	
