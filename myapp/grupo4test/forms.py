@@ -263,10 +263,10 @@ class InfoForm(forms.Form):
 # Form para registrar usuario
 class CustomUserCreationForm(forms.Form):
 	# campos
-    username = forms.CharField(label='Usuario', min_length=4, max_length=150)
-    email = forms.EmailField(label='Email')
-    password1 = forms.CharField(label='Contraseña', widget=forms.PasswordInput)
-    password2 = forms.CharField(label='Confirme contraseña', widget=forms.PasswordInput)
+    username = forms.CharField(label='Usuario ', min_length=4, max_length=150)
+    email = forms.EmailField(label='Email ')
+    password1 = forms.CharField(label='Contraseña ', widget=forms.PasswordInput)
+    password2 = forms.CharField(label='Confirme contraseña ', widget=forms.PasswordInput)
 
     def clean_username(self):
         username = self.cleaned_data['username'].lower()
@@ -282,7 +282,7 @@ class CustomUserCreationForm(forms.Form):
         email = self.cleaned_data['email'].lower()
         r = User.objects.filter(email=email)
         if r.count():
-            raise  ValidationError("Email ya existe")
+            raise  ValidationError("Email ya registrado")
         return email
 
     # same

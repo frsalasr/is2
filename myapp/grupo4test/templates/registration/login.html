@@ -20,19 +20,6 @@
 {% endblock %}
 
 
-{% if form.errors %}
-<p style="color:red;">Su usuario y contraseña no coinciden. Intente otra vez.</p>
-{% endif %}
-
-{% if next %}
-    <p>Hola</p>
-    {% if user.is_authenticated %}
-    <p style="color:red;">Su cuenta no tiene acceso a este sitio. Para proceder inicie sesión con una cuenta que tenga acceso.</p>
-    {% else %}
-    <p style="color:red;">Por favor inicie sesión para acceder al sitio.</p>
-    {% endif %}
-{% endif %}
-
 <body>
   <div class="container-fluid">
     <img src="http://www.aceleralatam.cl/wordpressweb/wp-content/uploads/2016/10/AceleraLatamWhite-e1477292450104.png" style="position: relative;top: 15px;">
@@ -46,6 +33,20 @@
             <div class="center">
             <form method="post" action="{% url 'login' %}">
             {% csrf_token %}
+
+            
+              {% if form.errors %}
+              <p style="color:red;">Su usuario y contraseña no coinciden.</p>
+              {% endif %}
+
+              {% if next %}
+                  <p>Hola</p>
+                  {% if user.is_authenticated %}
+                  <p style="color:red;">Su cuenta no tiene acceso a este sitio. Para proceder inicie sesión con una cuenta que tenga acceso.</p>
+                  {% else %}
+                  <p style="color:red;">Por favor inicie sesión para acceder al sitio.</p>
+                  {% endif %}
+              {% endif %}
              
                 <div class="block">
                   <label style="display: inline-block;width: 100px; text-align: rigth">Usuario: </label>{{ form.username }}
@@ -72,4 +73,3 @@
 </body>
 {# Assumes you setup the password_reset view in your URLconf #}
 </script>
-
