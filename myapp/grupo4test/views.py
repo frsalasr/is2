@@ -13,6 +13,9 @@ from django.http import HttpResponseRedirect
 
 from django.contrib import messages
 
+#para crear objeto user
+from django.contrib.auth.models import User
+
 # forms, modulos y modelos
 from .forms import *
 from .models import *
@@ -353,22 +356,154 @@ def diagnosticar(request,rut_empresa):
 									  'estadoForm': estadoForm })
 
 ## REGISTRO
+## para modificarlo se pueden cambiar las forms o views de registro
 def register(request):
 
 	template = 'grupo4test/register.html'
-
-	form = CustomUserCreationForm()
+	initial={'username': request.session.get('username', None),
+		 'email':request.session.get('email', None)}
+	form = CustomUserCreationForm(request.POST or None, initial=initial)
 	
 	if request.method == 'POST':
-
-		form = CustomUserCreationForm(request.POST)
 		if form.is_valid():
-			form.save()
-			messages.success(request, 'Account created successfully')
-			#render(request, "grupo4test/wea.html", {})
-			#return redirect('login')
+			request.session['username'] = form.cleaned_data['username']
+			request.session['email'] = form.cleaned_data['email']
+			request.session['password1'] = form.cleaned_data['password1']
+			return redirect('register2')
 	
 	return render(request, template, {'form': form})
+
+def register2(request):
+	template = 'grupo4test/register2.html'
+	initial = {'rut_empresa':request.session.get('rut_empresa'),
+		'nombre_empresa': request.session.get('nombre_empresa'),
+		'desc_empresa': request.session.get('desc_empresa'),
+		'equipo_empresa': request.session.get('equipo_empresa'),
+		'ventas_empresa': request.session.get('ventas_empresa')
+		}
+	form = RegistrationForm(request.POST or None, initial=initial)
+
+	if request.method == 'POST':
+		if form.is_valid():
+			request.session['rut_empresa'] = form.cleaned_data['rut_empresa']
+			request.session['nombre_empresa'] = form.cleaned_data['nombre_empresa']
+			request.session['desc_empresa'] = form.cleaned_data['desc_empresa']
+			request.session['equipo_empresa'] = form.cleaned_data['equipo_empresa']
+			request.session['ventas_empresa'] = form.cleaned_data['ventas_empresa']
+			ventas = request.session['ventas_empresa']
+			print(ventas)
+			if ventas == '0':
+				#construir objetos y postear IDEA
+				username = request.session['username']
+				email = request.session['email']
+				password = request.session['password1']
+				user = User.objects.create_user(username,email,password)
+
+				rut = request.session['rut_empresa']
+				nom = request.session['nombre_empresa']
+				desc = request.session['desc_empresa']
+				equip = request.session['equipo_empresa']
+
+				empresa = Empresa.objects.create(rut=rut, nombre=nom, etapa='Idea',autor=user)
+				FormDiagnostico.construir(empresa)
+				messages.success(request, 'Registro completado')
+				request.session.clear()
+				return redirect('register')
+			else:
+				return redirect('register3')
+		else:
+			print("forma no valida")
+
+	return render(request, template, {'form':form})
+
+def register3(request):
+	template = 'grupo4test/register3.html'
+	ventas = request.session['ventas_empresa']
+	print(ventas)
+	if ventas == '1':
+		initial={'ded_equipo': request.session.get('ded_equipo'),
+				'feedback': request.session.get('feedback')}
+		form = RegistrationForm2(request.POST or None, initial=initial)
+		if request.method == 'POST':
+			if form.is_valid():
+				request.session['ded_equipo'] = form.cleaned_data['ded_equipo']
+				request.session['feedback'] = form.cleaned_data['feedback']
+				#filtro
+				if request.session['ded_equipo'] and request.session['feedback']:
+					etapa='Semilla'
+				else:
+					etapa='Idea'
+				##crear objeto y guardar
+				#form.save()
+	else:
+		initial={'mvp': request.session.get('mvp'),
+			'plan_exp': request.session.get('plan_exp'),
+			'fig_legal': request.session.get('fig_legal'),
+			'ventas_ext': request.session.get('ventas_ext'),
+			'fin_priv': request.session.get('fin_priv'),
+			'plan_inter': request.session.get('plan_inter'),
+			'vida_emp': request.session.get('vida_emp'),
+			'mod_ext': request.session.get('mod_ext'),
+			'est_inter': request.session.get('est_inter')}
+		form =RegistrationForm3(request.POST or None, initial=initial)
+		if request.method == 'POST':
+			if form.is_valid():
+				request.session['mvp'] = form.cleaned_data['mvp']
+				request.session['plan_exp'] = form.cleaned_data['plan_exp']
+				request.session['fig_legal'] = form.cleaned_data['fig_legal']
+				request.session['ventas_ext'] = form.cleaned_data['ventas_ext']
+				request.session['fin_priv'] = form.cleaned_data['fin_priv']
+				request.session['plan_inter'] = form.cleaned_data['plan_inter']
+				request.session['vida_emp'] = form.cleaned_data['vida_emp']
+				request.session['mod_ext'] = form.cleaned_data['mod_ext']
+				request.session['est_inter'] = form.cleaned_data['est_inter']
+
+				mvp = request.session['mvp']
+				plan_exp = request.session['plan_exp']
+				fig_legal = request.session['fig_legal']
+				ventas_ext = request.session['ventas_ext']
+				fin_priv = request.session['fin_priv']
+				plan_inter = request.session['plan_inter']
+				vida_emp = request.session['vida_emp']
+				mod_ext = request.session['mod_ext']
+				est_inter = request.session['est_inter']
+
+				temprana = mvp and plan_exp
+				expansion = temprana and ventas_ext and fin_priv and plan_inter
+				internac = expansion and vida_emp and mod_ext and est_inter
+
+				if internac:
+					print("internacionalizacion")
+					etapa = 'Internacionalización'
+				elif expansion:
+					print("expansion")
+					etapa = 'Expansión'
+				elif temprana:
+					print("ET")
+					etapa = 'Etapa Temprana'
+				else:
+					print("Semilla")
+					etapa = 'Semilla'
+				#form.save()
+
+	if request.method == 'POST':
+		username = request.session['username']
+		email = request.session['email']
+		password = request.session['password1']
+		user = User.objects.create_user(username,email,password)
+
+		rut = request.session['rut_empresa']
+		nom = request.session['nombre_empresa']
+		desc = request.session['desc_empresa']
+		equip = request.session['equipo_empresa']
+
+		empresa = Empresa.objects.create(rut=rut, nombre=nom, etapa=etapa,autor=user)
+		FormDiagnostico.construir(empresa)
+		messages.success(request, 'Registro completado')
+		request.session.clear()
+		return redirect('register')
+
+	return render(request, template, {'form':form})
 
 def save(request):
 

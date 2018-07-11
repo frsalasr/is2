@@ -18,6 +18,8 @@ urlpatterns = [
 	# registro de usuarios
     path('accounts/', include('django.contrib.auth.urls')),
     path('register/',views.register, name='register'),
+    path('register2/',views.register2, name='register2'),
+    path('register3/',views.register3, name='register3'),
 
     ### CLIENTE
 

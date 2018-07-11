@@ -12,21 +12,22 @@
                         {% endfor %}
                     {% endif %}
                     <span style="display:block; height: 20px;"></span>
-
+                    <p>Tickea si el emprendimiento cumple con las siguientes cosas:</p>
+                    <hr>
                      <form method="post" id="submit_form">
-                         {% csrf_token %}
-                         <table>
+                        {% csrf_token %}
+                        <table>
                             <tr>
                                 {{ form.as_table }}
                             </tr>
                         </table>
-                        <input type="submit" id="id1" name="submit" value="Registrarse" />
+                        <hr>
+                        <input type="submit" id="id1" name="submit" value="Continuar" />
                     </form>
-                    <p><a href="{% url 'login'%}" >Iniciar sesión</a></p>
+                    <p><a href="{% url 'register2'%}" >Volver</a></p>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
 {% endblock %}
