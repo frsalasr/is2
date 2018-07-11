@@ -94,6 +94,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'is2-4',
+        'OPTIONS': {
+            'options': '-c search_path=fco_test'
+        },
         'USER': 'is2-4',
         'PASSWORD': 'is2-41234',
         'HOST': 'plop.inf.udec.cl',

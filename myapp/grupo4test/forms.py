@@ -184,7 +184,7 @@ class QuestionForm(forms.Form):
 		# Por cada pregunta de clasificación
 
 
-		for pregunta in PreguntaClasificacion.objects.filter(base_question=True).order_by('numero_pregunta'):
+		for pregunta in PreguntaClasificacion.objects.filter(pregunta_base=True).order_by('numero'):
 			# self.fields[key] es un diccionario key -> form 
 			# Ejemplo para pregunta tipo respuesta en texto
 			# self.field['pregunta_n'] = forms.CharField(required = False)
@@ -205,6 +205,37 @@ class QuestionForm(forms.Form):
 					self.papa['id_' + str(question.id)] = "id_" + pregunta_key
 					self.fields[str(question.id)] = createField(question.getTipo(), question.texto_pregunta, question.preguntas_alternativa.all())
 
+
+	def ponerPuntaje(self, respuestas, cliente):
+		puntaje = 0
+		for pregunta in PreguntaClasificacion.objects.all():
+			if respuestas.get(str(pregunta.id)):
+				#print('llegué')
+				respuesta = TipoAlternativa.objects.get(id=respuestas.get(str(pregunta.id)))
+				puntaje = puntaje + (pregunta.ponderacion*respuesta.puntaje)*5
+
+		#print(puntaje)
+		etapa = self.definirEtapa(puntaje)
+		print('Cambiando estado del cliente ' + str(cliente) + ' a ' + etapa)
+		cliente.etapa = self.definirEtapa(puntaje)
+		cliente.save()
+		return puntaje
+		#print(self.definirEtapa(puntaje))
+
+	def definirEtapa(self, puntaje):
+		if puntaje <= 3:
+			return 'Idea'
+		elif puntaje > 3 and puntaje <= 6:
+			return 'Semilla'
+		elif puntaje > 6 and puntaje <= 9:
+			return 'Etapa Temprana'
+		elif puntaje > 9 and puntaje <= 12:
+			return 'Expansión'
+		else:
+			return 'Internacionalización'
+
+
+	"""
 	def getInfo(data, empresa):
 
 		if FormularioClasificacion.objects.filter(empresa=empresa).count() > 0:
@@ -255,6 +286,7 @@ class QuestionForm(forms.Form):
 	def getAt(self,pregunta_id):
 		return self.preguntas[pregunta_id]
 
+	"""
 # Form para poner datos empresa (run y nombre)
 class InfoForm(forms.Form):
 	rut_empresa = forms.IntegerField(label='RUT',required=True)
@@ -267,6 +299,9 @@ class CustomUserCreationForm(forms.Form):
     email = forms.EmailField(label='Email')
     password1 = forms.CharField(label='Contraseña', widget=forms.PasswordInput)
     password2 = forms.CharField(label='Confirme contraseña', widget=forms.PasswordInput)
+    nombre = forms.CharField(label='Nombre')
+    apellido = forms.CharField(label='Apellido')
+    telefono = forms.CharField(label='Telefono')
 
     def clean_username(self):
         username = self.cleaned_data['username'].lower()
@@ -298,11 +333,17 @@ class CustomUserCreationForm(forms.Form):
     # same
     def save(self, commit=True):
         user = User.objects.create_user(
-            self.cleaned_data['username'],
-            self.cleaned_data['email'],
-            self.cleaned_data['password1'],
+            username = self.cleaned_data['username'],
+            email = self.cleaned_data['email'],
+            password = self.cleaned_data['password1'],
+            first_name = self.cleaned_data['nombre'],
+            last_name = self.cleaned_data['apellido'],
         )
-        return user
+        user.save()
+        cliente = Cliente(user=user,
+        				  telefono= self.cleaned_data['telefono'])
+        cliente.save()
+        return cliente
 
 ##### TEST FORMS #####
 # OBSOLETOS #

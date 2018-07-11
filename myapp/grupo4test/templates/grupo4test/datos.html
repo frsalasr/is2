@@ -3,71 +3,41 @@
 
 {% block content %}
 <style type="text/css">
-p{
-	font-size: 18px;
+#myContainer{
+	font-size: 16px;
 }
-table, th, td {
-	border: 2px solid black;
-    font-size: 15px;
-    padding: 5px 5px 5px;
+#myContainer .col-sm-2{
+	font-weight: bold;
 }
 </style>
-	<h1>Datos usuario {{user.first_name}}</h1>
-	<hr style="height:1px;width: 10%;  background-color:black;border:none;  display: inline-block" />
-	<p> Datos del usuario</p>
 	{% if user.is_authenticated %}
-		{% if empresa %}
-			<table style="width:20%">
-				<tr>
-					<th>RUT</th>
-					<th>{{ empresa.rut }}</th>
-				</tr>
-				<tr>
-					<th>Nombre</th>
-					<th>{{ empresa.nombre }}</th>
-				</tr>
-				<tr>
-					<th>Etapa</th>
-					<th>{{ empresa.etapa }}</th>
-				</tr>
-				<tr>
-					<th>Cuenta</th>
-					<th>{{ empresa.autor }}</th>
-				</tr>
-				<tr>
-					<th>Formulario clasificación</th>
-					{% if formulario.validado %}
-						<th style="color: green;">Validado </th>
-					{% else %}
-						<th style="color: red">No validado </th>
-					{% endif %}
-				</tr>
-				<tr>
-					<th>Puntaje clasificación</th>
-					<th>{{ formulario.puntaje }}</th>
-				</tr>
-				<tr>
-					<th>Formulario diagnóstico:</th>
-					<th style="color: red"> No validado </th>
-				</tr>
-				<tr>
-					<th>Puntaje diagnóstico</th>
-					<th> 0.0 </th>
-				</tr>
-			</table>
-		{% endif %}
-		{% if not_info %}
-			<form method="post">
-				{% csrf_token %}
-				{% for field in form %}
-					<p>{{ field.label }}</p>
-					<p>{{ field }}</p>
-				{% endfor %}
-			<td><input type="submit" name="submit" value="Register"/></td>
-			</form>
-		{% endif %} 
+	<div class="container-fluid" id="myContainer">
+		<h3>Datos cliente {{cliente.user.username}}</h3>
+		<hr>
+		<div class="row">
+			<div class="col-sm-2">Nombre: </div>
+			<div class="col-sm-3">{{cliente}}</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-2">Correo electrónico: </div>
+			<div class="col-sm-3">{{cliente.user.email}}</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-2">Teléfono de contacto: </div>
+			<div class="col-sm-3">{{cliente.telefono}}</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-2">Etapa: </div>
+			<div class="col-sm-3">{{cliente.etapa}}</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-2">Estado del diagnóstico: </div>
+			<div class="col-sm-3"> prox </div>
+		</div>
+
+	</div>
 	{% else %}
-	   	<p>Sección solo para usuarios registrados</p> 
-	{% endif %} 
+	<p>Solo para usuarios registrados</p>
+	{% endif %}
            
 {% endblock %}

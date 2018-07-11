@@ -21,6 +21,8 @@ import os
 
 from django.conf import settings
 
+aux_dict = {}
+
 ### HOME
 
 def home(request):
@@ -50,7 +52,6 @@ def ejemplo(request):
 
 def datos(request):
 
-	form = InfoForm()
 	# template a cargar
 	template = 'grupo4test/datos.html'
 
@@ -58,9 +59,9 @@ def datos(request):
 	if request.user.is_authenticated:		
 		# si se hace un request tipo POST (se mandó un formulario)
 
-		user = request.user
+		cliente = Cliente.objects.get(user=request.user)
 
-		return render(request, template, {'user': user})
+		return render(request, template, {'cliente': cliente})
 
 		"""
 		if request.method == 'POST':
@@ -363,18 +364,21 @@ def register(request):
 
 	template = 'grupo4test/register.html'
 
-	form = CustomUserCreationForm()
+	registerForm = CustomUserCreationForm()
+	clasificacionForm = QuestionForm()
 	
 	if request.method == 'POST':
+		registerForm = CustomUserCreationForm(request.POST)
 
-		form = CustomUserCreationForm(request.POST)
-		if form.is_valid():
-			form.save()
-			messages.success(request, 'Account created successfully')
-			#render(request, "grupo4test/wea.html", {})
-			#return redirect('login')
+		if registerForm.is_valid():
+			cliente = registerForm.save()
+			puntaje = clasificacionForm.ponerPuntaje(respuestas=request.POST.dict(),cliente=cliente)
+			request.session['cliente'] = str(cliente.id)
+			#messages.success(request, 'Account created successfully')
+			return redirect('view_login')
 	
-	return render(request, template, {'form': form})
+	return render(request, template, {'registerForm': registerForm,
+									  'clasificacionForm': clasificacionForm })
 
 def save(request):
 
@@ -401,6 +405,13 @@ def login(request):
 
 	form = LoginForm()
 
+	if request.session.get('cliente'):
+		cliente = Cliente.objects.get(id=request.session.get('cliente'))
+		del request.session['cliente']
+		return render(request, template, {'form': form, 
+										  'cliente': cliente})
+
+		
 	if request.method == "POST":
 		form = LoginForm(request.POST)
 		if form.is_valid():
