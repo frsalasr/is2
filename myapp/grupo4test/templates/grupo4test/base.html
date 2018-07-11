@@ -1,40 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  
+    
   {% block title %}
   	<title>Acelera Latam</title>
   {% endblock %}
   <!-- Add additional CSS in static file -->
   {% load static %}
+  
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <link rel="stylesheet" type="text/css" href="{% static 'css/base_style.css' %}">
-  <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.css' %}">
-  <script type="text/javascript" src="{% static 'js/bootstrap.js' %}"></script>
+  <!--<link rel="stylesheet" type="text/css" href="{% static 'css/base_style.css' %}"> -->
+  <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+  <script type="text/javascript" src="{% static 'js/bootstrap.min.js' %}"></script>
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+  {% block head %}
+  {% endblock %}
+  <style>
+    body {
+        font-family: "Lato", sans-serif;
+    }
+    
+    .sidenav {
+        height: 100%;
+        width: 200px;
+        position: fixed;
+        z-index: 1;
+        top: auto;
+        left: 0;
+        background-color:  #0A6F8A;
+        overflow-x: hidden;
+        padding-top: 20px;
+    }
+    
+    .sidenav a {
+        padding: 6px 6px 6px 32px;
+        text-decoration: none;
+        font-size: 20px;
+        color: #ececec;
+        display: block;
+    }
+    
+    .sidenav a:hover {
+        color: #faed3c;
+    }
+    
+    .main {
+        margin-left: 200px; /* Same as the width of the sidenav */
+    }
+    
+    @media screen and (max-height: 450px) {
+      .sidenav {padding-top: 10px;}
+      .sidenav a {font-size: 18px;}
+    }
+    </style>
 </head>
 
 <body>
 {% if user.is_authenticated %}
-  <h1 class="title">Prototipo v0.10</h1>
-    <hr>
-    <div class="container-fluid">
+  <div class="container-fluid" style="background-color: #0A6F8A; height: 110px;" >
+      <img src="http://www.aceleralatam.cl/wordpressweb/wp-content/uploads/2016/10/AceleraLatamWhite-e1477292450104.png" style="position: relative;top: 15px;">
+  </div>
+
+  <div class="container">
       <div class="row">
         <div class="col-sm-2">
-        <div class="sidebar-nav">
-        	    <li>Bienvenido 
-          			<p style="font-weight: bold;">{{ user.first_name }} </p></li>
-       			  <li><a href="{% url 'logout'%}">Logout</a></li>   
-              	<hr style="height:1px;width: 10%;  background-color:black;border:none;  display: inline-block" />
-            <li><a href="{% url 'home' %}">Inicio</a></li>
-            <span style="display:block; height: 15px;"></span>
+
+        <div class="sidenav ">
             {% if user.is_authenticated %}
-            	{% if user.is_superuser %}
-            		<p style="font-weight: bold;">Postulantes</p>
-  	          	<li><a href="{% url 'clasificados' %}">Clientes</a></li>
-  	          	<li><a href="{% url 'diagnosticados' %}">Diagnóstico</a></li>
-            	{% else %}
-  	          	<li><a href="{% url 'datos' %}">Datos Cliente</a></li>
-  	          	<li><a href="{% url 'diagnostico' %}">Diagnóstico</a></li>
+            <a style="color: #ececec; font-size: 25px;">Bienvenido</a>        	    
+            <a style="font-weight: bold;color: #ececec; font-size: 20px">{{ user.get_username }} </a>
+              {% if user.is_superuser %}              
+                <a href="{% url 'logout'%}" style="font-size: 15px;">Cerrar Sesión</a>    
+                <a href="{% url 'home' %}">Inicio</a>  			           	
+                <span style="display:block; height: 15px;"></span>
+                <a href="{% url 'diagnosticados' %}">Clientes</a>
+              {% else %}
+                <a href="{% url 'datos' %}" style="font-size: 15px;">Información de usuario</a>
+                <a href="{% url 'logout'%}" style="font-size: 15px;">Cerrar Sesión</a>  
+                <span style="display:block; height: 15px;"></span>  
+                <a href="{% url 'home' %}">Inicio</a>    	           
+                <a href="{% url 'diagnostico' %}">Diagnósticos</a>
     	        {% endif %}
             {% endif %}
         </div>
@@ -54,7 +100,7 @@
     <li><a href="{% url 'login'%}">Login</a></li>  
     <li><a href="{% url 'register'%}">Registro</a></li>  
   </div>
-      {% endif %} 
+  {% endif %} 
   
 </body>
 </html>
