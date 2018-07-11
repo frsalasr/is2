@@ -1,38 +1,77 @@
+{% block head %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
-{% if form.errors %}
-<p style="color:red;">Su usuario y contraseña no coinciden. Intente otra vez.</p>
-{% endif %}
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+<style>
+  html{
+    height: 100%;
+  }
 
-{% if next %}
-    <p>Hola</p>
-    {% if user.is_authenticated %}
-    <p style="color:red;">Su cuenta no tiene acceso a este sitio. Para proceder inicie sesión con una cuentas que tenga acceso.</p>
-    {% else %}
-    <p style="color:red;">Por favor inicie sesión para acceder al sitio.</p>
-    {% endif %}
-{% endif %}
+  body {
+    background-image: url("https://www.elicebergdemadrid.com/wp-content/uploads/2017/11/empresas.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    overflow-x: hidden;
+  }
+</style>
+{% endblock %}
 
-<form method="post" action="{% url 'login' %}">
-{% csrf_token %}
 
-<div>
-  <td>Usuario:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-  <td>{{ form.username }}</td>
-</div>
-</br>
-<div>
-  <td>Contraseña:</td>
-  <td>{{ form.password }}</td>
-</div>
-</br>
-<div>
-  <input type="submit" id="registerButton" value="Iniciar Sesión" />
-  <input type="hidden" name="next" value="{{ next }}" />
-</div>
-</form>
-</br>
+<body>
+  <div class="container-fluid">
+    <img src="http://www.aceleralatam.cl/wordpressweb/wp-content/uploads/2016/10/AceleraLatamWhite-e1477292450104.png" style="position: relative;top: 15px;">
+  </div>
+
+  <div class="container-fluid">
+    <div class="panel-group" style="margin-top: 10%; max-width: 310px;text-align: center;margin: 0 auto">
+      <div class="panel panel-primary">
+        <div class="panel-heading" style="background-color: #0A6F8A;">Iniciar Sesión</div>
+        {% if cliente %}
+        <p style="color: gray; margin-top: 5px" > Cuenta {{ cliente.user.username }} creada correctamente.</p>
+        <p style="color: red;"> Su etapa es: {{cliente.etapa}}. </p>
+        {% endif %}
+          <div class="panel-body" >
+            <div class="center">
+            <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+
+            
+              {% if form.errors %}
+              <p style="color:red;">Su usuario y contraseña no coinciden.</p>
+              {% endif %}
+
+              {% if next %}
+                  <p>Hola</p>
+                  {% if user.is_authenticated %}
+                  <p style="color:red;">Su cuenta no tiene acceso a este sitio. Para proceder inicie sesión con una cuenta que tenga acceso.</p>
+                  {% else %}
+                  <p style="color:red;">Por favor inicie sesión para acceder al sitio.</p>
+                  {% endif %}
+              {% endif %}
+             
+                <div class="block">
+                  <label style="display: inline-block;width: 100px; text-align: rigth">Usuario: </label>{{ form.username }}
+                </div>
+                </br>
+                <div class="block">
+                  <label style="display: inline-block;width: 100px; text-align: rigth">Contraseña: </label>{{ form.password }}                  
+                </div>
+                <div class="block">
+                  <a href="{% url 'password_reset' %}" style="display: inline-block; width: 140px; margin-left: 25%;">Olvide mi contraseña</a> 
+                </div>  
+              
+              </br>
+              <input type="submit" id="registerButton" value="Iniciar Sesión" />
+              <input type="hidden" name="next" value="{{ next }}" />
+             </form>
+            </div>
+             <p><a href="{% url 'register' %}">Registrarse</a></p>                     
+          </div>
+        </div> 
+      </div>
+    </div>
+  </div>
+</body>
 {# Assumes you setup the password_reset view in your URLconf #}
-<p><a href="{% url 'password_reset' %}">Olvide mi contraseña</a></p>
-<p><a href="{% url 'register' %}">Registrar</a></p>
 </script>
-
