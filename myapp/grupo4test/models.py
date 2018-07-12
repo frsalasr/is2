@@ -44,6 +44,7 @@ class Cliente(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
 	telefono = models.IntegerField(null=True, blank=True)
 	etapa = models.CharField(max_length=255, choices=Q_CHOICES, default='Idea')
+	nombre_empresa = models.CharField(max_length=255, null=True, blank=True)
 	descripcion_empresa = models.CharField(max_length=511, null=False, blank=False, default='d')
 	descripcion_equipo = models.CharField(max_length=511, null=False, blank=False, default='d')
 
