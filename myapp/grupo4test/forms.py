@@ -317,15 +317,15 @@ class RegistrationForm2(forms.Form):
 	feedback =  forms.BooleanField(label='Han tenido feedback de Clientes', required=False)
 
 class RegistrationForm3(forms.Form):
-	mvp = forms.BooleanField(label='Tienen el MVP desarrollado', required=False)
-	plan_exp = forms.BooleanField(label='Tienen un plan de expansión', required=False)
-	fig_legal = forms.BooleanField(label='Tienen figura legal', required=False)
-	ventas_ext = forms.BooleanField(label='Tienen ventas en el extranjero', required=False)
-	fin_priv = forms.BooleanField(label='Tienen financiamiento privado', required=False)
-	plan_inter = forms.BooleanField(label='Tienen plan de internacionalización', required=False)
-	vida_emp = forms.BooleanField(label='Tienen menos de 3 años', required=False)
-	mod_ext = forms.BooleanField(label='Tienen modelo de negocio vinculado al exteror', required=False)
-	est_inter = forms.BooleanField(label='Tienen prod con estandares internacionales', required=False)
+	mvp = forms.BooleanField(label='MVP desarrollado', required=False)
+	plan_exp = forms.BooleanField(label='Plan de expansión', required=False)
+	fig_legal = forms.BooleanField(label='Figura legal', required=False)
+	ventas_ext = forms.BooleanField(label='Ventas en el extranjero', required=False)
+	fin_priv = forms.BooleanField(label='Financiamiento privado', required=False)
+	plan_inter = forms.BooleanField(label='Plan de internacionalización', required=False)
+	vida_emp = forms.BooleanField(label='La empresa tiene menos de 3 años', required=False)
+	mod_ext = forms.BooleanField(label='Modelo de negocio vinculado al exteror', required=False)
+	est_inter = forms.BooleanField(label='Producto con estandares internacionales de diseño y producción', required=False)
 
 ##### TEST FORMS #####
 # OBSOLETOS #
