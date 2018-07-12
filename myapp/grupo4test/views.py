@@ -174,7 +174,7 @@ def diagnostico(request):
 								respuesta = RespuestaDiagnostico(
 											formulario = formulario,
 											pregunta = pregunta,
-											respuesta = r.texto_alternativa,
+											respuesta_alternativa = r,
 											puntaje = r.puntaje,
 											)
 								respuesta.save()
@@ -185,10 +185,22 @@ def diagnostico(request):
 							puntaje = 0
 							for res in r:
 								puntaje = puntaje + res.puntaje
+								print(puntaje)
 							if respuesta.count() > 0:
+								print('existe la respuesta')
 								respuesta = respuesta[0]
 								respuesta.respuestas_eleccion.set(r)
-								respuesta.puntaje = respuesta.ponderacion + puntaje
+								respuesta.puntaje = respuesta.pregunta.ponderacion + puntaje
+								respuesta.save()
+							else:
+								respuesta = RespuestaDiagnostico(
+											formulario = formulario,
+											pregunta = pregunta,
+											puntaje = 0,
+											)
+								respuesta.save()
+								respuesta.respuestas_eleccion.set(r)
+								respuesta.puntaje = respuesta.pregunta.ponderacion + puntaje
 								respuesta.save()
 							print(r)
 			if request.POST.get('guardar'):
