@@ -47,7 +47,7 @@
 <hr>
 {% if formulario.respondido %}
 	<h3>Formulario resuelto.</h1>
-	<a href="#"> Generar documento</a>
+	<a href="{%  url 'pdf' formulario.cliente.id %}"> Generar documento</a>
 {% else %}
 	<ul class="nav nav-tabs">
 		{% for form in formularios %}
