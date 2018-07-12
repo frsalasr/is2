@@ -21,6 +21,13 @@ import os
 
 from django.conf import settings
 
+from django.views import View
+
+from io import BytesIO
+from django.http import HttpResponse
+from django.template.loader import get_template
+import xhtml2pdf.pisa as pisa
+
 aux_dict = {}
 
 ### HOME
@@ -122,22 +129,88 @@ def diagnostico(request):
 
 	if request.user.is_authenticated:
 		# Debe registrar la empresa si no no puede hacer el formulario
-		
 		cliente = Cliente.objects.get(user=request.user) 
-		if FormDiagnostico.objects.filter(cliente=cliente).count() > 0:
-			FormDiagnostico.objects.get(cliente=cliente).delete()
-			print('se borró el formulario')
+		formulario = FormDiagnostico.objects.get(cliente=cliente)
+		
+		if request.method == 'POST':
+			for item in request.POST:
+					try:
+						pregunta = PreguntaDiagnostico.objects.filter(id=item)
+					except:
+						print('error al tratar de buscar por ' + str(item))
+						continue
+					if pregunta.count() > 0:
+						pregunta = pregunta[0]
+						#print(pregunta.getTipo())
+						# respuestas de preguntas tipo 'ALTERNATIVA'
+						if pregunta.getTipo() == 'a':
+							respuesta = RespuestaDiagnostico.objects.filter(pregunta=pregunta, formulario=formulario)
+							r = TipoAlternativa.objects.get(id=request.POST.dict()[item])
+							#print(r)
+							if respuesta.count() > 0:
+								print('TipoAlternativa Ya existe, se le pondrá :')
+								print(r.texto_alternativa)
+								print(r.puntaje)
+								respuesta = respuesta[0]
+								respuesta.respuesta_alternativa = r
+								respuesta.respuesta = r.texto_alternativa
+								respuesta.puntaje = r.puntaje
+								respuesta.save()
+							else:
+								print('TipoAlternativa no existe')
+								print('Creando . . . ')
+								respuesta = RespuestaDiagnostico(
+											formulario = formulario,
+											pregunta = pregunta,
+											respuesta = r.texto_alternativa,
+											puntaje = r.puntaje,
+											)
+								respuesta.save()
+						# respuestas de preguntas tipo 'ELECCIÓN'
+						elif pregunta.getTipo() == 'e':
+							respuesta = RespuestaDiagnostico.objects.filter(pregunta=pregunta, formulario=formulario)
+							r = TipoElegir.objects.filter(id__in=request.POST.getlist(item))
+							puntaje = 0
+							for res in r:
+								puntaje = puntaje + res.puntaje
+							if respuesta.count() > 0:
+								respuesta = respuesta[0]
+								respuesta.respuestas_eleccion.set(r)
+								respuesta.puntaje = puntaje
+								respuesta.save()
+							print(r)
+			if request.POST.get('guardar'):
+				print('Guardar!')
+				#end for
+				tiempo = Tiempos()
+				tiempo.save()
+				formulario.guardados.add(tiempo)
+				formulario.ponerPuntaje()
+				tiempo.save()
 
-		formulario = FormDiagnostico(cliente=cliente)
-		formulario.save()
-		formulario.crearForm()
+			elif request.POST.get('enviar'):
+				import datetime
+				formulario.ponerPuntaje()
+				formulario.fecha_termino = datetime.datetime.now()
+				formulario.respondido = True
+				formulario.save()
+			#cliente = Cliente.objects.get(user=request.user)
+			#formulario = FormDiagnostico.objects.get(cliente=cliente)
+
+			#print(request.POST.dict())
+
+						#print(request.POST.getlist(item))
+						
+						#respuesta = RespuestaDiagnostico.objects.filter(pregunta=pregunta, formulario=formulario)
+
 
 		formularios = []
 
 		for i in range(5):
 			formularios.append(DiagForm(i+1,formulario))
 
-		return render(request, template, {'formularios': formularios})
+		return render(request, template, {'formularios': formularios,
+										  'formulario': formulario})
 
 
 		"""
@@ -317,10 +390,18 @@ def diagnosticados(request):
 
 	return render(request, template, {'formularios': formularios})
 
+
+
+
+
+
+
+
 def diagnosticar(request,rut_empresa):
 	template = 'grupo4test/diagnosticar.html'
 
-	formulario = FormDiagnostico.objects.get(empresa__rut=rut_empresa)
+	cliente = Cliente.objects.get(user=request.user)
+	formulario = FormDiagnostico.objects.get(cliente=cliente)
 	#respuestas = RespuestaDiagnostico.objects.filter(formulario=formulario).exclude(respuesta='').order_by('pregunta__Q','pregunta__numero','pregunta__sub_numero')
 
 	if request.method == 'POST':
@@ -444,3 +525,21 @@ def login(request):
 
 	return render(request, template, {'form': form})
 		
+#clase para generar pdf
+class Pdf(View):
+
+	def get(self, request, id_cliente):
+		template = get_template('grupo4test/pdf.html')
+		cliente = Cliente.objects.get(id=id_cliente)
+		formulario = FormDiagnostico.objects.get(cliente=cliente)
+		params = {
+			'formulario': formulario,
+		}
+		html = template.render(params)
+		response = BytesIO()
+		pdf = pisa.pisaDocument(BytesIO(html.encode("UTF-8")), response)
+
+		if not pdf.err:
+			return HttpResponse(response.getvalue(), content_type='application/pdf')
+		else:
+			return HttpResponse("Error Rendering PDF", status=400)
