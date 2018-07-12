@@ -715,3 +715,10 @@ class Pdf(View):
 			return HttpResponse(response.getvalue(), content_type='application/pdf')
 		else:
 			return HttpResponse("Error Rendering PDF", status=400)
+			
+def cliente(request, id_cliente):
+
+	cliente = Cliente.objects.get(id=id_cliente)
+	template = 'grupo4test/cliente.html'
+
+	return render(request, template, {'cliente': cliente})
