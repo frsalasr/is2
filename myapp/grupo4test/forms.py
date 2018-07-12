@@ -75,39 +75,15 @@ def get_path_doc(id_question, formulario):
 
 @register.filter
 def get_item(diccionario, key):
-	print(diccionario)
-	print(key)
+	#print(diccionario)
+	#print(key)
 	return diccionario.get(key)
 
 @register.filter
 def get_hijo(pregunta, formulario):
 	return RespuestasClasificacion.objects.get(pregunta=pregunta, formulario=formulario)
 
-def createField(tipo, label, queryset=None, initial=""):
-	if tipo == 'a':
-		return forms.ModelChoiceField(label=label, queryset=queryset, required=False, initial=initial,
-									  widget=forms.RadioSelect(),
-									  empty_label=None)
-	elif tipo == 't':
-		return forms.CharField(label=label, required=False, initial=initial, widget=forms.Textarea(attrs={
-        																			'cols': 200,
-																			        'rows': 3,
-																			        'style': 'width: 50%'
-																			    }))
-	elif tipo == 'n':
-		return forms.IntegerField(label=label, required=False, initial=initial)
-	elif tipo == 'd':
-		return forms.FileField(label=label, required=False)
-
-	elif tipo == 'e':
-		return forms.ModelMultipleChoiceField(label=label, required=False, 
-										widget=forms.CheckboxSelectMultiple,
-                                        queryset=queryset)
-	else:
-		return 'error'
-
 class LoginForm(forms.Form):
-
 	username = forms.CharField(label='Usuario', required=True)
 	password = forms.CharField(label='Contraseña' ,required=True, widget=forms.PasswordInput)
 
@@ -135,6 +111,33 @@ class SetEstadoForm(forms.Form):
 		self.estado = estado
 		self.fields['estado'] = forms.ChoiceField(label='Estado del diagnostico', choices=self.ESTADO_CHOICES, initial = self.estado)
 	
+def createField(tipo, label, queryset=None, initial=""):
+	if tipo == 'a':
+		return forms.ModelChoiceField(label=label, queryset=queryset, required=False,
+									  initial=initial,
+									  widget=forms.RadioSelect(),
+									  empty_label=None)
+	elif tipo == 'e':
+		return forms.ModelMultipleChoiceField(label=label, 
+											  required=False, 
+											  widget=forms.CheckboxSelectMultiple,
+                                        	  queryset=queryset,
+                                        	  initial=initial)
+	
+	## NO SIRVEN
+	elif tipo == 't':
+		return forms.CharField(label=label, required=False, initial=initial, widget=forms.Textarea(attrs={
+					        																			'cols': 200,
+																								        'rows': 3,
+																								        'style': 'width: 50%'
+																								    }))
+	elif tipo == 'n':
+		return forms.IntegerField(label=label, required=False, initial=initial)
+	elif tipo == 'd':
+		return forms.FileField(label=label, required=False)
+
+	else:
+		return 'error'
 
 class DiagForm(forms.Form):
 	#hidden = forms.IntegerField()
@@ -151,17 +154,73 @@ class DiagForm(forms.Form):
 		self.papa = {}
 		#self.doc = {}
 		etapa = Etapa.objects.get(etapa=self.formulario.cliente.etapa)
-		print('etapa ' + str(self.formulario.cliente.etapa))
-		for pregunta in PreguntaDiagnostico.objects.filter(etapas__in=[etapa], dimension=self.dimension):
+		#print('etapa ' + str(self.formulario.cliente.etapa))
+		# busca las preguntas 
+		for pregunta in PreguntaDiagnostico.objects.filter(pregunta_base=True, etapas__in=[etapa], dimension=self.dimension).order_by('numero'):
 			#print(pregunta)
 			pregunta_key = str(pregunta.id)
 			self.base['id_' + pregunta_key] = 1
-			if pregunta.getTipo() == 'a':
-				respuesta = RespuestaDiagnostico.objects.get(pregunta = pregunta, formulario = formulario)
-				self.fields[pregunta_key] = createField(pregunta.getTipo(), pregunta.texto_pregunta, pregunta.preguntas_alternativa.all(), respuesta.respuesta)
 
-			elif pregunta.getTipo() == 'e':
-				self.fields[pregunta_key] = createField(pregunta.getTipo(), pregunta.texto_pregunta, pregunta.preguntas_eleccion.all())
+			respuesta = RespuestaDiagnostico.objects.filter(pregunta=pregunta, formulario=formulario)
+			# existe la respuesta (como instancia)
+			if respuesta.count() > 0:
+				respuesta = respuesta[0]
+				if pregunta.getTipo() == 'a':
+					if respuesta.respuesta_alternativa:
+						#print('respuesta alternativa' + str(respuesta.respuesta_alternativa))
+						self.fields[pregunta_key] = createField(pregunta.getTipo(), pregunta.texto_pregunta, pregunta.preguntas_alternativa.all(), respuesta.respuesta_alternativa)
+					else:
+						self.fields[pregunta_key] = createField(pregunta.getTipo(), pregunta.texto_pregunta, pregunta.preguntas_alternativa.all())
+
+				elif pregunta.getTipo() == 'e':
+					if respuesta.respuestas_eleccion:
+						print('yup, existen las respuestas')
+						print(respuesta)
+						print(respuesta.respuestas_eleccion.all())
+						self.fields[pregunta_key] = createField(pregunta.getTipo(), pregunta.texto_pregunta, pregunta.preguntas_eleccion.all(), respuesta.respuestas_eleccion.all())
+					
+					else:
+						self.fields[pregunta_key] = createField(pregunta.getTipo(), pregunta.texto_pregunta, pregunta.preguntas_eleccion.all())
+			# si no existe RespuestaAlternativa todavía
+			else:
+				if pregunta.getTipo() == 'a':
+					self.fields[pregunta_key] = createField(pregunta.getTipo(), pregunta.texto_pregunta, pregunta.preguntas_alternativa.all())
+				elif pregunta.getTipo() == 'e':
+					self.fields[pregunta_key] = createField(pregunta.getTipo(), pregunta.texto_pregunta, pregunta.preguntas_eleccion.all())
+
+
+
+			preguntas_hijas = PreguntaDiagnostico.objects.filter(depende_de=pregunta).order_by('sub_numero')
+			if preguntas_hijas.count() > 0:
+				for question in preguntas_hijas:
+					print(question)
+					self.papa['id_' + str(question.id)] = "id_" + pregunta_key
+
+					respuesta = RespuestaDiagnostico.objects.filter(pregunta=question, formulario=formulario)
+					if respuesta.count() > 0:
+						respuesta = respuesta[0]
+						if question.getTipo() == 'a':
+							respuesta = RespuestaDiagnostico.objects.get(pregunta=question, formulario=formulario)
+							if respuesta.respuesta_alternativa:
+								#print('respuesta alternativa' + str(respuesta.respuesta_alternativa))
+								self.fields[question.id] = createField(question.getTipo(), question.texto_pregunta, question.preguntas_alternativa.all(), respuesta.respuesta_alternativa)
+							else:
+								self.fields[question.id] = createField(question.getTipo(), question.texto_pregunta, question.preguntas_alternativa.all())
+						elif question.getTipo() == 'e':
+							respuesta = RespuestaDiagnostico.objects.get(pregunta=pregunta, formulario=formulario)
+							if respuesta.respuestas_eleccion:
+								print('yup, existen las respuestas')
+								print(respuesta)
+								print(respuesta.respuestas_eleccion.all())
+								self.fields[question.id] = createField(question.getTipo(), question.texto_pregunta, question.preguntas_eleccion.all(), respuesta.respuestas_eleccion.all())
+							else:
+								self.fields[question.id] = createField(question.getTipo(), question.texto_pregunta, question.preguntas_eleccion.all())
+					else:
+						if pregunta.getTipo() == 'a':
+							self.fields[question.id] = createField(question.getTipo(), question.texto_pregunta, question.preguntas_alternativa.all())
+						elif pregunta.getTipo() == 'e':
+							self.fields[question.id] = createField(question.getTipo(), question.texto_pregunta, question.preguntas_eleccion.all())
+
 		# Se llama a todas las preguntas de clasificación 
 		# Por cada pregunta de clasificación
 
