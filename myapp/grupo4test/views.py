@@ -517,7 +517,12 @@ def register2(request):
 				username = request.session['username']
 				email = request.session['email']
 				password = request.session['password1']
+				first_name = request.session['nombre']
+				last_name = request.session['apellido']
 				user = User.objects.create_user(username,email,password)
+				user.first_name=first_name
+				user.last_name=last_name
+				user.save()
 
 				telefono = request.session['telefono']
 				nom = request.session['nombre_empresa']
@@ -693,11 +698,3 @@ class Pdf(View):
 			return HttpResponse(response.getvalue(), content_type='application/pdf')
 		else:
 			return HttpResponse("Error Rendering PDF", status=400)
-
-
-def cliente(request, id_cliente):
-
-	cliente = Cliente.objects.get(id=id_cliente)
-	template = 'grupo4test/cliente.html'
-
-	return render(request, template, {'cliente': cliente})
