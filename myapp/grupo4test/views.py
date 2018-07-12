@@ -616,8 +616,13 @@ def register3(request):
 		username = request.session['username']
 		email = request.session['email']
 		password = request.session['password1']
+		first_name = request.session['nombre']
+		last_name = request.session['apellido']
 		user = User.objects.create_user(username,email,password)
-
+		user.first_name=first_name
+		user.last_name=last_name
+		user.save()
+				
 		telefono = request.session['telefono']
 		nom = request.session['nombre_empresa']
 		desc = request.session['desc_empresa']
