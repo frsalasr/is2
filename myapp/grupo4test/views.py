@@ -132,8 +132,17 @@ def diagnostico(request):
 
 	if request.user.is_authenticated:
 		# Debe registrar la empresa si no no puede hacer el formulario
-		cliente = Cliente.objects.get(user=request.user) 
-		formulario = FormDiagnostico.objects.get(cliente=cliente)
+		cliente = Cliente.objects.get(user=request.user)
+
+
+		formulario = FormDiagnostico.objects.filter(cliente=cliente)
+		if formulario.count() > 0:
+			formulario = formulario[0]
+
+		else:
+			formulario = FormDiagnostico(cliente=cliente)
+			formulario.save()
+			formulario.crearForm()
 		
 		if request.method == 'POST':
 			for item in request.POST:
