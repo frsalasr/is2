@@ -188,7 +188,7 @@ def diagnostico(request):
 							if respuesta.count() > 0:
 								respuesta = respuesta[0]
 								respuesta.respuestas_eleccion.set(r)
-								respuesta.puntaje = puntaje
+								respuesta.puntaje = respuesta.ponderacion + puntaje
 								respuesta.save()
 							print(r)
 			if request.POST.get('guardar'):

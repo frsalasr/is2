@@ -114,7 +114,7 @@ class Tiempos(models.Model):
 
 	def __str__(self):
 		import datetime
-		nf = self.fecha_guardado.strftime('%d-%M-%Y %H:%M')
+		nf = self.fecha_guardado.strftime('%d-%m-%Y %H:%M')
 		return str(nf)
 
 	class Meta:
@@ -209,6 +209,50 @@ class FormDiagnostico(models.Model):
 
 
 	def ponerPuntaje(self):
+
+
+		puntajes = []
+		for i in range(5):
+			puntaje = 0
+			respuestas = RespuestaDiagnostico.objects.filter(formulario=self, pregunta__dimension=i+1)
+			for respuesta in respuestas:
+				puntaje = puntaje + respuesta.puntaje
+
+			print(i, puntaje)
+			puntajes.append(puntaje)
+
+
+		# alta (5) media alta 4, media 3 media baja 2 baja 1
+
+		if self.cliente.etapa == 'Idea':
+			puntaje = puntajes[0]*5 + puntajes[1]*4 + puntajes[2]*1 + puntajes[3]*1 +puntajes[4]*1
+			self.puntaje = puntaje
+			self.save() 
+
+		elif self.cliente.etapa == 'Semilla':
+			puntaje = puntajes[0]*5 + puntajes[1]*4 + puntajes[2]*4 + puntajes[3]*1 +puntajes[4]*1
+			self.puntaje = puntaje
+			self.save() 
+
+		elif self.cliente.etapa == 'Etapa temprana':
+			puntaje = puntajes[0]*3 + puntajes[1]*4 + puntajes[2]*5 + puntajes[3]*5 +puntajes[4]*3
+			self.puntaje = puntaje
+			self.save() 
+
+		elif self.cliente.etapa == 'Expansión':
+			puntaje = puntajes[0]*1 + puntajes[1]*3 + puntajes[2]*5 + puntajes[3]*5 +puntajes[4]*4
+			self.puntaje = puntaje
+			self.save() 
+
+		elif self.cliente.etapa == 'Internacionalización':
+			puntaje = puntajes[0]*1 + puntajes[1]*1 + puntajes[2]*5 + puntajes[3]*5 +puntajes[4]*5
+			self.puntaje = puntaje
+			self.save() 
+
+		print(puntajes)
+
+
+		"""
 		respuestas = RespuestaDiagnostico.objects.filter(formulario=self)
 		print(respuestas)
 		
@@ -221,7 +265,7 @@ class FormDiagnostico(models.Model):
 		
 		self.puntaje = puntaje
 		self.save()
-
+		"""
 	def getFecha(self):
 		import datetime
 		nf = self.fecha_termino.strftime('%d-%M-%Y')
