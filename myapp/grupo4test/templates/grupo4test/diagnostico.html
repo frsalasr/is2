@@ -24,27 +24,79 @@
 </style>
 <body>
 
-<h2>Formulario Diagnóstico</h2>
-	<hr>
+<h2>Formulario de diagnóstico</h2>
+<hr>
+<div class="container-fluid">
+	<div class=row>
+		<div class="col-sm-3">Puntaje:</div>
+		<div class="col-sm-3">{{ formulario.puntaje }}</div>	
+	</div>
+	<div class=row>
+		<div class="col-sm-3">Completado:</div>
+		<div class="col-sm-3">50%</div>
+	</div>
+	<div class=row>
+		<div class="col-sm-3">Estado:</div>
+		<div class="col-sm-3">{{ formulario.estado }}</div>
+	</div>
+	<div class=row>
+		<div class="col-sm-3">Última modificación:</div>
+		<div class="col-sm-3">{{ formulario.guardados.all|first }}</div>
+	</div>
+</div>
+<hr>
+{% if formulario.respondido %}
+	<h3>Formulario resuelto.</h1>
+	<a href="#"> Generar documento</a>
+{% else %}
 	<ul class="nav nav-tabs">
 		{% for form in formularios %}
 	    	<li id="tab_name" {% if forloop.counter == 1 %} class="active" {% endif %}><a data-toggle="tab" href="#Q{{forloop.counter}}"> {{forloop.counter|getQ}} </a></li>
 	    {% endfor %}
 	</ul>
-	<div class="tab-content">
-	{% for form in formularios %}
-		<div id="Q{{forloop.counter}}" {% if forloop.counter == 1 %} class="tab-pane fade in active" {% else %} class="tab-pane fade " {% endif %} style="margin-top: 20px;">
-		{% for field in form %}
-			{% if form.base|get_item:field.auto_id %}	
-				<div id="div_{{field.auto_id}}">
-					<p style="font-weight: bold;">{{field.label}}</p>
-					<p>{{field}}</p>
-				</div>
-			{% endif %}
+	<form method="post">
+		{% csrf_token %}
+		<div class="tab-content">
+		{% for form in formularios %}
+			<div id="Q{{forloop.counter}}" {% if forloop.counter == 1 %} class="tab-pane fade in active" {% else %} class="tab-pane fade " {% endif %} style="margin-top: 20px;">
+			{% for field in form %}
+				{% if form.base|get_item:field.auto_id %}	
+					<div id="div_{{field.auto_id}}">
+						<p style="font-weight: bold;">{{field.label}}</p>
+						{{field}}
+					</div>			
+				{% else %}
+					<div id="div_{{field.auto_id}}" style="display: none">
+						<p style="font-weight: bold;">{{field.label}}</p>
+						{{field}}
+					</div>
+					<script type="text/javascript">
+							$(document).ready( function(){
+								var x = document.getElementById("div_{{field.auto_id}}");
+
+								if($("#{{form.papa|get_item:field.auto_id}}").val() == '1'){
+										x.style.display = "block";
+								}
+								$("#{{form.papa|get_item:field.auto_id}}").on('change', function(){
+									console.log($("#{{form.papa|get_item:field.auto_id}}").val())
+									if($("#{{form.papa|get_item:field.auto_id}}").val() == '1'){
+										x.style.display = "block";
+									}
+									else{
+										x.style.display = "none";
+										$("#{{field.auto_id}}").val('');
+									}
+								});
+							});
+						</script>		
+				{% endif %}
+			{% endfor %}
+			</div>
 		{% endfor %}
-		</div>
-	{% endfor %}
-</div>
+	<input type="submit" class="btn btn-primary" name="guardar" value="Guardar">
+	<input type="submit" class="btn btn-primary" name="enviar" value="Enviar">
+	</form>
+{% endif %}
 <!--
 <h2>Formulario Diagnóstico</h2>
 <hr>

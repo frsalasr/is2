@@ -131,13 +131,15 @@ LANGUAGE_CODE = 'en-us'
 
 DATE_INPUT_FORMATS = ['%d/%m/%Y']
 
+DATETIME_FORMAT = ['%d-%m-%Y %H:%M']
+
 TIME_ZONE = 'America/Santiago'
 
 USE_I18N = True
 
 USE_L10N = False
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)

@@ -110,7 +110,15 @@ class Document(models.Model):
 
 """
 class Tiempos(models.Model):
-	fecha_guardado = models.DateField(auto_now=True)
+	fecha_guardado = models.DateTimeField(auto_now_add=True)
+
+	def __str__(self):
+		import datetime
+		nf = self.fecha_guardado.strftime('%d-%M-%Y %H:%M')
+		return str(nf)
+
+	class Meta:
+		ordering = ['-fecha_guardado']
 
 class Dimension(models.Model):
 	dimension = models.CharField(max_length=255)
@@ -174,6 +182,7 @@ class FormDiagnostico(models.Model):
 	)
 
 	puntaje = models.FloatField(blank=True, null=True, default=0)
+	porcentaje = models.FloatField(blank=True, null=True, default=0)
 	cliente = models.OneToOneField(Cliente, on_delete=models.CASCADE, unique=True)
 	respondido = models.BooleanField(default=False)
 	validado = models.BooleanField(default=False)
@@ -182,6 +191,7 @@ class FormDiagnostico(models.Model):
 	estado = models.CharField(max_length=255, default='PENDIENTE', choices=ESTADO_CHOICES)
 	fecha_termino = models.DateTimeField(auto_now_add=False, blank=True, null=True)
 	preguntas = models.ManyToManyField(PreguntaDiagnostico, through='RespuestaDiagnostico')
+	respondida = models.BooleanField(default=False)
 
 	def crearForm(self):
 		etapa = Etapa.objects.get(etapa=self.cliente.etapa)
@@ -197,6 +207,32 @@ class FormDiagnostico(models.Model):
 
 		return True
 
+
+	def ponerPuntaje(self):
+		respuestas = RespuestaDiagnostico.objects.filter(formulario=self)
+		print(respuestas)
+		
+
+		puntaje = 0
+		print('poniendo los puntajes jejeje')
+		for respuesta in respuestas:
+			print(respuesta.puntaje)
+			puntaje = puntaje + respuesta.puntaje
+		
+		self.puntaje = puntaje
+		self.save()
+
+	def getFecha(self):
+		import datetime
+		nf = self.fecha_termino.strftime('%d-%M-%Y')
+		return str(nf)
+
+	def getRespuestas(self):
+		respuestas = []
+		for dimension in range(5):
+			respuestas.append(RespuestaDiagnostico.objects.filter(formulario=self, pregunta__dimension=dimension+1).order_by('pregunta__numero','pregunta__sub_numero'))
+
+		return respuestas
 
 	"""
 	def actualizar(empresa):
@@ -274,6 +310,8 @@ class RespuestaDiagnostico(models.Model):
 	pregunta = models.ForeignKey(PreguntaDiagnostico, on_delete=models.CASCADE)
 	formulario = models.ForeignKey(FormDiagnostico, on_delete=models.CASCADE)
 	puntaje = models.IntegerField()
+	respuesta_alternativa = models.ForeignKey(TipoAlternativa, on_delete=models.CASCADE, null=True, blank=True)
+	respuestas_eleccion = models.ManyToManyField(TipoElegir)
 	respuesta = models.CharField(max_length=255, blank=True)
 	#documento = models.ForeignKey(Document, on_delete=models.CASCADE, blank=True, null=True)
 	buena = models.BooleanField(default=False)
@@ -282,4 +320,14 @@ class RespuestaDiagnostico(models.Model):
 		ordering = ['formulario','pregunta__dimension','pregunta__numero','pregunta__sub_numero']
 
 	def __str__(self):
-		return self.formulario.empresa.nombre + ' Q' + str(self.pregunta.dimension) + ' ' + self.pregunta.texto_pregunta + ' : ' + self.respuesta
+		return self.formulario.cliente.user.first_name + ' Q' + str(self.pregunta.dimension) + ' ' + self.pregunta.texto_pregunta + ' : ' + self.respuesta
+
+	def getTipo(self):
+		return self.pregunta.getTipo()
+
+	def getRespuestaEleccion(self):
+		print(self.respuestas_eleccion)
+		return self.respuestas_eleccion.all()
+
+	def getRespuestaAlternativa(self):
+		return self.respuesta_alternativa
