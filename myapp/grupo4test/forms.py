@@ -393,7 +393,7 @@ class CustomUserCreationForm(forms.Form):
     password2 = forms.CharField(label='Confirme contraseña', widget=forms.PasswordInput)
     nombre = forms.CharField(label='Nombre')
     apellido = forms.CharField(label='Apellido')
-    telefono = forms.CharField(label='Telefono')
+    telefono = forms.IntegerField(label='Telefono')
 
     def clean_username(self):
         username = self.cleaned_data['username'].lower()
@@ -439,7 +439,6 @@ class CustomUserCreationForm(forms.Form):
 
 #Formulario de registro debe incluir datos y clasificación
 class RegistrationForm(forms.Form):
- 	rut_empresa = forms.IntegerField(label='RUT',required=True)#quitar
  	nombre_empresa = forms.CharField(label='Nombre del emprendimiento', max_length=32, required=True)
  	desc_empresa = forms.CharField(label='Descripción del emprendimiento', max_length=500, required=True, widget=forms.Textarea(attrs = {'cols': '30', 'rows': '5'}))
  	equipo_empresa = forms.CharField(label='Descripción del equipo de trabajo', max_length=500, required=True, widget=forms.Textarea(attrs = {'cols': '30', 'rows': '5'}))

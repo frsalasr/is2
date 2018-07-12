@@ -476,7 +476,10 @@ def register(request):
 
 
 	initial={'username': request.session.get('username', None),
-		 'email':request.session.get('email', None)}
+			'email':request.session.get('email', None),
+			'nombre': request.session.get('nombre',None),
+			'apellido':request.session.get('apellido',None),
+			'telefono': request.session.get('telefono',None)}
 	form = CustomUserCreationForm(request.POST or None, initial=initial)
 	
 	if request.method == 'POST':
@@ -484,6 +487,9 @@ def register(request):
 			request.session['username'] = form.cleaned_data['username']
 			request.session['email'] = form.cleaned_data['email']
 			request.session['password1'] = form.cleaned_data['password1']
+			request.session['nombre'] = form.cleaned_data['nombre']
+			request.session['apellido'] = form.cleaned_data['apellido']
+			request.session['telefono'] = form.cleaned_data['telefono']
 			return redirect('register2')
 
 	
@@ -491,8 +497,7 @@ def register(request):
 
 def register2(request):
 	template = 'grupo4test/register2.html'
-	initial = {'rut_empresa':request.session.get('rut_empresa'),
-		'nombre_empresa': request.session.get('nombre_empresa'),
+	initial = {'nombre_empresa': request.session.get('nombre_empresa'),
 		'desc_empresa': request.session.get('desc_empresa'),
 		'equipo_empresa': request.session.get('equipo_empresa'),
 		'ventas_empresa': request.session.get('ventas_empresa')
@@ -501,7 +506,6 @@ def register2(request):
 
 	if request.method == 'POST':
 		if form.is_valid():
-			request.session['rut_empresa'] = form.cleaned_data['rut_empresa']
 			request.session['nombre_empresa'] = form.cleaned_data['nombre_empresa']
 			request.session['desc_empresa'] = form.cleaned_data['desc_empresa']
 			request.session['equipo_empresa'] = form.cleaned_data['equipo_empresa']
@@ -513,15 +517,21 @@ def register2(request):
 				username = request.session['username']
 				email = request.session['email']
 				password = request.session['password1']
+				first_name = request.session['nombre']
+				last_name = request.session['apellido']
 				user = User.objects.create_user(username,email,password)
+				user.first_name=first_name
+				user.last_name=last_name
+				user.save()
 
-				rut = request.session['rut_empresa']
+				telefono = request.session['telefono']
 				nom = request.session['nombre_empresa']
 				desc = request.session['desc_empresa']
 				equip = request.session['equipo_empresa']
-
-				empresa = Empresa.objects.create(rut=rut, nombre=nom, etapa='Idea',autor=user)
-				FormDiagnostico.construir(empresa)
+				
+				cliente = Cliente.objects.create(user=user,telefono=telefono,etapa='Idea',nombre_empresa=nom,descripcion_empresa=desc,descripcion_equipo=equip)
+				fdiag = FormDiagnostico.objects.create(cliente=cliente)
+				fdiag.crearForm()
 				messages.success(request, 'Registro completado')
 				request.session.clear()
 				return redirect('register')
@@ -606,15 +616,21 @@ def register3(request):
 		username = request.session['username']
 		email = request.session['email']
 		password = request.session['password1']
+		first_name = request.session['nombre']
+		last_name = request.session['apellido']
 		user = User.objects.create_user(username,email,password)
-
-		rut = request.session['rut_empresa']
+		user.first_name=first_name
+		user.last_name=last_name
+		user.save()
+				
+		telefono = request.session['telefono']
 		nom = request.session['nombre_empresa']
 		desc = request.session['desc_empresa']
 		equip = request.session['equipo_empresa']
-
-		empresa = Empresa.objects.create(rut=rut, nombre=nom, etapa=etapa,autor=user)
-		FormDiagnostico.construir(empresa)
+		
+		cliente = Cliente.objects.create(user=user,telefono=telefono,etapa=etapa,nombre_empresa=nom,descripcion_empresa=desc,descripcion_equipo=equip)
+		fdiag = FormDiagnostico.objects.create(cliente=cliente)
+		fdiag.crearForm()
 		messages.success(request, 'Registro completado')
 		request.session.clear()
 		return redirect('register')
@@ -687,11 +703,3 @@ class Pdf(View):
 			return HttpResponse(response.getvalue(), content_type='application/pdf')
 		else:
 			return HttpResponse("Error Rendering PDF", status=400)
-
-
-def cliente(request, id_cliente):
-
-	cliente = Cliente.objects.get(id=id_cliente)
-	template = 'grupo4test/cliente.html'
-
-	return render(request, template, {'cliente': cliente})
