@@ -1,33 +1,21 @@
 {% block head %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-
 <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
 <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
-<link rel="stylesheet" href="% static 'css/bootstrap.min.css' %">
-<link rel="stylesheet" href=" static 'js/bootstrap.min.js' ">
 <style>
+  html{
+    height: 100%;
+  }
+
   body {
     background-image: url("https://www.elicebergdemadrid.com/wp-content/uploads/2017/11/empresas.jpg");
     background-repeat: no-repeat;
-    background-size: 100% 100%;
+    background-size: cover;
     overflow-x: hidden;
   }
 </style>
 {% endblock %}
 
-
-{% if form.errors %}
-<p style="color:red;">Su usuario y contraseña no coinciden. Intente otra vez.</p>
-{% endif %}
-
-{% if next %}
-    <p>Hola</p>
-    {% if user.is_authenticated %}
-    <p style="color:red;">Su cuenta no tiene acceso a este sitio. Para proceder inicie sesión con una cuenta que tenga acceso.</p>
-    {% else %}
-    <p style="color:red;">Por favor inicie sesión para acceder al sitio.</p>
-    {% endif %}
-{% endif %}
 
 <body>
   <div class="container-fluid">
@@ -35,13 +23,31 @@
   </div>
 
   <div class="container-fluid">
-    <div class="panel-group" style="margin-top: 10%; max-width: 310px;text-align: center;margin-left: 35%">
+    <div class="panel-group" style="margin-top: 10%; max-width: 310px;text-align: center;margin: 0 auto">
       <div class="panel panel-primary">
         <div class="panel-heading" style="background-color: #0A6F8A;">Iniciar Sesión</div>
+        {% if cliente %}
+        <p style="color: gray; margin-top: 5px" > Cuenta {{ cliente.user.username }} creada correctamente.</p>
+        <p style="color: red;"> Su etapa es: {{cliente.etapa}}. </p>
+        {% endif %}
           <div class="panel-body" >
             <div class="center">
             <form method="post" action="{% url 'login' %}">
             {% csrf_token %}
+
+            
+              {% if form.errors %}
+              <p style="color:red;">Su usuario y contraseña no coinciden.</p>
+              {% endif %}
+
+              {% if next %}
+                  <p>Hola</p>
+                  {% if user.is_authenticated %}
+                  <p style="color:red;">Su cuenta no tiene acceso a este sitio. Para proceder inicie sesión con una cuenta que tenga acceso.</p>
+                  {% else %}
+                  <p style="color:red;">Por favor inicie sesión para acceder al sitio.</p>
+                  {% endif %}
+              {% endif %}
              
                 <div class="block">
                   <label style="display: inline-block;width: 100px; text-align: rigth">Usuario: </label>{{ form.username }}
@@ -68,4 +74,3 @@
 </body>
 {# Assumes you setup the password_reset view in your URLconf #}
 </script>
-

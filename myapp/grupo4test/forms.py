@@ -12,6 +12,19 @@ import os
 ################################
 
 @register.filter
+def getQ(Q):
+	if Q == 1:
+		return 'Modelo Negocio'
+	elif Q == 2:
+		return 'Gestión Organizacional'
+	elif Q == 3:
+		return 'Gestión Comercial'
+	elif Q == 4:
+		return 'Gestión Financiera'
+	else:
+		return 'Gestión de Innovación'
+
+@register.filter
 def getComentario(id_question, formulario):
 	if id_question.startswith('id_'):
 		id_question = id_question[3:]
@@ -62,32 +75,15 @@ def get_path_doc(id_question, formulario):
 
 @register.filter
 def get_item(diccionario, key):
-	print(diccionario)
-	print(key)
+	#print(diccionario)
+	#print(key)
 	return diccionario.get(key)
 
 @register.filter
 def get_hijo(pregunta, formulario):
 	return RespuestasClasificacion.objects.get(pregunta=pregunta, formulario=formulario)
 
-def createField(tipo, label, queryset=None, initial=""):
-	if tipo == 'a':
-		return forms.ModelChoiceField(label=label, queryset=queryset, required=False, initial=initial)
-	elif tipo == 't':
-		return forms.CharField(label=label, required=False, initial=initial, widget=forms.Textarea(attrs={
-        																			'cols': 200,
-																			        'rows': 3,
-																			        'style': 'width: 50%'
-																			    }))
-	elif tipo == 'n':
-		return forms.IntegerField(label=label, required=False, initial=initial)
-	elif tipo == 'd':
-		return forms.FileField(label=label, required=False)
-	else:
-		return 'error'
-
 class LoginForm(forms.Form):
-
 	username = forms.CharField(label='Usuario', required=True)
 	password = forms.CharField(label='Contraseña' ,required=True, widget=forms.PasswordInput)
 
@@ -115,27 +111,122 @@ class SetEstadoForm(forms.Form):
 		self.estado = estado
 		self.fields['estado'] = forms.ChoiceField(label='Estado del diagnostico', choices=self.ESTADO_CHOICES, initial = self.estado)
 	
+def createField(tipo, label, queryset=None, initial=""):
+	if tipo == 'a':
+		return forms.ModelChoiceField(label=label, queryset=queryset, required=False,
+									  initial=initial,
+									  widget=forms.RadioSelect(),
+									  empty_label=None)
+	elif tipo == 'e':
+		return forms.ModelMultipleChoiceField(label=label, 
+											  required=False, 
+											  widget=forms.CheckboxSelectMultiple,
+                                        	  queryset=queryset,
+                                        	  initial=initial)
+	
+	## NO SIRVEN
+	elif tipo == 't':
+		return forms.CharField(label=label, required=False, initial=initial, widget=forms.Textarea(attrs={
+					        																			'cols': 200,
+																								        'rows': 3,
+																								        'style': 'width: 50%'
+																								    }))
+	elif tipo == 'n':
+		return forms.IntegerField(label=label, required=False, initial=initial)
+	elif tipo == 'd':
+		return forms.FileField(label=label, required=False)
+
+	else:
+		return 'error'
 
 class DiagForm(forms.Form):
 	#hidden = forms.IntegerField()
 
-	def __init__(self,Q,formulario,**kwargs):
+	def __init__(self,dimension,formulario,**kwargs):
 		# Se inicia el super Form
 		super(DiagForm, self).__init__(**kwargs)
 
-		self.Q = Q
+		
 		self.formulario = formulario
-		self.formulario.checkFormulario()
+		self.dimension = dimension
 		# se guardan los forms hijos
 		self.base = {}
 		self.papa = {}
-		self.doc = {}
+		#self.doc = {}
+		etapa = Etapa.objects.get(etapa=self.formulario.cliente.etapa)
+		#print('etapa ' + str(self.formulario.cliente.etapa))
+		# busca las preguntas 
+		for pregunta in PreguntaDiagnostico.objects.filter(pregunta_base=True, etapas__in=[etapa], dimension=self.dimension).order_by('numero'):
+			#print(pregunta)
+			pregunta_key = str(pregunta.id)
+			self.base['id_' + pregunta_key] = 1
+
+			respuesta = RespuestaDiagnostico.objects.filter(pregunta=pregunta, formulario=formulario)
+			# existe la respuesta (como instancia)
+			if respuesta.count() > 0:
+				respuesta = respuesta[0]
+				if pregunta.getTipo() == 'a':
+					if respuesta.respuesta_alternativa:
+						#print('respuesta alternativa' + str(respuesta.respuesta_alternativa))
+						self.fields[pregunta_key] = createField(pregunta.getTipo(), pregunta.texto_pregunta, pregunta.preguntas_alternativa.all(), respuesta.respuesta_alternativa)
+					else:
+						self.fields[pregunta_key] = createField(pregunta.getTipo(), pregunta.texto_pregunta, pregunta.preguntas_alternativa.all())
+
+				elif pregunta.getTipo() == 'e':
+					if respuesta.respuestas_eleccion:
+						print('yup, existen las respuestas')
+						print(respuesta)
+						print(respuesta.respuestas_eleccion.all())
+						self.fields[pregunta_key] = createField(pregunta.getTipo(), pregunta.texto_pregunta, pregunta.preguntas_eleccion.all(), respuesta.respuestas_eleccion.all())
+					
+					else:
+						self.fields[pregunta_key] = createField(pregunta.getTipo(), pregunta.texto_pregunta, pregunta.preguntas_eleccion.all())
+			# si no existe RespuestaAlternativa todavía
+			else:
+				if pregunta.getTipo() == 'a':
+					self.fields[pregunta_key] = createField(pregunta.getTipo(), pregunta.texto_pregunta, pregunta.preguntas_alternativa.all())
+				elif pregunta.getTipo() == 'e':
+					self.fields[pregunta_key] = createField(pregunta.getTipo(), pregunta.texto_pregunta, pregunta.preguntas_eleccion.all())
+
+
+
+			preguntas_hijas = PreguntaDiagnostico.objects.filter(depende_de=pregunta).order_by('sub_numero')
+			if preguntas_hijas.count() > 0:
+				for question in preguntas_hijas:
+					print(question)
+					self.papa['id_' + str(question.id)] = "id_" + pregunta_key
+
+					respuesta = RespuestaDiagnostico.objects.filter(pregunta=question, formulario=formulario)
+					if respuesta.count() > 0:
+						respuesta = respuesta[0]
+						if question.getTipo() == 'a':
+							respuesta = RespuestaDiagnostico.objects.get(pregunta=question, formulario=formulario)
+							if respuesta.respuesta_alternativa:
+								#print('respuesta alternativa' + str(respuesta.respuesta_alternativa))
+								self.fields[question.id] = createField(question.getTipo(), question.texto_pregunta, question.preguntas_alternativa.all(), respuesta.respuesta_alternativa)
+							else:
+								self.fields[question.id] = createField(question.getTipo(), question.texto_pregunta, question.preguntas_alternativa.all())
+						elif question.getTipo() == 'e':
+							respuesta = RespuestaDiagnostico.objects.get(pregunta=pregunta, formulario=formulario)
+							if respuesta.respuestas_eleccion:
+								print('yup, existen las respuestas')
+								print(respuesta)
+								print(respuesta.respuestas_eleccion.all())
+								self.fields[question.id] = createField(question.getTipo(), question.texto_pregunta, question.preguntas_eleccion.all(), respuesta.respuestas_eleccion.all())
+							else:
+								self.fields[question.id] = createField(question.getTipo(), question.texto_pregunta, question.preguntas_eleccion.all())
+					else:
+						if pregunta.getTipo() == 'a':
+							self.fields[question.id] = createField(question.getTipo(), question.texto_pregunta, question.preguntas_alternativa.all())
+						elif pregunta.getTipo() == 'e':
+							self.fields[question.id] = createField(question.getTipo(), question.texto_pregunta, question.preguntas_eleccion.all())
 
 		# Se llama a todas las preguntas de clasificación 
 		# Por cada pregunta de clasificación
 
+		"""
 
-		for pregunta in PreguntaDiagnostico.objects.filter(base_question=True, Q=self.Q).order_by('numero'):
+		for pregunta in PreguntaDiagnostico.objects.filter(pregunta_base=True, etapas__in=[self.etapa]).order_by('numero'):
 			# self.fields[key] es un diccionario key -> form 
 			# Ejemplo para pregunta tipo respuesta en texto
 			# self.field['pregunta_n'] = forms.CharField(required = False)
@@ -146,9 +237,9 @@ class DiagForm(forms.Form):
 			self.base['id_' + pregunta_key] = 1
 			print(str(pregunta.id) + ' ' + str(self.base['id_'+pregunta_key]))
 			# se toman las preguntas que dependen de esta
-			if pregunta.getTipo() == 'd':
-				print(str(pregunta.id) + ' es documento')
-				self.doc['id_' + pregunta_key] = 1
+			#if pregunta.getTipo() == 'd':
+			#	print(str(pregunta.id) + ' es documento')
+			#	self.doc['id_' + pregunta_key] = 1
 
 			respuesta = RespuestaDiagnostico.objects.get(pregunta = pregunta, formulario = formulario)
 			#print(respuesta)
@@ -162,11 +253,11 @@ class DiagForm(forms.Form):
 				for question in preguntas_hijas:
 					answer = RespuestaDiagnostico.objects.get(pregunta = question, formulario = formulario)
 					self.papa['id_' + str(question.id)] = "id_" + pregunta_key
-					if question.getTipo() == 'd':
-						print(str(question.id) + ' es documento')
-						self.doc['id_' + str(question.id)] = 1
+					#if question.getTipo() == 'd':
+						#print(str(question.id) + ' es documento')
+						#self.doc['id_' + str(question.id)] = 1
 					self.fields[str(question.id)] = createField(question.getTipo(), question.texto_pregunta, question.preguntas_alternativa.all(), answer.respuesta)
-
+		"""
 # Form que toma TODAS las preguntas para clasificar y dependiendo del tipo de esta crea un field
 class QuestionForm(forms.Form):
 	#hidden = forms.IntegerField()
@@ -184,7 +275,7 @@ class QuestionForm(forms.Form):
 		# Por cada pregunta de clasificación
 
 
-		for pregunta in PreguntaClasificacion.objects.filter(base_question=True).order_by('numero_pregunta'):
+		for pregunta in PreguntaClasificacion.objects.filter(pregunta_base=True).order_by('numero'):
 			# self.fields[key] es un diccionario key -> form 
 			# Ejemplo para pregunta tipo respuesta en texto
 			# self.field['pregunta_n'] = forms.CharField(required = False)
@@ -205,6 +296,37 @@ class QuestionForm(forms.Form):
 					self.papa['id_' + str(question.id)] = "id_" + pregunta_key
 					self.fields[str(question.id)] = createField(question.getTipo(), question.texto_pregunta, question.preguntas_alternativa.all())
 
+
+	def ponerPuntaje(self, respuestas, cliente):
+		puntaje = 0
+		for pregunta in PreguntaClasificacion.objects.all():
+			if respuestas.get(str(pregunta.id)):
+				#print('llegué')
+				respuesta = TipoAlternativa.objects.get(id=respuestas.get(str(pregunta.id)))
+				puntaje = puntaje + (pregunta.ponderacion*respuesta.puntaje)*5
+
+		#print(puntaje)
+		etapa = self.definirEtapa(puntaje)
+		print('Cambiando estado del cliente ' + str(cliente) + ' a ' + etapa)
+		cliente.etapa = self.definirEtapa(puntaje)
+		cliente.save()
+		return puntaje
+		#print(self.definirEtapa(puntaje))
+
+	def definirEtapa(self, puntaje):
+		if puntaje <= 3:
+			return 'Idea'
+		elif puntaje > 3 and puntaje <= 6:
+			return 'Semilla'
+		elif puntaje > 6 and puntaje <= 9:
+			return 'Etapa Temprana'
+		elif puntaje > 9 and puntaje <= 12:
+			return 'Expansión'
+		else:
+			return 'Internacionalización'
+
+
+	"""
 	def getInfo(data, empresa):
 
 		if FormularioClasificacion.objects.filter(empresa=empresa).count() > 0:
@@ -255,6 +377,7 @@ class QuestionForm(forms.Form):
 	def getAt(self,pregunta_id):
 		return self.preguntas[pregunta_id]
 
+	"""
 # Form para poner datos empresa (run y nombre)
 class InfoForm(forms.Form):
 	rut_empresa = forms.IntegerField(label='RUT',required=True)
@@ -263,10 +386,14 @@ class InfoForm(forms.Form):
 # Form para registrar usuario
 class CustomUserCreationForm(forms.Form):
 	# campos
+
     username = forms.CharField(label='Usuario', min_length=4, max_length=150)
     email = forms.EmailField(label='Email')
     password1 = forms.CharField(label='Contraseña', widget=forms.PasswordInput)
     password2 = forms.CharField(label='Confirme contraseña', widget=forms.PasswordInput)
+    nombre = forms.CharField(label='Nombre')
+    apellido = forms.CharField(label='Apellido')
+    telefono = forms.CharField(label='Telefono')
 
     def clean_username(self):
         username = self.cleaned_data['username'].lower()
@@ -282,7 +409,7 @@ class CustomUserCreationForm(forms.Form):
         email = self.cleaned_data['email'].lower()
         r = User.objects.filter(email=email)
         if r.count():
-            raise  ValidationError("Email ya existe")
+            raise  ValidationError("Email ya registrado")
         return email
 
     # same
@@ -298,11 +425,17 @@ class CustomUserCreationForm(forms.Form):
     # same
     def save(self, commit=True):
         user = User.objects.create_user(
-            self.cleaned_data['username'],
-            self.cleaned_data['email'],
-            self.cleaned_data['password1'],
+            username = self.cleaned_data['username'],
+            email = self.cleaned_data['email'],
+            password = self.cleaned_data['password1'],
+            first_name = self.cleaned_data['nombre'],
+            last_name = self.cleaned_data['apellido'],
         )
-        return user
+        user.save()
+        cliente = Cliente(user=user,
+        				  telefono= self.cleaned_data['telefono'])
+        cliente.save()
+        return cliente
 
 #Formulario de registro debe incluir datos y clasificación
 class RegistrationForm(forms.Form):

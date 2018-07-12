@@ -4,7 +4,7 @@ from django.conf.urls.static import static
 from django.conf import settings
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.contrib.auth import views as auth_views
-
+from .views import Pdf
 
 from . import views
 
@@ -14,7 +14,7 @@ urlpatterns = [
     #path('', views.home, name='home'),
     path('', views.home, name='home'),
 
-    path('login/', views.login, name='login'),
+    path('login/', views.login, name='view_login'),
 	# registro de usuarios
     path('accounts/', include('django.contrib.auth.urls')),
     path('register/',views.register, name='register'),
@@ -33,8 +33,8 @@ urlpatterns = [
 
     ### ADMINS
     # ver postulantes
-    path('postulantes/clasificacion', views.clasificados, name='clasificados'),
-    path('postulantes/diagnostico', views.diagnosticados, name='diagnosticados'),
+    path('postulantes/clasificacion/', views.clasificados, name='clasificados'),
+    path('postulantes/diagnostico/', views.diagnosticados, name='diagnosticados'),
 
     # empresa en particular 
     path('postulantes/clasificacion/<int:rut_empresa>', views.clasificar, name='clasificar'),
@@ -42,6 +42,9 @@ urlpatterns = [
 
     #guardar archivo
     path('save/', views.save, name='save'),
+
+    #pdf
+    path('pdf/<int:id_cliente>', Pdf.as_view(), name='pdf'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

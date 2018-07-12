@@ -94,6 +94,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'is2-4',
+        'OPTIONS': {
+            'options': '-c search_path=fco_test'
+        },
         'USER': 'is2-4',
         'PASSWORD': 'is2-41234',
         'HOST': 'plop.inf.udec.cl',
@@ -128,13 +131,15 @@ LANGUAGE_CODE = 'en-us'
 
 DATE_INPUT_FORMATS = ['%d/%m/%Y']
 
+DATETIME_FORMAT = ['%d-%m-%Y %H:%M']
+
 TIME_ZONE = 'America/Santiago'
 
 USE_I18N = True
 
 USE_L10N = False
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)

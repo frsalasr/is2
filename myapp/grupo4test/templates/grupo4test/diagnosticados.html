@@ -8,12 +8,12 @@ table, th, td {
     padding: 5px 5px 5px;
 }
 </style>
-<h2>Empresas diagnosticadas</h2>
-<hr>
-<hr style="height:1px;width: 10% ;border:none;  display: inline-block" />
-	<div class="container-fluid">
+<div class="container" style="margin-left: -100px;">
+	<h2>Lista de clientes</h2>
+	<hr>
+	<div class="container">
 		<div class="row" style="font-weight: bold">
-			<div class="col"> Empresa </div>
+			<div class="col"> Cliente </div>
 			<div class="col"> Puntaje </div>
 			<div class="col"> Etapa </div>
 			<div class="col"> Fecha</div>
@@ -25,10 +25,10 @@ table, th, td {
 			{% else %}
 				<div class="row" style="padding: 5px 5px 5px; background-color: silver;">
 			{% endif %}
-			<div class="col"><a href="{% url 'diagnosticados'%}/{{formulario.empresa.rut}}"}">{{formulario.empresa}}</a></div>
+			<div class="col"><a href="{% url 'pdf' formulario.cliente.id %}">{{formulario.cliente}}</a></div>
 			<div class="col">{{formulario.puntaje}}</div>
-			<div class="col">{{formulario.empresa.etapa}}</div>
-			<div class="col">{{formulario.fecha}} </div>
+			<div class="col">{{formulario.cliente.etapa}}</div>
+			<div class="col">{{formulario.getFecha}} </div>
 			{% if formulario.estado == 'PENDIENTE' %}
 				<div class="col" style="color: red;">{{formulario.estado}}</div>
 			{% elif formulario.estado == 'RESUELTO' %}
@@ -39,7 +39,7 @@ table, th, td {
 				</div>
 		{% endfor %}
 	</div>
-
+</div>
 
 
 
