@@ -8,11 +8,11 @@ table, th, td {
     padding: 5px 5px 5px;
 }
 </style>
-<div class="container" style="margin-left: -100px;">
+
 	<h2>Lista de clientes</h2>
 	<hr>
-	<div class="container">
-		<div class="row" style="font-weight: bold">
+	<div class="container" style="width: 100%;height: 100%;object-fit: contain;">
+		<div class="row" style="font-weight: bold;">
 			<div class="col"> Cliente </div>
 			<div class="col"> Puntaje </div>
 			<div class="col"> Etapa </div>
@@ -25,7 +25,7 @@ table, th, td {
 			{% else %}
 				<div class="row" style="padding: 5px 5px 5px; background-color: silver;">
 			{% endif %}
-			<div class="col"><a href="{% url 'pdf' formulario.cliente.id %}">{{formulario.cliente}}</a></div>
+			<div class="col"><a href="{% url 'cliente' formulario.cliente.id %}">{{formulario.cliente}}</a></div>
 			<div class="col">{{formulario.puntaje}}</div>
 			<div class="col">{{formulario.cliente.etapa}}</div>
 			<div class="col">{{formulario.getFecha}} </div>
@@ -39,7 +39,7 @@ table, th, td {
 				</div>
 		{% endfor %}
 	</div>
-</div>
+
 
 
 
