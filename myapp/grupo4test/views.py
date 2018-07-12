@@ -487,8 +487,7 @@ def register(request):
 			return redirect('register2')
 
 	
-	return render(request, template, {'registerForm': registerForm,
-									  'clasificacionForm': clasificacionForm })
+	return render(request, template, {'form':form })
 
 def register2(request):
 	template = 'grupo4test/register2.html'
