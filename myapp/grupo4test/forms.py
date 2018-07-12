@@ -437,6 +437,29 @@ class CustomUserCreationForm(forms.Form):
         cliente.save()
         return cliente
 
+#Formulario de registro debe incluir datos y clasificación
+class RegistrationForm(forms.Form):
+ 	rut_empresa = forms.IntegerField(label='RUT',required=True)#quitar
+ 	nombre_empresa = forms.CharField(label='Nombre del emprendimiento', max_length=32, required=True)
+ 	desc_empresa = forms.CharField(label='Descripción del emprendimiento', max_length=500, required=True, widget=forms.Textarea(attrs = {'cols': '30', 'rows': '5'}))
+ 	equipo_empresa = forms.CharField(label='Descripción del equipo de trabajo', max_length=500, required=True, widget=forms.Textarea(attrs = {'cols': '30', 'rows': '5'}))
+ 	ventas_empresa = forms.ChoiceField(label='Ventas en el último año', required=True, widget=forms.Select(), choices=[(0,'No hay ventas'), (1,'Menores a 2400UF'), (2,'Mayores a 2400UF')])
+
+class RegistrationForm2(forms.Form):
+	ded_equipo = forms.BooleanField(label='El equipo está dedicado al 100%', required=False)
+	feedback =  forms.BooleanField(label='Han tenido feedback de Clientes', required=False)
+
+class RegistrationForm3(forms.Form):
+	mvp = forms.BooleanField(label='MVP desarrollado', required=False)
+	plan_exp = forms.BooleanField(label='Plan de expansión', required=False)
+	fig_legal = forms.BooleanField(label='Figura legal', required=False)
+	ventas_ext = forms.BooleanField(label='Ventas en el extranjero', required=False)
+	fin_priv = forms.BooleanField(label='Financiamiento privado', required=False)
+	plan_inter = forms.BooleanField(label='Plan de internacionalización', required=False)
+	vida_emp = forms.BooleanField(label='La empresa tiene menos de 3 años', required=False)
+	mod_ext = forms.BooleanField(label='Modelo de negocio vinculado al exteror', required=False)
+	est_inter = forms.BooleanField(label='Producto con estandares internacionales de diseño y producción', required=False)
+
 ##### TEST FORMS #####
 # OBSOLETOS #
 
