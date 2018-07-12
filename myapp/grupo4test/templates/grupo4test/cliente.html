@@ -1,0 +1,43 @@
+{% extends "grupo4test/base.html" %}
+
+{% block content %}
+
+<style type="text/css">
+#myContainer{
+	font-size: 16px;
+}
+#myContainer .col-sm-2{
+	font-weight: bold;
+}
+</style>
+{% if user.is_authenticated %}
+<div class="container-fluid" id="myContainer">
+	<h3>Datos cliente {{cliente.user.username}}</h3>
+	<hr>
+	<div class="row">
+		<div class="col-sm-2">Nombre: </div>
+		<div class="col-sm-3">{{cliente}}</div>
+	</div>
+	<div class="row">
+		<div class="col-sm-2">Correo electrónico: </div>
+		<div class="col-sm-3">{{cliente.user.email}}</div>
+	</div>
+	<div class="row">
+		<div class="col-sm-2">Teléfono de contacto: </div>
+		<div class="col-sm-3">{{cliente.telefono}}</div>
+	</div>
+	<div class="row">
+		<div class="col-sm-2">Etapa: </div>
+		<div class="col-sm-3">{{cliente.etapa}}</div>
+	</div>
+	<div class="row">
+		<div class="col-sm-2">Estado del diagnóstico: </div>
+		<div class="col-sm-3"> prox </div>
+	</div>
+</div>
+<hr>
+
+<p><a href="{% url 'pdf' cliente.id %}">Generar documento</a></p>
+{% endif %}
+
+{% endblock %}
