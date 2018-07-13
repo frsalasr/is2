@@ -132,8 +132,17 @@ def diagnostico(request):
 
 	if request.user.is_authenticated:
 		# Debe registrar la empresa si no no puede hacer el formulario
-		cliente = Cliente.objects.get(user=request.user) 
-		formulario = FormDiagnostico.objects.get(cliente=cliente)
+		cliente = Cliente.objects.get(user=request.user)
+
+
+		formulario = FormDiagnostico.objects.filter(cliente=cliente)
+		if formulario.count() > 0:
+			formulario = formulario[0]
+
+		else:
+			formulario = FormDiagnostico(cliente=cliente)
+			formulario.save()
+			formulario.crearForm()
 		
 		if request.method == 'POST':
 			for item in request.POST:
@@ -165,7 +174,7 @@ def diagnostico(request):
 								respuesta = RespuestaDiagnostico(
 											formulario = formulario,
 											pregunta = pregunta,
-											respuesta = r.texto_alternativa,
+											respuesta_alternativa = r,
 											puntaje = r.puntaje,
 											)
 								respuesta.save()
@@ -174,12 +183,28 @@ def diagnostico(request):
 							respuesta = RespuestaDiagnostico.objects.filter(pregunta=pregunta, formulario=formulario)
 							r = TipoElegir.objects.filter(id__in=request.POST.getlist(item))
 							puntaje = 0
+							# puntaje = suma de los puntajes de las respuestas que eligió
 							for res in r:
 								puntaje = puntaje + res.puntaje
+								print(puntaje)
+							# Si ya existía la respuesta
+							# asocia las respuestas a la respuesta
 							if respuesta.count() > 0:
+								print('existe la respuesta')
 								respuesta = respuesta[0]
 								respuesta.respuestas_eleccion.set(r)
-								respuesta.puntaje = puntaje
+								respuesta.puntaje = respuesta.pregunta.ponderacion + puntaje
+								respuesta.save()
+							# si no, la crea y los pone 
+							else:
+								respuesta = RespuestaDiagnostico(
+											formulario = formulario,
+											pregunta = pregunta,
+											puntaje = 0,
+											)
+								respuesta.save()
+								respuesta.respuestas_eleccion.set(r)
+								respuesta.puntaje = respuesta.pregunta.ponderacion + puntaje
 								respuesta.save()
 							print(r)
 			if request.POST.get('guardar'):
@@ -189,13 +214,16 @@ def diagnostico(request):
 				tiempo.save()
 				formulario.guardados.add(tiempo)
 				formulario.ponerPuntaje()
+				formulario.estado = 'PENDIENTE'
+				formulario.save()
 				tiempo.save()
 
 			elif request.POST.get('enviar'):
 				import datetime
 				formulario.ponerPuntaje()
 				formulario.fecha_termino = datetime.datetime.now()
-				formulario.respondido = True
+				#formulario.respondido = True
+				formulario.estado = 'ENVIADO'
 				formulario.save()
 			#cliente = Cliente.objects.get(user=request.user)
 			#formulario = FormDiagnostico.objects.get(cliente=cliente)
@@ -389,14 +417,14 @@ def clasificados(request):
 def diagnosticados(request):	
 	template = 'grupo4test/diagnosticados.html'
 
-	formularios = FormDiagnostico.objects.filter(respondido = True).order_by('estado')
+	forms_listos = FormDiagnostico.objects.filter(estado='LISTO').order_by('fecha_termino')
+	forms_enviados = FormDiagnostico.objects.filter(estado='ENVIADO').order_by('fecha_termino')
+	forms_pendientes = FormDiagnostico.objects.filter(estado='PENDIENTE')
+	#formularios = FormDiagnostico.objects.filter(respondido = True).order_by('estado')
 
-	return render(request, template, {'formularios': formularios})
-
-
-
-
-
+	return render(request, template, {'enviados': forms_enviados,
+									  'pendientes': forms_pendientes,
+									  'listos': forms_listos})
 
 
 
@@ -467,7 +495,10 @@ def register(request):
 
 
 	initial={'username': request.session.get('username', None),
-		 'email':request.session.get('email', None)}
+			'email':request.session.get('email', None),
+			'nombre': request.session.get('nombre',None),
+			'apellido':request.session.get('apellido',None),
+			'telefono': request.session.get('telefono',None)}
 	form = CustomUserCreationForm(request.POST or None, initial=initial)
 	
 	if request.method == 'POST':
@@ -475,16 +506,17 @@ def register(request):
 			request.session['username'] = form.cleaned_data['username']
 			request.session['email'] = form.cleaned_data['email']
 			request.session['password1'] = form.cleaned_data['password1']
+			request.session['nombre'] = form.cleaned_data['nombre']
+			request.session['apellido'] = form.cleaned_data['apellido']
+			request.session['telefono'] = form.cleaned_data['telefono']
 			return redirect('register2')
 
 	
-	return render(request, template, {'registerForm': registerForm,
-									  'clasificacionForm': clasificacionForm })
+	return render(request, template, {'form':form })
 
 def register2(request):
 	template = 'grupo4test/register2.html'
-	initial = {'rut_empresa':request.session.get('rut_empresa'),
-		'nombre_empresa': request.session.get('nombre_empresa'),
+	initial = {'nombre_empresa': request.session.get('nombre_empresa'),
 		'desc_empresa': request.session.get('desc_empresa'),
 		'equipo_empresa': request.session.get('equipo_empresa'),
 		'ventas_empresa': request.session.get('ventas_empresa')
@@ -493,7 +525,6 @@ def register2(request):
 
 	if request.method == 'POST':
 		if form.is_valid():
-			request.session['rut_empresa'] = form.cleaned_data['rut_empresa']
 			request.session['nombre_empresa'] = form.cleaned_data['nombre_empresa']
 			request.session['desc_empresa'] = form.cleaned_data['desc_empresa']
 			request.session['equipo_empresa'] = form.cleaned_data['equipo_empresa']
@@ -505,15 +536,21 @@ def register2(request):
 				username = request.session['username']
 				email = request.session['email']
 				password = request.session['password1']
+				first_name = request.session['nombre']
+				last_name = request.session['apellido']
 				user = User.objects.create_user(username,email,password)
+				user.first_name=first_name
+				user.last_name=last_name
+				user.save()
 
-				rut = request.session['rut_empresa']
+				telefono = request.session['telefono']
 				nom = request.session['nombre_empresa']
 				desc = request.session['desc_empresa']
 				equip = request.session['equipo_empresa']
-
-				empresa = Empresa.objects.create(rut=rut, nombre=nom, etapa='Idea',autor=user)
-				FormDiagnostico.construir(empresa)
+				
+				cliente = Cliente.objects.create(user=user,telefono=telefono,etapa='Idea',nombre_empresa=nom,descripcion_empresa=desc,descripcion_equipo=equip)
+				fdiag = FormDiagnostico.objects.create(cliente=cliente)
+				fdiag.crearForm()
 				messages.success(request, 'Registro completado')
 				request.session.clear()
 				return redirect('register')
@@ -598,18 +635,25 @@ def register3(request):
 		username = request.session['username']
 		email = request.session['email']
 		password = request.session['password1']
+		first_name = request.session['nombre']
+		last_name = request.session['apellido']
 		user = User.objects.create_user(username,email,password)
-
-		rut = request.session['rut_empresa']
+		user.first_name=first_name
+		user.last_name=last_name
+		user.save()
+				
+		telefono = request.session['telefono']
 		nom = request.session['nombre_empresa']
 		desc = request.session['desc_empresa']
 		equip = request.session['equipo_empresa']
-
-		empresa = Empresa.objects.create(rut=rut, nombre=nom, etapa=etapa,autor=user)
-		FormDiagnostico.construir(empresa)
-		messages.success(request, 'Registro completado')
+		
+		cliente = Cliente.objects.create(user=user,telefono=telefono,etapa=etapa,nombre_empresa=nom,descripcion_empresa=desc,descripcion_equipo=equip)
+		fdiag = FormDiagnostico.objects.create(cliente=cliente)
+		fdiag.crearForm()
+		#messages.success(request, 'Registro completado')
 		request.session.clear()
-		return redirect('register')
+		request.session['cliente'] = cliente.id
+		return redirect('view_login')
 
 	return render(request, template, {'form':form})
 
@@ -679,3 +723,10 @@ class Pdf(View):
 			return HttpResponse(response.getvalue(), content_type='application/pdf')
 		else:
 			return HttpResponse("Error Rendering PDF", status=400)
+			
+def cliente(request, id_cliente):
+
+	cliente = Cliente.objects.get(id=id_cliente)
+	template = 'grupo4test/cliente.html'
+
+	return render(request, template, {'cliente': cliente})

@@ -25,6 +25,13 @@ def getQ(Q):
 		return 'Gestión de Innovación'
 
 @register.filter
+def setListo(cliente):
+	formulario = FormDiagnostico.objects.get(cliente=cliente)
+	formulario.estado = 'LISTO'
+	formulario.save()
+	return ""
+
+@register.filter
 def getComentario(id_question, formulario):
 	if id_question.startswith('id_'):
 		id_question = id_question[3:]
@@ -38,6 +45,10 @@ def getComentario(id_question, formulario):
 @register.filter
 def getTipoA(id):
 	return TipoAlternativa.objects.get(id=id)
+
+@register.filter
+def getFormularioEstado(cliente):
+	return FormDiagnostico.objects.get(cliente=cliente).estado
 
 @register.filter
 def getFilename(path,op):
@@ -122,7 +133,8 @@ def createField(tipo, label, queryset=None, initial=""):
 											  required=False, 
 											  widget=forms.CheckboxSelectMultiple,
                                         	  queryset=queryset,
-                                        	  initial=initial)
+                                        	  initial=initial,
+                                        	 )
 	
 	## NO SIRVEN
 	elif tipo == 't':
@@ -393,7 +405,7 @@ class CustomUserCreationForm(forms.Form):
     password2 = forms.CharField(label='Confirme contraseña', widget=forms.PasswordInput)
     nombre = forms.CharField(label='Nombre')
     apellido = forms.CharField(label='Apellido')
-    telefono = forms.CharField(label='Telefono')
+    telefono = forms.IntegerField(label='Telefono')
 
     def clean_username(self):
         username = self.cleaned_data['username'].lower()
@@ -439,7 +451,6 @@ class CustomUserCreationForm(forms.Form):
 
 #Formulario de registro debe incluir datos y clasificación
 class RegistrationForm(forms.Form):
- 	rut_empresa = forms.IntegerField(label='RUT',required=True)#quitar
  	nombre_empresa = forms.CharField(label='Nombre del emprendimiento', max_length=32, required=True)
  	desc_empresa = forms.CharField(label='Descripción del emprendimiento', max_length=500, required=True, widget=forms.Textarea(attrs = {'cols': '30', 'rows': '5'}))
  	equipo_empresa = forms.CharField(label='Descripción del equipo de trabajo', max_length=500, required=True, widget=forms.Textarea(attrs = {'cols': '30', 'rows': '5'}))

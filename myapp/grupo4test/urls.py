@@ -35,7 +35,8 @@ urlpatterns = [
     # ver postulantes
     path('postulantes/clasificacion/', views.clasificados, name='clasificados'),
     path('postulantes/diagnostico/', views.diagnosticados, name='diagnosticados'),
-
+    path('postulantes/id/<int:id_cliente>', views.cliente, name='cliente'),
+    
     # empresa en particular 
     path('postulantes/clasificacion/<int:rut_empresa>', views.clasificar, name='clasificar'),
     path('postulantes/diagnostico/<int:rut_empresa>', views.diagnosticar, name='diagnosticar'),
