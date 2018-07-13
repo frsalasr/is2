@@ -72,16 +72,19 @@
                 </div>
                 <hr style="border-color: rgb(12, 87, 107);"> 
                 {% if user.is_authenticated %}
-                    <a style="color: #ececec; font-size: 25px;">Bienvenido</a>        	    
-                    <a style="color: #ececec; font-size: 15px">Usuario: <b>{{ user.get_username }}</b> </a>
+                    <a style="color: #ececec; font-size: 30px;">Bienvenido</a>        	    
+                    <a style="color: #ececec; font-size: 15px">Usuario: {{ user.get_username }} </a>
                 {% if user.is_superuser %}              
-                    <a href="{% url 'logout'%}" style="font-size: 15px;">Cerrar Sesión</a>    
+                    <a href="{% url 'logout'%}" style="font-size: 15px;">Cerrar Sesión</a> 
+                    <hr>   
                     <a href="{% url 'home' %}">Inicio</a>  			           	
                     <span style="display:block; height: 15px;"></span>
                     <a href="{% url 'diagnosticados' %}">Clientes</a>
                 {% else %}
+                
                     <a href="{% url 'datos' %}" style="font-size: 15px;">Detalle de cuenta</a>
-                    <a href="{% url 'logout'%}" style="font-size: 15px;">Cerrar Sesión</a>  
+                    <a href="{% url 'logout'%}" style="font-size: 15px;">Cerrar Sesión</a>
+                     <hr> 
                     <span style="display:block; height: 15px;"></span>  
                     <a href="{% url 'home' %}">Inicio</a>    	           
                     <a href="{% url 'diagnostico' %}">Diagnósticos</a>
