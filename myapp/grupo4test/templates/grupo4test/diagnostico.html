@@ -20,9 +20,13 @@
     .row{
     	font-size: 16px;
     }
-    .li{
+    label{
+    	font-size: 16px;
     	font-weight: normal;
     }
+    li{
+   		list-style-type: none; 
+	}
 
 </style>
 <body>
@@ -48,20 +52,21 @@
 	<h3>Formulario enviado.</h1>
 	<a href="{%  url 'pdf' formulario.cliente.id %}" style="font-size: 25px;">Generar documento</a>
 {% else %}
-	<ul class="nav nav-tabs" style="width: 100%;">
+<div class="container-fluid">
+	<ul class="nav nav-tabs" style="width: 1000px;">
 		{% for form in formularios %}
 	    	<li id="tab_name" {% if forloop.counter == 1 %} class="active" {% endif %}><a data-toggle="tab" href="#Q{{forloop.counter}}"> {{forloop.counter|getQ}} </a></li>
 	    {% endfor %}
 	</ul>
 	<form method="post">
 		{% csrf_token %}
-		<div class="tab-content">
+		<div class="tab-content" style="width: 1000px;">
 		{% for form in formularios %}
 			<div id="Q{{forloop.counter}}" {% if forloop.counter == 1 %} class="tab-pane fade in active" {% else %} class="tab-pane fade " {% endif %} style="margin-top: 20px;">
 			{% for field in form %}
 				{% if form.base|get_item:field.auto_id %}	
 					<div id="div_{{field.auto_id}}">
-						<p style="font-size: 20px;">{{field.label}}</p>
+						<p style="font-size: 16px; font-weight: bold;">{{field.label}}</p>
 						{{field}}
 					</div>			
 				{% else %}
@@ -95,6 +100,7 @@
 	<input type="submit" class="btn btn-primary" name="guardar" value="Guardar">
 	<input type="submit" class="btn btn-primary" name="enviar" value="Enviar">
 	</form>
+</div>
 {% endif %}
 <!--
 <h2>Formulario Diagnóstico</h2>
