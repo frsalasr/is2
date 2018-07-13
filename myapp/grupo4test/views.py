@@ -215,6 +215,7 @@ def diagnostico(request):
 				formulario.guardados.add(tiempo)
 				formulario.ponerPuntaje()
 				formulario.estado = 'PENDIENTE'
+				formulario.save()
 				tiempo.save()
 
 			elif request.POST.get('enviar'):

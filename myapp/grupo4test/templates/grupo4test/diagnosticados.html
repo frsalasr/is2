@@ -75,6 +75,7 @@ table, th, td {
 						<td>{{pendiente.guardados.all|first}} </td>
                     </tr>
 		{% endfor %}
+
                 </tbody>
             </table>	
         </div>
@@ -105,8 +106,9 @@ table, th, td {
                         <td ><a href="{% url 'cliente' listo.cliente.id %}">{{listo.cliente}}</a></td>
 						<td >{{listo.puntaje}}</td>
 						<td>{{listo.cliente.etapa}}</td>
-						<td>{{listo.guardados.all|first}} </td>
+						<td>{{listo.getFecha}} </td>
                     </tr>
+
 		{% endfor %}
                 </tbody>
             </table>	

@@ -16,23 +16,37 @@
 	<hr>
 	<div class="row">
 		<div class="col-sm-3">Nombre: </div>
-		<div class="col-sm-3">{{cliente}}</div>
+		<div class="col-sm-4">{{cliente}}</div>
 	</div>
 	<div class="row">
 		<div class="col-sm-3">Correo electrónico: </div>
-		<div class="col-sm-3">{{cliente.user.email}}</div>
+		<div class="col-sm-4">{{cliente.user.email}}</div>
 	</div>
 	<div class="row">
 		<div class="col-sm-3">Teléfono de contacto: </div>
-		<div class="col-sm-3">{{cliente.telefono}}</div>
+		<div class="col-sm-4">{{cliente.telefono}}</div>
 	</div>
 	<div class="row">
 		<div class="col-sm-3">Etapa: </div>
-		<div class="col-sm-3">{{cliente.etapa}}</div>
+		<div class="col-sm-4">{{cliente.etapa}}</div>
 	</div>
 	<div class="row">
 		<div class="col-sm-3">Estado del diagnóstico: </div>
-		<div class="col-sm-3">{{cliente|getFormularioEstado}}</div>
+		<div class="col-sm-4">{{cliente|getFormularioEstado}}</div>
+	</div>
+	{% if cliente.nombre_empresa %}
+	<div class="row">
+		<div class="col-sm-3"> Nombre del emprendimiento: </div>
+		<div class="col-sm-4"> {{cliente.nombre_empresa}} </div>
+	</div>
+	{% endif %}
+	<div class="row">
+		<div class="col-sm-3"> Descripción del emprenimiento: </div>
+		<div class="col-sm-4"> {{cliente.descripcion_empresa}} </div>
+	</div>
+	<div class="row">
+		<div class="col-sm-3"> Descripción del equipo de trabajo: </div>
+		<div class="col-sm-4"> {{cliente.descripcion_equipo}} </div>
 	</div>
 </div>
 <hr>

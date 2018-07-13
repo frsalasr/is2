@@ -236,7 +236,7 @@ class FormDiagnostico(models.Model):
 			self.puntaje = puntaje
 			self.save() 
 
-		elif self.cliente.etapa == 'Etapa temprana':
+		elif self.cliente.etapa == 'Etapa Temprana':
 			puntaje = puntajes[0]*3 + puntajes[1]*4 + puntajes[2]*5 + puntajes[3]*5 +puntajes[4]*3
 			self.puntaje = puntaje
 			self.save() 
@@ -270,8 +270,10 @@ class FormDiagnostico(models.Model):
 		"""
 	def getFecha(self):
 		import datetime
-		nf = self.fecha_termino.strftime('%d-%m-%Y')
-		return str(nf)
+		if self.fecha_termino is not None:
+			nf = self.fecha_termino.strftime('%d-%m-%Y')
+			return str(nf)
+		return ""
 
 	def getRespuestas(self):
 		respuestas = []
