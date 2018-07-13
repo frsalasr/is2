@@ -15,7 +15,7 @@
     	max-width: 70%;
     }
     ul.nav.nav-tabs{
-    	font-size: 15px;
+    	font-size: 16px;
     }
     .row{
     	font-size: 16px;
@@ -48,7 +48,7 @@
 	</div>
 </div>
 <hr>
-{% if formulario.estado == 'ENVIADO' %}
+{% if formulario.estado == 'ENVIADO' or formulario.estado == 'LISTO' %}
 	<h3>Formulario enviado.</h1>
 	<a href="{%  url 'pdf' formulario.cliente.id %}" style="font-size: 25px;">Generar documento</a>
 {% else %}

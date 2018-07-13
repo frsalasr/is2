@@ -236,7 +236,7 @@ class FormDiagnostico(models.Model):
 			self.puntaje = puntaje
 			self.save() 
 
-		elif self.cliente.etapa == 'Etapa temprana':
+		elif self.cliente.etapa == 'Etapa Temprana':
 			puntaje = puntajes[0]*3 + puntajes[1]*4 + puntajes[2]*5 + puntajes[3]*5 +puntajes[4]*3
 			self.puntaje = puntaje
 			self.save() 

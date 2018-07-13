@@ -68,7 +68,7 @@ table, th, td {
 			<div class="col"><a href="{% url 'cliente' listo.cliente.id %}">{{listo.cliente}}</a></div>
 			<div class="col">{{listo.puntaje}}</div>
 			<div class="col">{{listo.cliente.etapa}}</div>
-			<div class="col">{{listo.guardados.all|first}} </div>
+			<div class="col">{{listo.getFecha}} </div>
 		</div>
 		{% endfor %}
 	</div>
