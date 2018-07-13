@@ -270,8 +270,10 @@ class FormDiagnostico(models.Model):
 		"""
 	def getFecha(self):
 		import datetime
-		nf = self.fecha_termino.strftime('%d-%m-%Y')
-		return str(nf)
+		if self.fecha_termino is not None:
+			nf = self.fecha_termino.strftime('%d-%m-%Y')
+			return str(nf)
+		return ""
 
 	def getRespuestas(self):
 		respuestas = []

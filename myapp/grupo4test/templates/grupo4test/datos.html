@@ -38,6 +38,21 @@
 			<div class="col-sm-3">Etapa: </div>
 			<div class="col-sm-4">{{cliente.etapa}}</div>
 		</div>
+		{% if cliente.nombre_empresa %}
+			<div class="row">
+				<div class="col-sm-3"> Nombre del emprendimiento: </div>
+				<div class="col-sm-4"> {{cliente.nombre_empresa}} </div>
+			</div>
+		{% endif %}
+		<div class="row">
+			<div class="col-sm-3"> Descripción del emprenimiento: </div>
+			<div class="col-sm-4"> {{cliente.descripcion_empresa}} </div>
+		</div>
+		<div class="row">
+			<div class="col-sm-3"> Descripción del equipo de trabajo: </div>
+			<div class="col-sm-4"> {{cliente.descripcion_equipo}} </div>
+		</div>
+
 	</div>
 	{% else %}
 	<p>Solo para usuarios registrados</p>
