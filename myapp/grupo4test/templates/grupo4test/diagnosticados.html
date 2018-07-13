@@ -12,34 +12,66 @@ table, th, td {
 	<h2>Listado de Clientes</h2>
 	<hr>
 	<div class="container" style="width: 100%;height: 100%;object-fit: contain;">
+		<legend>Enviados</legend>
 		<div class="row" style="font-weight: bold;">
 			<div class="col"> Cliente </div>
 			<div class="col"> Puntaje </div>
 			<div class="col"> Etapa </div>
-			<div class="col"> Fecha</div>
-			<div class="col"> Estado </div>
+			<div class="col"> Fecha Enviado</div>
 		</div>
-		{% for formulario in formularios %}
+		{% for enviado in enviados %}
 			{% if forloop.counter|divisibleby:2 %}
 				<div class="row" style="padding: 5px 5px 5px;">
 			{% else %}
 				<div class="row" style="padding: 5px 5px 5px; background-color: silver;">
 			{% endif %}
-			<div class="col"><a href="{% url 'cliente' formulario.cliente.id %}">{{formulario.cliente}}</a></div>
-			<div class="col">{{formulario.puntaje}}</div>
-			<div class="col">{{formulario.cliente.etapa}}</div>
-			<div class="col">{{formulario.getFecha}} </div>
-			{% if formulario.estado == 'PENDIENTE' %}
-				<div class="col" style="color: red;">{{formulario.estado}}</div>
-			{% elif formulario.estado == 'RESUELTO' %}
-				<div class="col" style="color: green;">{{formulario.estado}}</div>
+			<div class="col"><a href="{% url 'cliente' enviado.cliente.id %}">{{enviado.cliente}}</a></div>
+			<div class="col">{{enviado.puntaje}}</div>
+			<div class="col">{{enviado.cliente.etapa}}</div>
+			<div class="col">{{enviado.getFecha}} </div>
+		</div>
+		{% endfor %}
+		<hr>
+		<legend>Pendientes</legend>
+		<div class="row" style="font-weight: bold;">
+			<div class="col"> Cliente </div>
+			<div class="col"> Puntaje temporal </div>
+			<div class="col"> Etapa </div>
+			<div class="col"> Última modificación </div>
+		</div>
+		{% for pendiente in pendientes %}
+			{% if forloop.counter|divisibleby:2 %}
+				<div class="row" style="padding: 5px 5px 5px;">
 			{% else %}
-				<div class="col" style="color: orange;">{{formulario.estado}}</div>
+				<div class="row" style="padding: 5px 5px 5px; background-color: silver;">
 			{% endif %}
-				</div>
+			<div class="col"><a href="{% url 'cliente' pendiente.cliente.id %}">{{pendiente.cliente}}</a></div>
+			<div class="col">{{pendiente.puntaje}}</div>
+			<div class="col">{{pendiente.cliente.etapa}}</div>
+			<div class="col">{{pendiente.guardados.all|first}} </div>
+		</div>
+		{% endfor %}
+		<hr>
+		<legend>Listos</legend>
+		<div class="row" style="font-weight: bold;">
+			<div class="col"> Cliente </div>
+			<div class="col"> Puntaje </div>
+			<div class="col"> Etapa </div>
+			<div class="col"> Fecha entrega </div>
+		</div>
+		{% for listo in listos %}
+			{% if forloop.counter|divisibleby:2 %}
+				<div class="row" style="padding: 5px 5px 5px;">
+			{% else %}
+				<div class="row" style="padding: 5px 5px 5px; background-color: silver;">
+			{% endif %}
+			<div class="col"><a href="{% url 'cliente' listo.cliente.id %}">{{listo.cliente}}</a></div>
+			<div class="col">{{listo.puntaje}}</div>
+			<div class="col">{{listo.cliente.etapa}}</div>
+			<div class="col">{{listo.guardados.all|first}} </div>
+		</div>
 		{% endfor %}
 	</div>
-
 
 
 

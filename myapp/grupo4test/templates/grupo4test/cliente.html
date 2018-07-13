@@ -15,29 +15,33 @@
 	<h3>Datos cliente {{cliente.user.username}}</h3>
 	<hr>
 	<div class="row">
-		<div class="col-sm-2">Nombre: </div>
+		<div class="col-sm-3">Nombre: </div>
 		<div class="col-sm-3">{{cliente}}</div>
 	</div>
 	<div class="row">
-		<div class="col-sm-2">Correo electrónico: </div>
+		<div class="col-sm-3">Correo electrónico: </div>
 		<div class="col-sm-3">{{cliente.user.email}}</div>
 	</div>
 	<div class="row">
-		<div class="col-sm-2">Teléfono de contacto: </div>
+		<div class="col-sm-3">Teléfono de contacto: </div>
 		<div class="col-sm-3">{{cliente.telefono}}</div>
 	</div>
 	<div class="row">
-		<div class="col-sm-2">Etapa: </div>
+		<div class="col-sm-3">Etapa: </div>
 		<div class="col-sm-3">{{cliente.etapa}}</div>
 	</div>
 	<div class="row">
-		<div class="col-sm-2">Estado del diagnóstico: </div>
-		<div class="col-sm-3"> prox </div>
+		<div class="col-sm-3">Estado del diagnóstico: </div>
+		<div class="col-sm-3">{{cliente|getFormularioEstado}}</div>
 	</div>
 </div>
 <hr>
 
-<p><a href="{% url 'pdf' cliente.id %}">Generar documento</a></p>
+<p style="font-size: 18px;"><a href="{% if cliente|getFormularioEstado == 'ENVIADO'%}
+										{{ cliente|setListo }}
+									 {% endif %}
+									 {% url 'pdf' cliente.id %}
+									 ">Generar documento</a></p>
 {% endif %}
 
 {% endblock %}

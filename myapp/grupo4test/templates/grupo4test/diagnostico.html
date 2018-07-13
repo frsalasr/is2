@@ -20,6 +20,9 @@
     .row{
     	font-size: 16px;
     }
+    .li{
+    	font-weight: normal;
+    }
 
 </style>
 <body>
@@ -41,11 +44,11 @@
 	</div>
 </div>
 <hr>
-{% if formulario.respondido %}
-	<h3>Formulario resuelto.</h1>
-	<a href="{%  url 'pdf' formulario.cliente.id %}"> Generar documento</a>
+{% if formulario.estado == 'ENVIADO' %}
+	<h3>Formulario enviado.</h1>
+	<a href="{%  url 'pdf' formulario.cliente.id %}" style="font-size: 25px;">Generar documento</a>
 {% else %}
-	<ul class="nav nav-tabs">
+	<ul class="nav nav-tabs" style="width: 100%;">
 		{% for form in formularios %}
 	    	<li id="tab_name" {% if forloop.counter == 1 %} class="active" {% endif %}><a data-toggle="tab" href="#Q{{forloop.counter}}"> {{forloop.counter|getQ}} </a></li>
 	    {% endfor %}
@@ -58,7 +61,7 @@
 			{% for field in form %}
 				{% if form.base|get_item:field.auto_id %}	
 					<div id="div_{{field.auto_id}}">
-						<p style="font-weight: bold;">{{field.label}}</p>
+						<p style="font-size: 20px;">{{field.label}}</p>
 						{{field}}
 					</div>			
 				{% else %}

@@ -183,15 +183,19 @@ def diagnostico(request):
 							respuesta = RespuestaDiagnostico.objects.filter(pregunta=pregunta, formulario=formulario)
 							r = TipoElegir.objects.filter(id__in=request.POST.getlist(item))
 							puntaje = 0
+							# puntaje = suma de los puntajes de las respuestas que eligió
 							for res in r:
 								puntaje = puntaje + res.puntaje
 								print(puntaje)
+							# Si ya existía la respuesta
+							# asocia las respuestas a la respuesta
 							if respuesta.count() > 0:
 								print('existe la respuesta')
 								respuesta = respuesta[0]
 								respuesta.respuestas_eleccion.set(r)
 								respuesta.puntaje = respuesta.pregunta.ponderacion + puntaje
 								respuesta.save()
+							# si no, la crea y los pone 
 							else:
 								respuesta = RespuestaDiagnostico(
 											formulario = formulario,
@@ -210,13 +214,15 @@ def diagnostico(request):
 				tiempo.save()
 				formulario.guardados.add(tiempo)
 				formulario.ponerPuntaje()
+				formulario.estado = 'PENDIENTE'
 				tiempo.save()
 
 			elif request.POST.get('enviar'):
 				import datetime
 				formulario.ponerPuntaje()
 				formulario.fecha_termino = datetime.datetime.now()
-				formulario.respondido = True
+				#formulario.respondido = True
+				formulario.estado = 'ENVIADO'
 				formulario.save()
 			#cliente = Cliente.objects.get(user=request.user)
 			#formulario = FormDiagnostico.objects.get(cliente=cliente)
@@ -410,14 +416,14 @@ def clasificados(request):
 def diagnosticados(request):	
 	template = 'grupo4test/diagnosticados.html'
 
-	formularios = FormDiagnostico.objects.filter(respondido = True).order_by('estado')
+	forms_listos = FormDiagnostico.objects.filter(estado='LISTO').order_by('fecha_termino')
+	forms_enviados = FormDiagnostico.objects.filter(estado='ENVIADO').order_by('fecha_termino')
+	forms_pendientes = FormDiagnostico.objects.filter(estado='PENDIENTE')
+	#formularios = FormDiagnostico.objects.filter(respondido = True).order_by('estado')
 
-	return render(request, template, {'formularios': formularios})
-
-
-
-
-
+	return render(request, template, {'enviados': forms_enviados,
+									  'pendientes': forms_pendientes,
+									  'listos': forms_listos})
 
 
 
@@ -643,9 +649,10 @@ def register3(request):
 		cliente = Cliente.objects.create(user=user,telefono=telefono,etapa=etapa,nombre_empresa=nom,descripcion_empresa=desc,descripcion_equipo=equip)
 		fdiag = FormDiagnostico.objects.create(cliente=cliente)
 		fdiag.crearForm()
-		messages.success(request, 'Registro completado')
+		#messages.success(request, 'Registro completado')
 		request.session.clear()
-		return redirect('register')
+		request.session['cliente'] = cliente.id
+		return redirect('view_login')
 
 	return render(request, template, {'form':form})
 

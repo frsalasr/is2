@@ -25,6 +25,13 @@ def getQ(Q):
 		return 'Gestión de Innovación'
 
 @register.filter
+def setListo(cliente):
+	formulario = FormDiagnostico.objects.get(cliente=cliente)
+	formulario.estado = 'LISTO'
+	formulario.save()
+	return ""
+
+@register.filter
 def getComentario(id_question, formulario):
 	if id_question.startswith('id_'):
 		id_question = id_question[3:]
@@ -38,6 +45,10 @@ def getComentario(id_question, formulario):
 @register.filter
 def getTipoA(id):
 	return TipoAlternativa.objects.get(id=id)
+
+@register.filter
+def getFormularioEstado(cliente):
+	return FormDiagnostico.objects.get(cliente=cliente).estado
 
 @register.filter
 def getFilename(path,op):
@@ -122,7 +133,8 @@ def createField(tipo, label, queryset=None, initial=""):
 											  required=False, 
 											  widget=forms.CheckboxSelectMultiple,
                                         	  queryset=queryset,
-                                        	  initial=initial)
+                                        	  initial=initial,
+                                        	 )
 	
 	## NO SIRVEN
 	elif tipo == 't':

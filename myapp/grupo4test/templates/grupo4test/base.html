@@ -73,7 +73,7 @@
                 <hr style="border-color: rgb(12, 87, 107);"> 
                 {% if user.is_authenticated %}
                     <a style="color: #ececec; font-size: 25px;">Bienvenido</a>        	    
-                    <a style="color: #ececec; font-size: 15px">Usuario:<b>{{ user.get_username }}</b> </a>
+                    <a style="color: #ececec; font-size: 15px">Usuario: <b>{{ user.get_username }}</b> </a>
                 {% if user.is_superuser %}              
                     <a href="{% url 'logout'%}" style="font-size: 15px;">Cerrar Sesión</a>    
                     <a href="{% url 'home' %}">Inicio</a>  			           	

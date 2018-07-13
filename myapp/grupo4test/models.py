@@ -177,9 +177,10 @@ class FormDiagnostico(models.Model):
 	)
 
 	ESTADO_CHOICES = (
-		('RESUELTO','RESUELTO'),
+		('NUEVO', 'NUEVO'),
+		('ENVIADO','ENVIADO'),
 		('PENDIENTE','PENDIENTE'),
-		('CORREGIR','CORREGIR'),
+		('VISTO','VISTO'),
 	)
 
 	puntaje = models.FloatField(blank=True, null=True, default=0)
@@ -189,7 +190,7 @@ class FormDiagnostico(models.Model):
 	validado = models.BooleanField(default=False)
 	editable = models.BooleanField(default=True)
 	guardados = models.ManyToManyField(Tiempos)
-	estado = models.CharField(max_length=255, default='PENDIENTE', choices=ESTADO_CHOICES)
+	estado = models.CharField(max_length=255, default='NUEVO', choices=ESTADO_CHOICES)
 	fecha_termino = models.DateTimeField(auto_now_add=False, blank=True, null=True)
 	preguntas = models.ManyToManyField(PreguntaDiagnostico, through='RespuestaDiagnostico')
 	respondida = models.BooleanField(default=False)
@@ -269,7 +270,7 @@ class FormDiagnostico(models.Model):
 		"""
 	def getFecha(self):
 		import datetime
-		nf = self.fecha_termino.strftime('%d-%M-%Y')
+		nf = self.fecha_termino.strftime('%d-%m-%Y')
 		return str(nf)
 
 	def getRespuestas(self):
