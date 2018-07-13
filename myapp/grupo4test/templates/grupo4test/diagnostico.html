@@ -12,16 +12,26 @@
     div.container{
     	margin-left: 0px;
     	font-size: 15px;
-    	max-width: 70%;
+    	max-width: 90%;
     }
-    ul.nav.nav-tabs{
+    ul.nav.nav-tabs{	
     	font-size: 15px;
+    	font-weight: bold;
+
     }
     .row{
     	font-size: 16px;
     }
     .li{
+    	font-weight: lighter;
+    }
+    label{
+    	font-size: 16px;
     	font-weight: normal;
+    	text-align: justify;
+    }
+    li{
+    	list-style-type: none;
     }
 
 </style>
@@ -45,7 +55,7 @@
 </div>
 <hr>
 {% if formulario.estado == 'ENVIADO' %}
-	<h3>Formulario enviado.</h1>
+	<h3>Formulario enviado.</h3>
 	<a href="{%  url 'pdf' formulario.cliente.id %}" style="font-size: 25px;">Generar documento</a>
 {% else %}
 	<ul class="nav nav-tabs" style="width: 100%;">
@@ -61,12 +71,12 @@
 			{% for field in form %}
 				{% if form.base|get_item:field.auto_id %}	
 					<div id="div_{{field.auto_id}}">
-						<p style="font-size: 20px;">{{field.label}}</p>
-						{{field}}
+						<p style="font-size: 15px;font-weight: bold;">{{field.label}}</p>
+						{{field}}	
 					</div>			
 				{% else %}
 					<div id="div_{{field.auto_id}}" style="display: none">
-						<p style="font-weight: bold;">{{field.label}}</p>
+						<p style="font-weight:lighter;">{{field.label}}</p>
 						{{field}}
 					</div>
 					<script type="text/javascript">

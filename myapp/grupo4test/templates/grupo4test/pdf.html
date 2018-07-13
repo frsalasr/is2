@@ -4,25 +4,29 @@
 	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
 </head>
 
-<body>
-	<h1>Informe de {{formulario.cliente}}</h1>
-		<p>Fecha resuelto: {{ formulario.getFecha }}</p>
-		<p>Puntaje: {{ formulario.puntaje }}</p>
-		<p>Etapa: {{ formulario.cliente.etapa }}</p>
-		<p>Correo: {{formulario.cliente.user.email }}</p>
-		<p>Telefono: {{formulario.cliente.telefono}}</p>
-	<hr>
-	{% for respuestas in formulario.getRespuestas %}
-		<h1>{{forloop.counter|getQ}}</h1>
-		{% for respuesta in respuestas %}
-			<p style="font-weight: bold;">{{respuesta.pregunta.texto_pregunta}}</p>
-			{% if respuesta.getTipo == 'a' %}
-				<p>{{respuesta.getRespuestaAlternativa}}</p>
-			{% else %}
-				{% for asw in respuesta.getRespuestaEleccion %}
-				<P>{{asw.texto_eleccion}}</P>
-				{% endfor %}
-			{% endif %}
-		{% endfor %}
-	{% endfor %}
+<body style="margin-left: 40px;margin-right: 40px"></br>
+
+		
+		<h1>Informe de {{formulario.cliente}}</h1>
+			<p><b>Fecha resuelto:</b> {{ formulario.getFecha }}</p>
+			<p><b>Puntaje:</b> {{ formulario.puntaje }}</p>
+			<p><b>Etapa:</b> {{ formulario.cliente.etapa }}</p>
+			<p><b>Correo:</b> {{formulario.cliente.user.email }}</p>
+			<p><b>Telefono:</b> {{formulario.cliente.telefono}}</p>
+
+			<hr width="90%">
+		{% for respuestas in formulario.getRespuestas %}
+			<h1>{{forloop.counter|getQ}}</h1>
+			{% for respuesta in respuestas %}
+				<p style="font-weight: bold;">{{respuesta.pregunta.texto_pregunta}}</p>
+				{% if respuesta.getTipo == 'a' %}
+					<p>{{respuesta.getRespuestaAlternativa}}</p>
+				{% else %}
+					{% for asw in respuesta.getRespuestaEleccion %}
+					<P>{{asw.texto_eleccion}}</P>
+					{% endfor %}
+				{% endif %}	
+			{% endfor %}
+		{% endfor %} 
+	
 </body>

@@ -8,15 +8,22 @@
 }
 #myContainer .col-sm-4{
 	margin-bottom: 15px;
-	font-weight: bold;
+	
 }
 #myContainer .col-sm-3{
 	margin-bottom: 15px;
+	font-weight: bold;
 }
 </style>
+	<hr>
 	{% if user.is_authenticated %}
+	<div class="panel panel-primary filterable" style="width: 100%">
+            <div class="panel-heading">
+                <h1 class="panel-title" style="font-size: 20px">Informacion de Cliente</h1>
+            </div>
+	         
 	<div class="container-fluid" id="myContainer">
-		<h2>Información de Cliente</h2>
+
 		<hr>
 		<div class="row">
 			<div class="col-sm-3">Nombre de Usuario: </div>
@@ -38,6 +45,8 @@
 			<div class="col-sm-3">Etapa: </div>
 			<div class="col-sm-4">{{cliente.etapa}}</div>
 		</div>
+	</div>
+
 	</div>
 	{% else %}
 	<p>Solo para usuarios registrados</p>
